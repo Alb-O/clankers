@@ -1,0 +1,49 @@
+[workspace]
+resolver = "3"
+members = ["crates/*"]
+
+[workspace.lints.clippy]
+dbg_macro = "forbid"
+todo = "forbid"
+unimplemented = "forbid"
+
+[workspace.package]
+edition = "2024"
+
+[workspace.dependencies]
+anyhow = "1.0"
+as-any = "0.3"
+assert_fs = "1.1"
+async-stream = "0.3"
+base64 = "0.22"
+bytes = "1.11"
+convert_case = "0.11"
+deluxe = "0.5"
+epub = "2.1"
+futures = "0.3"
+glob = "0.3"
+indoc = "2.0"
+lopdf = "0.39"
+mime_guess = "2.0"
+nanoid = "0.4"
+ordered-float = "5.1"
+proc-macro2 = "1.0"
+quick-xml = "0.39"
+quote = "1.0"
+rayon = "1.11"
+reqwest = { version = "0.13", default-features = false }
+schemars = "1.2"
+serde = "1.0"
+serde_json = "1.0"
+serde_path_to_error = "0.1"
+syn = "2.0"
+thiserror = "2.0"
+tokio = "1.49"
+tokio-test = "0.4"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+url = "2.5"
+
+[profile.release]
+lto = true
+opt-level = "s"

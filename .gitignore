@@ -1,0 +1,7 @@
+target/
+.direnv/
+/result
+**/tmp/
+*.sock
+output/
+/.claude
