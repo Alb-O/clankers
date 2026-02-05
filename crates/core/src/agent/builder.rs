@@ -6,9 +6,6 @@ use tokio::sync::RwLock;
 use super::Agent;
 use crate::completion::{CompletionModel, Document};
 use crate::message::ToolChoice;
-#[cfg(feature = "rmcp")]
-#[cfg_attr(docsrs, doc(cfg(feature = "rmcp")))]
-use crate::tool::rmcp::McpTool as RmcpTool;
 use crate::tool::server::{ToolServer, ToolServerHandle};
 use crate::tool::{Tool, ToolDyn, ToolSet};
 use crate::vector_store::VectorStoreIndexDyn;
@@ -180,75 +177,6 @@ where
 	pub fn tool_server_handle(mut self, handle: ToolServerHandle) -> Self {
 		self.tool_server_handle = Some(handle);
 		self
-	}
-
-	/// Add an MCP tool (from `rmcp`) to the agent
-	#[cfg(feature = "rmcp")]
-	#[cfg_attr(docsrs, doc(cfg(feature = "rmcp")))]
-	pub fn rmcp_tool(
-		self,
-		tool: rmcp::model::Tool,
-		client: rmcp::service::ServerSink,
-	) -> AgentBuilderSimple<M> {
-		let toolname = tool.name.clone().to_string();
-		let tools = ToolSet::from_tools(vec![RmcpTool::from_mcp_server(tool, client)]);
-		let static_tools = vec![toolname];
-
-		AgentBuilderSimple {
-			name: self.name,
-			description: self.description,
-			model: self.model,
-			preamble: self.preamble,
-			static_context: self.static_context,
-			static_tools,
-			additional_params: self.additional_params,
-			max_tokens: self.max_tokens,
-			dynamic_context: vec![],
-			dynamic_tools: vec![],
-			temperature: self.temperature,
-			tools,
-			tool_choice: self.tool_choice,
-			default_max_turns: self.default_max_turns,
-		}
-	}
-
-	/// Add an array of MCP tools (from `rmcp`) to the agent
-	#[cfg(feature = "rmcp")]
-	#[cfg_attr(docsrs, doc(cfg(feature = "rmcp")))]
-	pub fn rmcp_tools(
-		self,
-		tools: Vec<rmcp::model::Tool>,
-		client: rmcp::service::ServerSink,
-	) -> AgentBuilderSimple<M> {
-		let (static_tools, tools) = tools.into_iter().fold(
-			(Vec::new(), Vec::new()),
-			|(mut toolnames, mut toolset), tool| {
-				let tool_name = tool.name.to_string();
-				let tool = RmcpTool::from_mcp_server(tool, client.clone());
-				toolnames.push(tool_name);
-				toolset.push(tool);
-				(toolnames, toolset)
-			},
-		);
-
-		let tools = ToolSet::from_tools(tools);
-
-		AgentBuilderSimple {
-			name: self.name,
-			description: self.description,
-			model: self.model,
-			preamble: self.preamble,
-			static_context: self.static_context,
-			static_tools,
-			additional_params: self.additional_params,
-			max_tokens: self.max_tokens,
-			dynamic_context: vec![],
-			dynamic_tools: vec![],
-			temperature: self.temperature,
-			tools,
-			tool_choice: self.tool_choice,
-			default_max_turns: self.default_max_turns,
-		}
 	}
 
 	/// Add some dynamic context to the agent. On each prompt, `sample` documents from the
@@ -481,24 +409,6 @@ where
 		let tools = ToolSet::from_tools_boxed(tools);
 		self.tools.add_tools(tools);
 		self.static_tools.extend(toolnames);
-		self
-	}
-
-	/// Add an array of MCP tools (from `rmcp`) to the agent
-	#[cfg(feature = "rmcp")]
-	#[cfg_attr(docsrs, doc(cfg(feature = "rmcp")))]
-	pub fn rmcp_tools(
-		mut self,
-		tools: Vec<rmcp::model::Tool>,
-		client: rmcp::service::ServerSink,
-	) -> Self {
-		for tool in tools {
-			let tool_name = tool.name.to_string();
-			let tool = RmcpTool::from_mcp_server(tool, client.clone());
-			self.static_tools.push(tool_name);
-			self.tools.add_tool(tool);
-		}
-
 		self
 	}
 

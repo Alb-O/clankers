@@ -69,23 +69,6 @@ impl ToolServer {
 		self
 	}
 
-	// Add an MCP tool (from `rmcp`) to the agent
-	#[cfg_attr(docsrs, doc(cfg(feature = "rmcp")))]
-	#[cfg(feature = "rmcp")]
-	pub fn rmcp_tool(mut self, tool: rmcp::model::Tool, client: rmcp::service::ServerSink) -> Self {
-		use crate::tool::rmcp::McpTool;
-		let toolname = tool.name.clone();
-		// This should be practically impossible to fail: cloning the Arc before calling
-		// .rmcp_tool() is impossible since the toolset field is private, and the server cannot
-		// be running prior to run(), which consumes self.
-		Arc::get_mut(&mut self.toolset)
-			.expect("ToolServer::rmcp_tool() called after run()")
-			.get_mut()
-			.add_tool(McpTool::from_mcp_server(tool, client));
-		self.static_tool_names.push(toolname.to_string());
-		self
-	}
-
 	/// Add some dynamic tools to the agent. On each prompt, `sample` tools from the
 	/// dynamic toolset will be inserted in the request.
 	pub fn dynamic_tools(

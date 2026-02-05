@@ -2,8 +2,8 @@
 //! Note that if the tool runs too fast, a given observability platform may put traces in the wrong order
 //! hence the delay.
 //!
-//! In production, this is very unlikely to be a problem as many of the tools used may include MCP servers and other long-running
-//! operations, which may cause issues.
+//! In production, this is very unlikely to be a problem as many of the tools used may include long-running
+//! operations.
 use std::time::Duration;
 
 use anyhow::Result;
