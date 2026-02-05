@@ -1,6 +1,6 @@
-use rig::completion::Prompt;
-use rig::prelude::*;
-use rig::providers::openai;
+use clankers::completion::Prompt;
+use clankers::prelude::*;
+use clankers::providers::openai;
 
 #[tokio::main]
 async fn main() {

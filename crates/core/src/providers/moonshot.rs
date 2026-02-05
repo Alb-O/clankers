@@ -1,8 +1,8 @@
-//! Moonshot API client and Rig integration
+//! Moonshot API client and Clankers integration
 //!
 //! # Example
 //! ```
-//! use rig::providers::moonshot;
+//! use clankers::providers::moonshot;
 //!
 //! let client = moonshot::Client::new("YOUR_API_KEY");
 //!
@@ -163,7 +163,7 @@ where
 			MoonshotCompletionRequest::try_from((self.model.as_ref(), completion_request))?;
 
 		if tracing::enabled!(tracing::Level::TRACE) {
-			tracing::trace!(target: "rig::completions",
+			tracing::trace!(target: "clankers::completions",
 				"MoonShot completion request: {}",
 				serde_json::to_string_pretty(&request)?
 			);
@@ -205,7 +205,7 @@ where
 		openai_compat::merge_stream_params(&mut request.additional_params);
 
 		if tracing::enabled!(tracing::Level::TRACE) {
-			tracing::trace!(target: "rig::completions",
+			tracing::trace!(target: "clankers::completions",
 				"MoonShot streaming completion request: {}",
 				serde_json::to_string_pretty(&request)?
 			);

@@ -1,29 +1,29 @@
-use rig::client::{CompletionClient, ProviderClient};
-use rig::completion::Prompt;
-use rig::providers;
-use rig::tool::Tool;
-use rig_derive::rig_tool;
+use clankers::client::{CompletionClient, ProviderClient};
+use clankers::completion::Prompt;
+use clankers::providers;
+use clankers::tool::Tool;
+use clankers_derive::clankers_tool;
 
 // Example with description attribute
-#[rig_tool(
+#[clankers_tool(
 	description = "Perform basic arithmetic operations",
 	required(x, y, operation)
 )]
-fn calculator(x: i32, y: i32, operation: String) -> Result<i32, rig::tool::ToolError> {
+fn calculator(x: i32, y: i32, operation: String) -> Result<i32, clankers::tool::ToolError> {
 	match operation.as_str() {
 		"add" => Ok(x + y),
 		"subtract" => Ok(x - y),
 		"multiply" => Ok(x * y),
 		"divide" => {
 			if y == 0 {
-				Err(rig::tool::ToolError::ToolCallError(
+				Err(clankers::tool::ToolError::ToolCallError(
 					"Division by zero".into(),
 				))
 			} else {
 				Ok(x / y)
 			}
 		}
-		_ => Err(rig::tool::ToolError::ToolCallError(
+		_ => Err(clankers::tool::ToolError::ToolCallError(
 			format!("Unknown operation: {operation}").into(),
 		)),
 	}

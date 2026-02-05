@@ -14,7 +14,7 @@ use crate::vector_store::VectorStoreIndexDyn;
 ///
 /// # Example
 /// ```
-/// use rig::{providers::openai, agent::AgentBuilder};
+/// use clankers::{providers::openai, agent::AgentBuilder};
 ///
 /// let openai = openai::Client::from_env();
 ///
@@ -278,7 +278,7 @@ where
 ///
 /// # Example
 /// ```
-/// use rig::{providers::openai, agent::AgentBuilder};
+/// use clankers::{providers::openai, agent::AgentBuilder};
 ///
 /// let openai = openai::Client::from_env();
 ///

@@ -1150,7 +1150,7 @@ where
 	) -> Result<completion::CompletionResponse<CompletionResponse>, CompletionError> {
 		let span = if tracing::Span::current().is_disabled() {
 			info_span!(
-				target: "rig::completions",
+				target: "clankers::completions",
 				"chat",
 				gen_ai.operation.name = "chat",
 				gen_ai.provider.name = "openai",
@@ -1174,7 +1174,7 @@ where
 
 		if enabled!(Level::TRACE) {
 			tracing::trace!(
-				target: "rig::completions",
+				target: "clankers::completions",
 				"OpenAI Chat Completions completion request: {}",
 				serde_json::to_string_pretty(&request)?
 			);
@@ -1202,7 +1202,7 @@ where
 
 						if enabled!(Level::TRACE) {
 							tracing::trace!(
-								target: "rig::completions",
+								target: "clankers::completions",
 								"OpenAI Chat Completions completion response: {}",
 								serde_json::to_string_pretty(&response)?
 							);

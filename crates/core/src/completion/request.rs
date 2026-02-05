@@ -25,8 +25,8 @@
 //!
 //! Example Usage:
 //! ```rust
-//! use rig::providers::openai::{Client, self};
-//! use rig::completion::*;
+//! use clankers::providers::openai::{Client, self};
+//! use clankers::completion::*;
 //!
 //! // Initialize the OpenAI client and a completion model
 //! let openai = Client::new("your-openai-api-key");
@@ -436,7 +436,7 @@ impl CompletionRequest {
 ///
 /// Example usage:
 /// ```rust
-/// use rig::{
+/// use clankers::{
 ///     providers::openai::{Client, self},
 ///     completion::CompletionRequestBuilder,
 /// };
@@ -457,7 +457,7 @@ impl CompletionRequest {
 ///
 /// Alternatively, you can execute the completion request directly from the builder:
 /// ```rust
-/// use rig::{
+/// use clankers::{
 ///     providers::openai::{Client, self},
 ///     completion::CompletionRequestBuilder,
 /// };

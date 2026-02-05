@@ -1,6 +1,6 @@
-use rig::prelude::*;
-use rig::providers::openai;
-use rig::providers::openai::client::Client;
+use clankers::prelude::*;
+use clankers::providers::openai;
+use clankers::providers::openai::client::Client;
 use schemars::JsonSchema;
 
 #[derive(Debug, serde::Deserialize, JsonSchema, serde::Serialize)]

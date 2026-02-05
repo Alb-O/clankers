@@ -2,14 +2,14 @@
 //!
 //! This demonstrates how to implement `VectorStoreIndex` for any
 //! vector database. Use this as a template for your own backend.
+use clankers::client::{EmbeddingsClient, ProviderClient};
+use clankers::embeddings::EmbeddingModel;
+use clankers::providers::openai;
+use clankers::vector_store::request::Filter;
+use clankers::vector_store::{VectorSearchRequest, VectorStoreError, VectorStoreIndex};
 use redis::aio::MultiplexedConnection;
 use redis::vector_sets::{VAddOptions, VSimOptions, VectorAddInput, VectorSimilaritySearchInput};
 use redis::{AsyncCommands, Client};
-use rig::client::{EmbeddingsClient, ProviderClient};
-use rig::embeddings::EmbeddingModel;
-use rig::providers::openai;
-use rig::vector_store::request::Filter;
-use rig::vector_store::{VectorSearchRequest, VectorStoreError, VectorStoreIndex};
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 

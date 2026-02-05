@@ -3,9 +3,9 @@ use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 
-use rig::image_generation::ImageGenerationModel;
-use rig::prelude::*;
-use rig::providers::hyperbolic;
+use clankers::image_generation::ImageGenerationModel;
+use clankers::prelude::*;
+use clankers::providers::hyperbolic;
 
 const DEFAULT_PATH: &str = "./output.png";
 

@@ -1,7 +1,7 @@
-use rig::completion::{Prompt, ToolDefinition};
-use rig::prelude::*;
-use rig::providers::anthropic;
-use rig::tool::Tool;
+use clankers::completion::{Prompt, ToolDefinition};
+use clankers::prelude::*;
+use clankers::providers::anthropic;
+use clankers::tool::Tool;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 

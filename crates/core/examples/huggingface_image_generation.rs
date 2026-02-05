@@ -3,10 +3,10 @@ use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 
-use rig::client::ProviderClient;
-use rig::client::image_generation::ImageGenerationClient;
-use rig::image_generation::ImageGenerationModel;
-use rig::providers::huggingface;
+use clankers::client::ProviderClient;
+use clankers::client::image_generation::ImageGenerationClient;
+use clankers::image_generation::ImageGenerationModel;
+use clankers::providers::huggingface;
 
 const DEFAULT_PATH: &str = "./output.png";
 

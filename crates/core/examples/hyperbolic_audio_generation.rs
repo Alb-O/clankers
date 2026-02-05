@@ -3,9 +3,9 @@ use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 
-use rig::audio_generation::AudioGenerationModel;
-use rig::prelude::*;
-use rig::providers::hyperbolic;
+use clankers::audio_generation::AudioGenerationModel;
+use clankers::prelude::*;
+use clankers::providers::hyperbolic;
 
 const DEFAULT_PATH: &str = "./output.mp3";
 

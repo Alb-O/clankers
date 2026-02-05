@@ -1,8 +1,8 @@
-//! Anthropic API client and Rig integration
+//! Anthropic API client and Clankers integration
 //!
 //! # Example
 //! ```
-//! use rig::providers::anthropic;
+//! use clankers::providers::anthropic;
 //!
 //! let client = anthropic::Anthropic::new("YOUR_API_KEY");
 //!

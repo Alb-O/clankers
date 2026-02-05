@@ -18,7 +18,7 @@
 //!
 //! # Example
 //! ```rust
-//! use rig::{
+//! use clankers::{
 //!     completion::{Chat, Completion, Prompt},
 //!     providers::openai,
 //! };
@@ -63,7 +63,7 @@
 //!
 //! RAG Agent example
 //! ```rust
-//! use rig::{
+//! use clankers::{
 //!     completion::Prompt,
 //!     embeddings::EmbeddingsBuilder,
 //!     providers::openai,

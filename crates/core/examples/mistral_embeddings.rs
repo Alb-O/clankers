@@ -1,10 +1,10 @@
-use rig::Embed;
-use rig::client::{EmbeddingsClient, ProviderClient};
-use rig::embeddings::EmbeddingsBuilder;
-use rig::providers::mistral;
-use rig::vector_store::VectorStoreIndex;
-use rig::vector_store::in_memory_store::InMemoryVectorStore;
-use rig::vector_store::request::VectorSearchRequest;
+use clankers::Embed;
+use clankers::client::{EmbeddingsClient, ProviderClient};
+use clankers::embeddings::EmbeddingsBuilder;
+use clankers::providers::mistral;
+use clankers::vector_store::VectorStoreIndex;
+use clankers::vector_store::in_memory_store::InMemoryVectorStore;
+use clankers::vector_store::request::VectorSearchRequest;
 use serde::{Deserialize, Serialize};
 
 #[derive(Embed, Debug, Serialize, Deserialize, Eq, PartialEq)]

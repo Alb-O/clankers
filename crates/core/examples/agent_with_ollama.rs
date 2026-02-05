@@ -1,8 +1,8 @@
-use rig::client::Nothing;
-use rig::completion::Prompt;
+use clankers::client::Nothing;
+use clankers::completion::Prompt;
 /// This example requires that you have the [`ollama`](https://ollama.com) server running locally.
-use rig::prelude::*;
-use rig::providers::ollama;
+use clankers::prelude::*;
+use clankers::providers::ollama;
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {

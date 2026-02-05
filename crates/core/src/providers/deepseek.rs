@@ -1,8 +1,8 @@
-//! DeepSeek API client and Rig integration
+//! DeepSeek API client and Clankers integration
 //!
 //! # Example
 //! ```
-//! use rig::providers::deepseek;
+//! use clankers::providers::deepseek;
 //!
 //! let client = deepseek::Client::new("DEEPSEEK_API_KEY");
 //!
@@ -503,7 +503,7 @@ where
 			DeepseekCompletionRequest::try_from((self.model.as_ref(), completion_request))?;
 
 		if enabled!(Level::TRACE) {
-			tracing::trace!(target: "rig::completions",
+			tracing::trace!(target: "clankers::completions",
 				"DeepSeek completion request: {}",
 				serde_json::to_string_pretty(&request)?
 			);
@@ -563,7 +563,7 @@ where
 		request.additional_params = Some(params);
 
 		if enabled!(Level::TRACE) {
-			tracing::trace!(target: "rig::completions",
+			tracing::trace!(target: "clankers::completions",
 				"DeepSeek streaming completion request: {}",
 				serde_json::to_string_pretty(&request)?
 			);

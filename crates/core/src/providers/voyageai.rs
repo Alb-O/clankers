@@ -225,7 +225,7 @@ where
 		if status.is_success() {
 			match serde_json::from_slice::<ApiResponse<EmbeddingResponse>>(&response_body)? {
 				ApiResponse::Ok(response) => {
-					tracing::info!(target: "rig",
+					tracing::info!(target: "clankers",
 						"VoyageAI embedding token usage: {}",
 						response.usage.total_tokens
 					);

@@ -1,8 +1,8 @@
-use rig::agent::{HookAction, PromptHook, ToolCallHookAction};
-use rig::client::{CompletionClient, ProviderClient};
-use rig::completion::{CompletionModel, CompletionResponse, Message, Prompt};
-use rig::message::{AssistantContent, UserContent};
-use rig::providers::{self, openai};
+use clankers::agent::{HookAction, PromptHook, ToolCallHookAction};
+use clankers::client::{CompletionClient, ProviderClient};
+use clankers::completion::{CompletionModel, CompletionResponse, Message, Prompt};
+use clankers::message::{AssistantContent, UserContent};
+use clankers::providers::{self, openai};
 
 #[derive(Clone)]
 struct SessionIdHook<'a> {

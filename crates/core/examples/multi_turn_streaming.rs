@@ -1,9 +1,9 @@
-use rig::agent::stream_to_stdout;
-use rig::client::{CompletionClient, ProviderClient};
-use rig::completion::ToolDefinition;
-use rig::providers::anthropic;
-use rig::streaming::StreamingPrompt;
-use rig::tool::Tool;
+use clankers::agent::stream_to_stdout;
+use clankers::client::{CompletionClient, ProviderClient};
+use clankers::completion::ToolDefinition;
+use clankers::providers::anthropic;
+use clankers::streaming::StreamingPrompt;
+use clankers::tool::Tool;
 use schemars::{JsonSchema, schema_for};
 use serde::{Deserialize, Serialize};
 

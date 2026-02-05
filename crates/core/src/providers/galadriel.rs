@@ -1,8 +1,8 @@
-//! Galadriel API client and Rig integration
+//! Galadriel API client and Clankers integration
 //!
 //! # Example
 //! ```
-//! use rig::providers::galadriel;
+//! use clankers::providers::galadriel;
 //!
 //! let client = galadriel::Client::new("YOUR_API_KEY", None);
 //! // to use a fine-tuned model
@@ -321,7 +321,7 @@ where
 	) -> Result<completion::CompletionResponse<openai::CompletionResponse>, CompletionError> {
 		let span = if tracing::Span::current().is_disabled() {
 			info_span!(
-				target: "rig::completions",
+				target: "clankers::completions",
 				"chat",
 				gen_ai.operation.name = "chat",
 				gen_ai.provider.name = "galadriel",
@@ -342,7 +342,7 @@ where
 			GaladrielCompletionRequest::try_from((self.model.as_ref(), completion_request))?;
 
 		if enabled!(tracing::Level::TRACE) {
-			tracing::trace!(target: "rig::completions",
+			tracing::trace!(target: "clankers::completions",
 				"Galadriel completion request: {}",
 				serde_json::to_string_pretty(&request)?
 			);
@@ -407,7 +407,7 @@ where
 
 		let span = if tracing::Span::current().is_disabled() {
 			info_span!(
-				target: "rig::completions",
+				target: "clankers::completions",
 				"chat_streaming",
 				gen_ai.operation.name = "chat_streaming",
 				gen_ai.provider.name = "galadriel",

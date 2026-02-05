@@ -96,7 +96,7 @@ where
 		};
 
 		tracing::trace!(
-			target: "rig::transcription",
+			target: "clankers::transcription",
 			"Sending completion request to Gemini API {}",
 			serde_json::to_string_pretty(&request)?
 		);
@@ -115,11 +115,11 @@ where
 				serde_json::from_slice(&response.into_body().await?)?;
 
 			match body.usage_metadata {
-				Some(ref usage) => tracing::info!(target: "rig",
+				Some(ref usage) => tracing::info!(target: "clankers",
 				"Gemini completion token usage: {}",
 				usage
 				),
-				None => tracing::info!(target: "rig",
+				None => tracing::info!(target: "clankers",
 					"Gemini completion token usage: n/a",
 				),
 			}

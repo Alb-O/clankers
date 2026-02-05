@@ -15,8 +15,8 @@ pub trait CompletionClient {
 	///
 	/// # Example with OpenAI
 	/// ```
-	/// use rig::prelude::*;
-	/// use rig::providers::openai::{Client, self};
+	/// use clankers::prelude::*;
+	/// use clankers::providers::openai::{Client, self};
 	///
 	/// // Initialize the OpenAI client
 	/// let openai = Client::new("your-open-ai-api-key");
@@ -31,8 +31,8 @@ pub trait CompletionClient {
 	///
 	/// # Example with OpenAI
 	/// ```
-	/// use rig::prelude::*;
-	/// use rig::providers::openai::{Client, self};
+	/// use clankers::prelude::*;
+	/// use clankers::providers::openai::{Client, self};
 	///
 	/// // Initialize the OpenAI client
 	/// let openai = Client::new("your-open-ai-api-key");

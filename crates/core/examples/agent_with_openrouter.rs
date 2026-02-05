@@ -1,7 +1,7 @@
-use rig::completion::Prompt;
-use rig::prelude::*;
-use rig::providers::gemini::completion::GEMINI_2_5_PRO_EXP_03_25;
-use rig::providers::openrouter;
+use clankers::completion::Prompt;
+use clankers::prelude::*;
+use clankers::providers::gemini::completion::GEMINI_2_5_PRO_EXP_03_25;
+use clankers::providers::openrouter;
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {

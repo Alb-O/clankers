@@ -1,8 +1,8 @@
-//! Groq API client and Rig integration
+//! Groq API client and Clankers integration
 //!
 //! # Example
 //! ```
-//! use rig::providers::groq;
+//! use clankers::providers::groq;
 //!
 //! let client = groq::Client::new("YOUR_API_KEY");
 //!
@@ -253,7 +253,7 @@ where
 		let request = GroqCompletionRequest::try_from((self.model.as_ref(), completion_request))?;
 
 		if tracing::enabled!(tracing::Level::TRACE) {
-			tracing::trace!(target: "rig::completions",
+			tracing::trace!(target: "clankers::completions",
 				"Groq completion request: {}",
 				serde_json::to_string_pretty(&request)?
 			);
@@ -280,7 +280,7 @@ where
 			openai_compat::record_openai_response_span(&span, &response);
 
 			if tracing::enabled!(tracing::Level::TRACE) {
-				tracing::trace!(target: "rig::completions",
+				tracing::trace!(target: "clankers::completions",
 					"Groq completion response: {}",
 					serde_json::to_string_pretty(&response)?
 				);
@@ -310,7 +310,7 @@ where
 		});
 
 		if tracing::enabled!(tracing::Level::TRACE) {
-			tracing::trace!(target: "rig::completions",
+			tracing::trace!(target: "clankers::completions",
 				"Groq streaming completion request: {}",
 				serde_json::to_string_pretty(&request)?
 			);

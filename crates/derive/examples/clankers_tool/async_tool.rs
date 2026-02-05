@@ -1,13 +1,13 @@
 use std::time::Duration;
 
-use rig::client::{CompletionClient, ProviderClient};
-use rig::completion::Prompt;
-use rig::providers;
-use rig::tool::{Tool, ToolError};
-use rig_derive::rig_tool;
+use clankers::client::{CompletionClient, ProviderClient};
+use clankers::completion::Prompt;
+use clankers::providers;
+use clankers::tool::{Tool, ToolError};
+use clankers_derive::clankers_tool;
 
 // Example demonstrating async tool usage
-#[rig_tool(
+#[clankers_tool(
 	description = "A tool that simulates an async operation",
 	params(
 		input = "Input value to process",

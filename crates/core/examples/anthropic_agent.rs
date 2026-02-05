@@ -1,6 +1,6 @@
-use rig::completion::Prompt;
-use rig::prelude::*;
-use rig::providers::anthropic::{self};
+use clankers::completion::Prompt;
+use clankers::prelude::*;
+use clankers::providers::anthropic::{self};
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {

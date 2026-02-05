@@ -1,7 +1,7 @@
-use rig::agent::stream_to_stdout;
-use rig::prelude::*;
-use rig::providers::openai;
-use rig::streaming::StreamingPrompt;
+use clankers::agent::stream_to_stdout;
+use clankers::prelude::*;
+use clankers::providers::openai;
+use clankers::streaming::StreamingPrompt;
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {

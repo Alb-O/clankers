@@ -1,4 +1,4 @@
-//! Integration for deploying your Rig agents (and more) as Discord bots.
+//! Integration for deploying your Clankers agents (and more) as Discord bots.
 //! This feature is not WASM-compatible (and as such, is incompatible with the `worker` feature).
 use std::collections::HashMap;
 use std::sync::Arc;

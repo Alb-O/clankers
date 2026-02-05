@@ -1,8 +1,8 @@
-use rig::agent::stream_to_stdout;
-use rig::message::Message;
-use rig::prelude::*;
-use rig::providers::{self, openai};
-use rig::streaming::StreamingChat;
+use clankers::agent::stream_to_stdout;
+use clankers::message::Message;
+use clankers::prelude::*;
+use clankers::providers::{self, openai};
+use clankers::streaming::StreamingChat;
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {

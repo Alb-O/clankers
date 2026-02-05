@@ -220,7 +220,7 @@ where
 
 		if enabled!(Level::TRACE) {
 			tracing::trace!(
-				target: "rig::completions",
+				target: "clankers::completions",
 				"OpenAI Responses streaming completion request: {}",
 				serde_json::to_string_pretty(&request)?
 			);
@@ -238,7 +238,7 @@ where
 
 		let span = if tracing::Span::current().is_disabled() {
 			info_span!(
-				target: "rig::completions",
+				target: "clankers::completions",
 				"chat_streaming",
 				gen_ai.operation.name = "chat_streaming",
 				gen_ai.provider.name = tracing::field::Empty,
@@ -411,10 +411,10 @@ where
 
 #[cfg(test)]
 mod tests {
+	use clankers::client::CompletionClient;
+	use clankers::providers::openai;
+	use clankers::streaming::StreamingChat;
 	use futures::StreamExt;
-	use rig::client::CompletionClient;
-	use rig::providers::openai;
-	use rig::streaming::StreamingChat;
 	use serde_json;
 
 	use crate::completion::ToolDefinition;
@@ -446,12 +446,12 @@ mod tests {
 		}
 	}
 
-	// requires `derive` rig-core feature due to using tool macro
+	// requires `derive` clankers-core feature due to using tool macro
 	#[tokio::test]
 	#[ignore = "requires API key"]
 	async fn test_openai_streaming_tools_reasoning() {
 		let api_key = std::env::var("OPENAI_API_KEY").expect("OPENAI_API_KEY env var should exist");
-		let client: openai::Client<rig::http_client::ReqwestClient> =
+		let client: openai::Client<clankers::http_client::ReqwestClient> =
 			openai::Client::new(&api_key).expect("Failed to build client");
 		let agent = client
 			.agent("gpt-5.2")

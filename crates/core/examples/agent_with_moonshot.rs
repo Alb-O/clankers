@@ -1,8 +1,8 @@
-use rig::agent::AgentBuilder;
-use rig::completion::Prompt;
-use rig::prelude::*;
-use rig::providers;
-use rig::providers::moonshot::{CompletionModel, MOONSHOT_CHAT};
+use clankers::agent::AgentBuilder;
+use clankers::completion::Prompt;
+use clankers::prelude::*;
+use clankers::providers;
+use clankers::providers::moonshot::{CompletionModel, MOONSHOT_CHAT};
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {

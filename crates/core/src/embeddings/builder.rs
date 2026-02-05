@@ -21,7 +21,7 @@ use crate::embeddings::{Embed, EmbedError, Embedding, EmbeddingError, EmbeddingM
 /// ```rust
 /// use std::env;
 ///
-/// use rig::{
+/// use clankers::{
 ///     embeddings::EmbeddingsBuilder,
 ///     providers::openai::{Client, TEXT_EMBEDDING_ADA_002},
 /// };

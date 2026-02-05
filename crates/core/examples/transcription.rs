@@ -1,8 +1,8 @@
 use std::env::args;
 
-use rig::prelude::*;
-use rig::providers::{azure, gemini, groq, huggingface, openai};
-use rig::transcription::TranscriptionModel;
+use clankers::prelude::*;
+use clankers::providers::{azure, gemini, groq, huggingface, openai};
+use clankers::transcription::TranscriptionModel;
 
 #[tokio::main]
 async fn main() {

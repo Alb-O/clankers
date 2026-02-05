@@ -42,7 +42,7 @@ pub trait Op: WasmCompatSend + WasmCompatSync {
 	///
 	/// # Example
 	/// ```rust
-	/// use rig::pipeline::{self, Op};
+	/// use clankers::pipeline::{self, Op};
 	///
 	/// let chain = pipeline::new()
 	///    .map(|(x, y)| x + y)
@@ -64,7 +64,7 @@ pub trait Op: WasmCompatSend + WasmCompatSync {
 	///
 	/// # Example
 	/// ```rust
-	/// use rig::pipeline::{self, Op};
+	/// use clankers::pipeline::{self, Op};
 	///
 	/// let chain = pipeline::new()
 	///     .then(|email: String| async move {
@@ -91,7 +91,7 @@ pub trait Op: WasmCompatSend + WasmCompatSync {
 	///
 	/// # Example
 	/// ```rust
-	/// use rig::pipeline::{self, Op};
+	/// use clankers::pipeline::{self, Op};
 	///
 	/// struct AddOne;
 	///
@@ -124,7 +124,7 @@ pub trait Op: WasmCompatSend + WasmCompatSync {
 	///
 	/// # Example
 	/// ```rust
-	/// use rig::chain::{self, Chain};
+	/// use clankers::chain::{self, Chain};
 	///
 	/// let chain = chain::new()
 	///     .lookup(index, 2)
@@ -155,7 +155,7 @@ pub trait Op: WasmCompatSend + WasmCompatSync {
 	///
 	/// # Example
 	/// ```rust
-	/// use rig::chain::{self, Chain};
+	/// use clankers::chain::{self, Chain};
 	///
 	/// let agent = &openai_client.agent("gpt-4").build();
 	///

@@ -43,7 +43,7 @@ pub(crate) fn expand_derive_embedding(input: &mut syn::DeriveInput) -> syn::Resu
 		// Note: `Embed` trait is imported with the macro.
 
 		impl #impl_generics Embed for #name #ty_generics #where_clause {
-			fn embed(&self, embedder: &mut rig::embeddings::embed::TextEmbedder) -> Result<(), rig::embeddings::embed::EmbedError> {
+			fn embed(&self, embedder: &mut clankers::embeddings::embed::TextEmbedder) -> Result<(), clankers::embeddings::embed::EmbedError> {
 				#target_stream;
 
 				Ok(())

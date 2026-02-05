@@ -363,10 +363,12 @@ impl TryFrom<message::Message> for Vec<Message> {
 							message::AssistantContent::Text(text) => texts.push(text),
 							message::AssistantContent::ToolCall(tool_call) => tools.push(tool_call),
 							message::AssistantContent::Reasoning(_) => {
-								panic!("Reasoning is not supported on HuggingFace via Rig");
+								panic!("Reasoning is not supported on HuggingFace via Clankers");
 							}
 							message::AssistantContent::Image(_) => {
-								panic!("Image content is not supported on HuggingFace via Rig");
+								panic!(
+									"Image content is not supported on HuggingFace via Clankers"
+								);
 							}
 						}
 						(texts, tools)
@@ -708,7 +710,7 @@ where
 	) -> Result<completion::CompletionResponse<CompletionResponse>, CompletionError> {
 		let span = if tracing::Span::current().is_disabled() {
 			info_span!(
-				target: "rig::completions",
+				target: "clankers::completions",
 				"chat",
 				gen_ai.operation.name = "chat",
 				gen_ai.provider.name = "huggingface",
@@ -728,7 +730,7 @@ where
 
 		if enabled!(Level::TRACE) {
 			tracing::trace!(
-				target: "rig::completions",
+				target: "clankers::completions",
 				"Huggingface completion request: {}",
 				serde_json::to_string_pretty(&request)?
 			);
@@ -751,13 +753,13 @@ where
 				let bytes: Vec<u8> = response.into_body().await?;
 				let text = String::from_utf8_lossy(&bytes);
 
-				tracing::debug!(target: "rig", "Huggingface completion error: {}", text);
+				tracing::debug!(target: "clankers", "Huggingface completion error: {}", text);
 
 				match serde_json::from_slice::<ApiResponse<CompletionResponse>>(&bytes)? {
 					ApiResponse::Ok(response) => {
 						if enabled!(Level::TRACE) {
 							tracing::trace!(
-								target: "rig::completions",
+								target: "clankers::completions",
 								"Huggingface completion response: {}",
 								serde_json::to_string_pretty(&response)?
 							);

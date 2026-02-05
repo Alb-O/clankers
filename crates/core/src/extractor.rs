@@ -5,7 +5,7 @@
 //!
 //! # Example
 //! ```
-//! use rig::providers::openai;
+//! use clankers::providers::openai;
 //!
 //! // Initialize the OpenAI client
 //! let openai = openai::Client::new("your-open-ai-api-key");

@@ -1,4 +1,4 @@
-use rig::loaders::FileLoader;
+use clankers::loaders::FileLoader;
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {

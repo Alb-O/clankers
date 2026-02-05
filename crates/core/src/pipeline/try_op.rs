@@ -28,7 +28,7 @@ pub trait TryOp: WasmCompatSend + WasmCompatSync {
 	///
 	/// # Example
 	/// ```rust
-	/// use rig::pipeline::{self, TryOp};
+	/// use clankers::pipeline::{self, TryOp};
 	///
 	/// let op = pipeline::new()
 	///    .map(|x: i32| if x % 2 == 0 { Ok(x + 1) } else { Err("x is odd") });
@@ -63,7 +63,7 @@ pub trait TryOp: WasmCompatSend + WasmCompatSync {
 	///
 	/// # Example
 	/// ```rust
-	/// use rig::pipeline::{self, TryOp};
+	/// use clankers::pipeline::{self, TryOp};
 	///
 	/// let op = pipeline::new()
 	///     .map(|x: i32| if x % 2 == 0 { Ok(x) } else { Err("x is odd") })
@@ -86,7 +86,7 @@ pub trait TryOp: WasmCompatSend + WasmCompatSync {
 	///
 	/// # Example
 	/// ```rust
-	/// use rig::pipeline::{self, TryOp};
+	/// use clankers::pipeline::{self, TryOp};
 	///
 	/// let op = pipeline::new()
 	///     .map(|x: i32| if x % 2 == 0 { Ok(x) } else { Err("x is odd") })
@@ -110,7 +110,7 @@ pub trait TryOp: WasmCompatSend + WasmCompatSync {
 	///
 	/// # Example
 	/// ```rust
-	/// use rig::pipeline::{self, TryOp};
+	/// use clankers::pipeline::{self, TryOp};
 	///
 	/// let op = pipeline::new()
 	///     .map(|x: i32| if x % 2 == 0 { Ok(x) } else { Err("x is odd") })
@@ -135,7 +135,7 @@ pub trait TryOp: WasmCompatSend + WasmCompatSync {
 	///
 	/// # Example
 	/// ```rust
-	/// use rig::pipeline::{self, TryOp};
+	/// use clankers::pipeline::{self, TryOp};
 	///
 	/// let op = pipeline::new()
 	///     .map(|x: i32| if x % 2 == 0 { Ok(x) } else { Err("x is odd") })
@@ -160,7 +160,7 @@ pub trait TryOp: WasmCompatSend + WasmCompatSync {
 	///
 	/// # Example
 	/// ```rust
-	/// use rig::pipeline::{self, TryOp};
+	/// use clankers::pipeline::{self, TryOp};
 	///
 	/// struct AddOne;
 	///

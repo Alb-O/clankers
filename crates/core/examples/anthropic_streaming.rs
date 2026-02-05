@@ -1,7 +1,7 @@
-use rig::agent::stream_to_stdout;
-use rig::prelude::*;
-use rig::providers::anthropic::{self};
-use rig::streaming::StreamingPrompt;
+use clankers::agent::stream_to_stdout;
+use clankers::prelude::*;
+use clankers::providers::anthropic::{self};
+use clankers::streaming::StreamingPrompt;
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
 	// Create streaming agent with a single context prompt

@@ -12,7 +12,7 @@ mod audio {
 		///
 		/// # Example
 		/// ```
-		/// use rig::providers::openai::{Client, self};
+		/// use clankers::providers::openai::{Client, self};
 		///
 		/// // Initialize the OpenAI client
 		/// let openai = Client::new("your-open-ai-api-key");

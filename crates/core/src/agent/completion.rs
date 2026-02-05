@@ -34,7 +34,7 @@ pub type DynamicContextStore = Arc<
 ///
 /// # Example
 /// ```
-/// use rig::{completion::Prompt, providers::openai};
+/// use clankers::{completion::Prompt, providers::openai};
 ///
 /// let openai = openai::Client::from_env();
 ///

@@ -45,9 +45,9 @@ checksum = "5192cca8006f1fd4f7237516f40fa183bb07f8fbdfedaa0036de5ea9b0b45e78"
 
 [[package]]
 name = "anyhow"
-version = "1.0.100"
+version = "1.0.101"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a23eb6b1614318a8071c9b2521f36b424b2c83db5eb3a0fead4a6c0809af6e61"
+checksum = "5f0e0fee31ef5ed1ba1316088939cea399010ed7731dba877ed44aeb407a75ea"
 
 [[package]]
 name = "arbitrary"
@@ -367,6 +367,74 @@ checksum = "773f3b9af64447d2ce9850330c473515014aa235e6a783b02db81ff39e4a3dad"
 dependencies = [
  "crypto-common",
  "inout",
+]
+
+[[package]]
+name = "clankers-core"
+version = "0.30.0"
+dependencies = [
+ "anyhow",
+ "as-any",
+ "assert_fs",
+ "async-stream",
+ "axum",
+ "base64",
+ "bytes",
+ "clankers-derive",
+ "epub",
+ "eventsource-stream",
+ "fastrand",
+ "futures",
+ "futures-timer",
+ "getrandom 0.4.1",
+ "glob",
+ "http",
+ "hyper-util",
+ "lopdf",
+ "mime",
+ "mime_guess",
+ "nanoid",
+ "opentelemetry",
+ "opentelemetry-otlp",
+ "opentelemetry_sdk",
+ "ordered-float",
+ "pin-project-lite",
+ "quick-xml",
+ "rayon",
+ "redis",
+ "reqwest 0.13.1",
+ "reqwest-middleware",
+ "schemars",
+ "serde",
+ "serde_json",
+ "serde_path_to_error",
+ "serenity",
+ "thiserror 2.0.18",
+ "tokio",
+ "tokio-test",
+ "tracing",
+ "tracing-futures",
+ "tracing-opentelemetry",
+ "tracing-subscriber",
+ "url",
+ "wasm-bindgen-futures",
+]
+
+[[package]]
+name = "clankers-derive"
+version = "0.1.10"
+dependencies = [
+ "clankers-core",
+ "convert_case",
+ "deluxe",
+ "indoc",
+ "proc-macro2",
+ "quote",
+ "serde",
+ "serde_json",
+ "syn 2.0.114",
+ "tokio",
+ "tracing-subscriber",
 ]
 
 [[package]]
@@ -1323,9 +1391,9 @@ checksum = "92ecc6618181def0457392ccd0ee51198e065e016d1d527a7ac1b6dc7c1f09d2"
 
 [[package]]
 name = "jiff"
-version = "0.2.18"
+version = "0.2.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e67e8da4c49d6d9909fe03361f9b620f58898859f5c7aded68351e85e71ecf50"
+checksum = "d89a5b5e10d5a9ad6e5d1f4bd58225f655d6fe9767575a5e8ac5a6fe64e04495"
 dependencies = [
  "jiff-static",
  "jiff-tzdb-platform",
@@ -1338,9 +1406,9 @@ dependencies = [
 
 [[package]]
 name = "jiff-static"
-version = "0.2.18"
+version = "0.2.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e0c84ee7f197eca9a86c6fd6cb771e55eb991632f15f2bc3ca6ec838929e6e78"
+checksum = "ff7a39c8862fc1369215ccf0a8f12dd4598c7f6484704359f0351bd617034dbf"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2287,9 +2355,9 @@ dependencies = [
 
 [[package]]
 name = "reqwest-middleware"
-version = "0.5.0"
+version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f42e2f48018a33d679ee7f477a446b697663a14e91ab0b3a0206792a22dd3aa8"
+checksum = "199dda04a536b532d0cc04d7979e39b1c763ea749bf91507017069c00b96056f"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2298,74 +2366,6 @@ dependencies = [
  "serde",
  "thiserror 2.0.18",
  "tower-service",
-]
-
-[[package]]
-name = "rig-core"
-version = "0.30.0"
-dependencies = [
- "anyhow",
- "as-any",
- "assert_fs",
- "async-stream",
- "axum",
- "base64",
- "bytes",
- "epub",
- "eventsource-stream",
- "fastrand",
- "futures",
- "futures-timer",
- "getrandom 0.4.1",
- "glob",
- "http",
- "hyper-util",
- "lopdf",
- "mime",
- "mime_guess",
- "nanoid",
- "opentelemetry",
- "opentelemetry-otlp",
- "opentelemetry_sdk",
- "ordered-float",
- "pin-project-lite",
- "quick-xml",
- "rayon",
- "redis",
- "reqwest 0.13.1",
- "reqwest-middleware",
- "rig-derive",
- "schemars",
- "serde",
- "serde_json",
- "serde_path_to_error",
- "serenity",
- "thiserror 2.0.18",
- "tokio",
- "tokio-test",
- "tracing",
- "tracing-futures",
- "tracing-opentelemetry",
- "tracing-subscriber",
- "url",
- "wasm-bindgen-futures",
-]
-
-[[package]]
-name = "rig-derive"
-version = "0.1.10"
-dependencies = [
- "convert_case",
- "deluxe",
- "indoc",
- "proc-macro2",
- "quote",
- "rig-core",
- "serde",
- "serde_json",
- "syn 2.0.114",
- "tokio",
- "tracing-subscriber",
 ]
 
 [[package]]
@@ -3005,9 +3005,9 @@ dependencies = [
 
 [[package]]
 name = "time"
-version = "0.3.46"
+version = "0.3.47"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9da98b7d9b7dad93488a84b8248efc35352b0b2657397d4167e7ad67e5d535e5"
+checksum = "743bd48c283afc0388f9b8827b976905fb217ad9e647fae3a379a9283c4def2c"
 dependencies = [
  "deranged",
  "itoa",
@@ -3026,9 +3026,9 @@ checksum = "7694e1cfe791f8d31026952abf09c69ca6f6fa4e1a1229e18988f06a04a12dca"
 
 [[package]]
 name = "time-macros"
-version = "0.2.26"
+version = "0.2.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "78cc610bac2dcee56805c99642447d4c5dbde4d01f752ffea0199aee1f601dc4"
+checksum = "2e70e4c5a0e0a8a4823ad65dfe1a6930e4f4d756dcd9dd7939022b5e8c501215"
 dependencies = [
  "num-conv",
  "time-core",

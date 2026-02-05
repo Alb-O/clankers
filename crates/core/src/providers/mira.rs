@@ -1,8 +1,8 @@
-//! Mira API client and Rig integration
+//! Mira API client and Clankers integration
 //!
 //! # Example
 //! ```
-//! use rig::providers::mira;
+//! use clankers::providers::mira;
 //!
 //! let client = mira::Client::new("YOUR_API_KEY");
 //!
@@ -308,7 +308,7 @@ where
 		);
 
 		if !completion_request.tools.is_empty() {
-			tracing::warn!(target: "rig::completions",
+			tracing::warn!(target: "clankers::completions",
 				"Tool calls are not supported by Mira AI. {len} tools will be ignored.",
 				len = completion_request.tools.len()
 			);
@@ -325,7 +325,7 @@ where
 		let request = MiraCompletionRequest::try_from((self.model.as_ref(), completion_request))?;
 
 		if tracing::enabled!(tracing::Level::TRACE) {
-			tracing::trace!(target: "rig::completions",
+			tracing::trace!(target: "clankers::completions",
 				"Mira completion request: {}",
 				serde_json::to_string_pretty(&request)?
 			);
@@ -360,7 +360,7 @@ where
 			let response: CompletionResponse = serde_json::from_slice(&response_body)?;
 
 			if tracing::enabled!(tracing::Level::TRACE) {
-				tracing::trace!(target: "rig::completions",
+				tracing::trace!(target: "clankers::completions",
 					"Mira completion response: {}",
 					serde_json::to_string_pretty(&response)?
 				);
@@ -399,7 +399,7 @@ where
 		);
 
 		if !completion_request.tools.is_empty() {
-			tracing::warn!(target: "rig::completions",
+			tracing::warn!(target: "clankers::completions",
 				"Tool calls are not supported by Mira AI. {len} tools will be ignored.",
 				len = completion_request.tools.len()
 			);
@@ -417,7 +417,7 @@ where
 		request.stream = true;
 
 		if tracing::enabled!(tracing::Level::TRACE) {
-			tracing::trace!(target: "rig::completions",
+			tracing::trace!(target: "clankers::completions",
 				"Mira completion request: {}",
 				serde_json::to_string_pretty(&request)?
 			);
@@ -471,7 +471,7 @@ impl TryFrom<CompletionResponse> for completion::CompletionResponse<CompletionRe
 						// Log warning for unsupported content types
 						for c in content.iter() {
 							if !matches!(c, AssistantContent::Text(_)) {
-								tracing::warn!(target: "rig",
+								tracing::warn!(target: "clankers",
 									"Unsupported content type encountered: {:?}. The Mira provider currently only supports text content", c
 								);
 							}
@@ -487,7 +487,7 @@ impl TryFrom<CompletionResponse> for completion::CompletionResponse<CompletionRe
                         }).collect::<Result<Vec<_>, _>>()?
 					}
 					Message::User { .. } => {
-						tracing::warn!(target: "rig", "Received user message in response where assistant message was expected");
+						tracing::warn!(target: "clankers", "Received user message in response where assistant message was expected");
 						return Err(CompletionError::ResponseError(
                             "Received user message in response where assistant message was expected".to_owned()
                         ));

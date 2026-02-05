@@ -1,10 +1,10 @@
-//! Ollama API client and Rig integration
+//! Ollama API client and Clankers integration
 //!
 //! # Example
 //! ```rust,ignore
-//! use rig::client::{Nothing, CompletionClient};
-//! use rig::completion::Prompt;
-//! use rig::providers::ollama;
+//! use clankers::client::{Nothing, CompletionClient};
+//! use clankers::completion::Prompt;
+//! use clankers::providers::ollama;
 //!
 //! // Create a new Ollama client (defaults to http://localhost:11434)
 //! // In the case of ollama, no API key is necessary, so we use the `Nothing` struct
@@ -482,7 +482,7 @@ where
 	) -> Result<completion::CompletionResponse<Self::Response>, CompletionError> {
 		let span = if tracing::Span::current().is_disabled() {
 			info_span!(
-				target: "rig::completions",
+				target: "clankers::completions",
 				"chat",
 				gen_ai.operation.name = "chat",
 				gen_ai.provider.name = "ollama",
@@ -501,7 +501,7 @@ where
 		let request = OllamaCompletionRequest::try_from((self.model.as_ref(), completion_request))?;
 
 		if tracing::enabled!(tracing::Level::TRACE) {
-			tracing::trace!(target: "rig::completions",
+			tracing::trace!(target: "clankers::completions",
 				"Ollama completion request: {}",
 				serde_json::to_string_pretty(&request)?
 			);
@@ -539,7 +539,7 @@ where
 			);
 
 			if tracing::enabled!(tracing::Level::TRACE) {
-				tracing::trace!(target: "rig::completions",
+				tracing::trace!(target: "clankers::completions",
 					"Ollama completion response: {}",
 					serde_json::to_string_pretty(&response)?
 				);
@@ -560,7 +560,7 @@ where
 	) -> Result<streaming::StreamingCompletionResponse<Self::StreamingResponse>, CompletionError> {
 		let span = if tracing::Span::current().is_disabled() {
 			info_span!(
-				target: "rig::completions",
+				target: "clankers::completions",
 				"chat_streaming",
 				gen_ai.operation.name = "chat_streaming",
 				gen_ai.provider.name = "ollama",
@@ -581,7 +581,7 @@ where
 		request.stream = true;
 
 		if tracing::enabled!(tracing::Level::TRACE) {
-			tracing::trace!(target: "rig::completions",
+			tracing::trace!(target: "clankers::completions",
 				"Ollama streaming completion request: {}",
 				serde_json::to_string_pretty(&request)?
 			);
@@ -619,7 +619,7 @@ where
                         continue;
                     }
 
-                    tracing::debug!(target: "rig", "Received NDJSON line from Ollama: {}", String::from_utf8_lossy(line));
+                    tracing::debug!(target: "clankers", "Received NDJSON line from Ollama: {}", String::from_utf8_lossy(line));
 
                     let response: CompletionResponse = serde_json::from_slice(line)?;
 
@@ -763,7 +763,7 @@ pub enum Message {
 /// -----------------------------
 /// Provider Message Conversions
 /// -----------------------------
-/// Conversion from an internal Rig message (crate::message::Message) to a provider Message.
+/// Conversion from an internal Clankers message (crate::message::Message) to a provider Message.
 /// (Only User and Assistant variants are supported.)
 impl TryFrom<crate::message::Message> for Vec<Message> {
 	type Error = crate::message::MessageError;

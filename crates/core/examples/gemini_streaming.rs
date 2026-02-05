@@ -1,10 +1,10 @@
-use rig::agent::stream_to_stdout;
-use rig::prelude::*;
-use rig::providers::gemini::completion::gemini_api_types::{
+use clankers::agent::stream_to_stdout;
+use clankers::prelude::*;
+use clankers::providers::gemini::completion::gemini_api_types::{
 	AdditionalParameters, GenerationConfig, ThinkingConfig,
 };
-use rig::providers::gemini::{self};
-use rig::streaming::StreamingPrompt;
+use clankers::providers::gemini::{self};
+use clankers::streaming::StreamingPrompt;
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {

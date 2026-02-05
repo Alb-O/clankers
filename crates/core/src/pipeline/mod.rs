@@ -21,7 +21,7 @@
 //! the result as a string using the [map](Op::map) combinator method, which applies a simple function
 //! op to the output of the previous op:
 //! ```rust
-//! use rig::pipeline::{self, Op};
+//! use clankers::pipeline::{self, Op};
 //!
 //! let pipeline = pipeline::new()
 //!     // op1: add two numbers
@@ -47,7 +47,7 @@
 //!
 //! For example, the pipeline below runs two operations concurrently:
 //! ```rust
-//! use rig::{pipeline::{self, Op, map}, parallel};
+//! use clankers::{pipeline::{self, Op, map}, parallel};
 //!
 //! let pipeline = pipeline::new()
 //!     .chain(parallel!(
@@ -112,7 +112,7 @@ impl<E> PipelineBuilder<E> {
 	///
 	/// # Example
 	/// ```rust
-	/// use rig::pipeline::{self, Op};
+	/// use clankers::pipeline::{self, Op};
 	///
 	/// let pipeline = pipeline::new()
 	///    .map(|(x, y)| x + y)
@@ -135,7 +135,7 @@ impl<E> PipelineBuilder<E> {
 	///
 	/// # Example
 	/// ```rust
-	/// use rig::pipeline::{self, Op};
+	/// use clankers::pipeline::{self, Op};
 	///
 	/// let pipeline = pipeline::new()
 	///     .then(|email: String| async move {
@@ -163,7 +163,7 @@ impl<E> PipelineBuilder<E> {
 	///
 	/// # Example
 	/// ```rust
-	/// use rig::pipeline::{self, Op};
+	/// use clankers::pipeline::{self, Op};
 	///
 	/// struct MyOp;
 	///
@@ -196,7 +196,7 @@ impl<E> PipelineBuilder<E> {
 	///
 	/// # Example
 	/// ```rust
-	/// use rig::pipeline::{self, Op};
+	/// use clankers::pipeline::{self, Op};
 	///
 	/// let pipeline = pipeline::new()
 	///     .lookup(index, 2)
@@ -224,7 +224,7 @@ impl<E> PipelineBuilder<E> {
 	///
 	/// # Example
 	/// ```rust
-	/// use rig::pipeline::{self, Op};
+	/// use clankers::pipeline::{self, Op};
 	///
 	/// let agent = &openai_client.agent("gpt-4").build();
 	///
@@ -250,7 +250,7 @@ impl<E> PipelineBuilder<E> {
 	///
 	/// # Example
 	/// ```rust
-	/// use rig::pipeline::{self, Op};
+	/// use clankers::pipeline::{self, Op};
 	///
 	/// #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 	/// struct Sentiment {

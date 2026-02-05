@@ -1,8 +1,8 @@
-use rig::agent::stream_to_stdout;
-use rig::prelude::*;
-use rig::providers::groq::DEEPSEEK_R1_DISTILL_LLAMA_70B;
-use rig::providers::{self};
-use rig::streaming::StreamingPrompt;
+use clankers::agent::stream_to_stdout;
+use clankers::prelude::*;
+use clankers::providers::groq::DEEPSEEK_R1_DISTILL_LLAMA_70B;
+use clankers::providers::{self};
+use clankers::streaming::StreamingPrompt;
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {

@@ -79,7 +79,7 @@ where
 
 			match body {
 				ApiResponse::Ok(response) => {
-					tracing::debug!(target: "rig",
+					tracing::debug!(target: "clankers",
 						"Mistral embedding token usage: {}",
 						response.usage
 					);

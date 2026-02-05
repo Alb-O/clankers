@@ -1,6 +1,6 @@
-use rig::Embed;
-use rig::embeddings::embed::EmbedError;
-use rig::embeddings::{self, TextEmbedder};
+use clankers::Embed;
+use clankers::embeddings::embed::EmbedError;
+use clankers::embeddings::{self, TextEmbedder};
 use serde::Serialize;
 
 #[test]

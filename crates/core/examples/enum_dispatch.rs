@@ -1,11 +1,11 @@
 use std::collections::HashMap;
 
-use rig::agent::Agent;
-use rig::client::{CompletionClient, ProviderClient};
-use rig::completion::{Prompt, PromptError};
-use rig::providers::anthropic::completion::CLAUDE_3_7_SONNET;
-use rig::providers::openai::GPT_4O;
-use rig::providers::{anthropic, openai};
+use clankers::agent::Agent;
+use clankers::client::{CompletionClient, ProviderClient};
+use clankers::completion::{Prompt, PromptError};
+use clankers::providers::anthropic::completion::CLAUDE_3_7_SONNET;
+use clankers::providers::openai::GPT_4O;
+use clankers::providers::{anthropic, openai};
 
 enum Agents {
 	Anthropic(Agent<anthropic::completion::CompletionModel>),

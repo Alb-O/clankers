@@ -1,5 +1,5 @@
-use rig::completion::ToolDefinition;
-use rig::providers::openai::responses_api::ResponsesToolDefinition;
+use clankers::completion::ToolDefinition;
+use clankers::providers::openai::responses_api::ResponsesToolDefinition;
 use schemars::{JsonSchema, schema_for};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;

@@ -2,12 +2,12 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
 
 use anyhow::Result;
-use rig::agent::{HookAction, PromptHook, ToolCallHookAction, stream_to_stdout};
-use rig::client::{CompletionClient, ProviderClient};
-use rig::completion::{CompletionModel, Prompt, ToolDefinition};
-use rig::providers;
-use rig::streaming::StreamingPrompt;
-use rig::tool::Tool;
+use clankers::agent::{HookAction, PromptHook, ToolCallHookAction, stream_to_stdout};
+use clankers::client::{CompletionClient, ProviderClient};
+use clankers::completion::{CompletionModel, Prompt, ToolDefinition};
+use clankers::providers;
+use clankers::streaming::StreamingPrompt;
+use clankers::tool::Tool;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 

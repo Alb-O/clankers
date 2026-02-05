@@ -1,13 +1,13 @@
 //! This example shows how you can use OpenAI's Completions API.
 //! By default, the OpenAI integration uses the Responses API. However, for the sake of backwards compatibility you may wish to use the Completions API.
 
+use clankers::completion::Prompt;
+use clankers::prelude::*;
+use clankers::providers::{self, openai};
 use opentelemetry::trace::TracerProvider as _;
 use opentelemetry_otlp::WithExportConfig;
 use opentelemetry_sdk::Resource;
 use opentelemetry_sdk::trace::SdkTracerProvider;
-use rig::completion::Prompt;
-use rig::prelude::*;
-use rig::providers::{self, openai};
 use tracing::Level;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
@@ -21,7 +21,11 @@ async fn main() -> Result<(), anyhow::Error> {
 	// Create a new OpenTelemetry trace pipeline that prints to stdout
 	let provider = SdkTracerProvider::builder()
 		.with_batch_exporter(exporter)
-		.with_resource(Resource::builder().with_service_name("rig-demo").build())
+		.with_resource(
+			Resource::builder()
+				.with_service_name("clankers-demo")
+				.build(),
+		)
 		.build();
 	let tracer = provider.tracer("readme_example");
 

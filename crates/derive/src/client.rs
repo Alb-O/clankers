@@ -59,7 +59,7 @@ pub fn provider_client(input: TokenStream) -> TokenStream {
 
 		if !features.iter().any(|f| f == flag) {
 			impls.push(quote! {
-				impl rig::client::#as_trait_ident for #ident {}
+				impl clankers::client::#as_trait_ident for #ident {}
 			});
 		}
 	}

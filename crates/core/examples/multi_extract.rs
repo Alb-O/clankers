@@ -1,7 +1,7 @@
-use rig::pipeline::{self, TryOp, agent_ops};
-use rig::prelude::*;
-use rig::providers::openai;
-use rig::try_parallel;
+use clankers::pipeline::{self, TryOp, agent_ops};
+use clankers::prelude::*;
+use clankers::providers::openai;
+use clankers::try_parallel;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 

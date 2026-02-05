@@ -36,7 +36,7 @@ pub const MISTRAL_NEMO: &str = "open-mistral-nemo";
 pub const CODESTRAL_MAMBA: &str = "open-codestral-mamba";
 
 // =================================================================
-// Rig Implementation Types
+// Clankers Implementation Types
 // =================================================================
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -156,12 +156,12 @@ impl TryFrom<message::Message> for Vec<Message> {
 							message::AssistantContent::ToolCall(tool_call) => tools.push(tool_call),
 							message::AssistantContent::Reasoning(_) => {
 								panic!(
-									"Reasoning content is not currently supported on Mistral via Rig"
+									"Reasoning content is not currently supported on Mistral via Clankers"
 								);
 							}
 							message::AssistantContent::Image(_) => {
 								panic!(
-									"Image content is not currently supported on Mistral via Rig"
+									"Image content is not currently supported on Mistral via Clankers"
 								);
 							}
 						}
@@ -552,7 +552,7 @@ where
 
 		if enabled!(Level::TRACE) {
 			tracing::trace!(
-				target: "rig::completions",
+				target: "clankers::completions",
 				"Mistral completion request: {}",
 				serde_json::to_string_pretty(&request)?
 			);
@@ -560,7 +560,7 @@ where
 
 		let span = if tracing::Span::current().is_disabled() {
 			info_span!(
-				target: "rig::completions",
+				target: "clankers::completions",
 				"chat",
 				gen_ai.operation.name = "chat",
 				gen_ai.provider.name = "mistral",
@@ -628,10 +628,10 @@ where
 						))
 					}
 					message::AssistantContent::Reasoning(_) => {
-						panic!("Reasoning is not supported on Mistral via Rig")
+						panic!("Reasoning is not supported on Mistral via Clankers")
 					}
 					message::AssistantContent::Image(_) => {
-						panic!("Image content is not supported on Mistral via Rig")
+						panic!("Image content is not supported on Mistral via Clankers")
 					}
 				}
 			}

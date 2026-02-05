@@ -1,8 +1,8 @@
-use rig::agent::AgentBuilder;
-use rig::completion::Prompt;
-use rig::loaders::FileLoader;
-use rig::prelude::*;
-use rig::providers::openai;
+use clankers::agent::AgentBuilder;
+use clankers::completion::Prompt;
+use clankers::loaders::FileLoader;
+use clankers::prelude::*;
+use clankers::providers::openai;
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
@@ -10,7 +10,7 @@ async fn main() -> Result<(), anyhow::Error> {
 	let model = openai_client.completion_model(openai::GPT_4O);
 
 	// Load in all the rust examples
-	let examples = FileLoader::with_glob("rig-core/examples/*.rs")?
+	let examples = FileLoader::with_glob("clankers-core/examples/*.rs")?
 		.read_with_path()
 		.ignore_errors()
 		.into_iter();

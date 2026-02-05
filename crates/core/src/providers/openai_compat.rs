@@ -225,7 +225,7 @@ impl From<NestedApiError> for CompletionError {
 pub fn completion_span(provider: &str, model: &str, preamble: &Option<String>) -> tracing::Span {
 	let span = if tracing::Span::current().is_disabled() {
 		info_span!(
-			target: "rig::completions",
+			target: "clankers::completions",
 			"chat",
 			gen_ai.operation.name = "chat",
 			gen_ai.provider.name = %provider,
@@ -246,7 +246,7 @@ pub fn completion_span(provider: &str, model: &str, preamble: &Option<String>) -
 pub fn streaming_span(provider: &str, model: &str, preamble: &Option<String>) -> tracing::Span {
 	let span = if tracing::Span::current().is_disabled() {
 		info_span!(
-			target: "rig::completions",
+			target: "clankers::completions",
 			"chat_streaming",
 			gen_ai.operation.name = "chat_streaming",
 			gen_ai.provider.name = %provider,
@@ -304,7 +304,7 @@ where
 			ApiResponse::Ok(resp) => {
 				if tracing::enabled!(tracing::Level::TRACE) {
 					tracing::trace!(
-						target: "rig::completions",
+						target: "clankers::completions",
 						"{} completion response: {}",
 						provider_name,
 						serde_json::to_string_pretty(&resp)?

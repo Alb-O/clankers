@@ -1,9 +1,9 @@
-use rig::parallel;
-use rig::pipeline::agent_ops::extract;
-use rig::pipeline::{self, Op, passthrough};
-use rig::prelude::*;
-use rig::providers::openai;
-use rig::providers::openai::client::Client;
+use clankers::parallel;
+use clankers::pipeline::agent_ops::extract;
+use clankers::pipeline::{self, Op, passthrough};
+use clankers::prelude::*;
+use clankers::providers::openai;
+use clankers::providers::openai::client::Client;
 use schemars::JsonSchema;
 
 #[derive(serde::Deserialize, JsonSchema, serde::Serialize)]

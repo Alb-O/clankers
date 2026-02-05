@@ -533,7 +533,7 @@ where
 
 		if enabled!(Level::TRACE) {
 			tracing::trace!(
-				target: "rig::completions",
+				target: "clankers::completions",
 				"OpenRouter completion request: {}",
 				serde_json::to_string_pretty(&request)?
 			);
@@ -541,7 +541,7 @@ where
 
 		let span = if tracing::Span::current().is_disabled() {
 			info_span!(
-				target: "rig::completions",
+				target: "clankers::completions",
 				"chat",
 				gen_ai.operation.name = "chat",
 				gen_ai.provider.name = "openrouter",
@@ -577,7 +577,7 @@ where
 						span.record("gen_ai.response.id", &response.id);
 						span.record("gen_ai.response.model_name", &response.model);
 
-						tracing::debug!(target: "rig::completions",
+						tracing::debug!(target: "clankers::completions",
                             "OpenRouter response: {response:?}");
 						response.try_into()
 					}

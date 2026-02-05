@@ -1,7 +1,7 @@
-use rig::client::{CompletionClient, ProviderClient};
-use rig::completion::Prompt;
-use rig::providers::perplexity::SONAR;
-use rig::providers::{self};
+use clankers::client::{CompletionClient, ProviderClient};
+use clankers::completion::Prompt;
+use clankers::providers::perplexity::SONAR;
+use clankers::providers::{self};
 use serde_json::json;
 
 #[tokio::main]

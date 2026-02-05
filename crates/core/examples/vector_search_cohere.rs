@@ -1,10 +1,10 @@
-use rig::Embed;
-use rig::client::ProviderClient;
-use rig::embeddings::EmbeddingsBuilder;
-use rig::providers::cohere::{self, Client};
-use rig::vector_store::VectorStoreIndex;
-use rig::vector_store::in_memory_store::InMemoryVectorStore;
-use rig::vector_store::request::VectorSearchRequest;
+use clankers::Embed;
+use clankers::client::ProviderClient;
+use clankers::embeddings::EmbeddingsBuilder;
+use clankers::providers::cohere::{self, Client};
+use clankers::vector_store::VectorStoreIndex;
+use clankers::vector_store::in_memory_store::InMemoryVectorStore;
+use clankers::vector_store::request::VectorSearchRequest;
 use serde::{Deserialize, Serialize};
 
 // Shape of data that needs to be RAG'ed.

@@ -1,11 +1,11 @@
 use anyhow::Result;
-use rig::agent::{Agent, AgentBuilder};
-use rig::completion::{Chat, CompletionModel, PromptError, ToolDefinition};
-use rig::integrations::cli_chatbot::ChatBotBuilder;
-use rig::prelude::*;
-use rig::providers::openai;
-use rig::providers::openai::Client as OpenAIClient;
-use rig::tool::Tool;
+use clankers::agent::{Agent, AgentBuilder};
+use clankers::completion::{Chat, CompletionModel, PromptError, ToolDefinition};
+use clankers::integrations::cli_chatbot::ChatBotBuilder;
+use clankers::prelude::*;
+use clankers::providers::openai;
+use clankers::providers::openai::Client as OpenAIClient;
+use clankers::tool::Tool;
 use serde::Deserialize;
 use serde_json::json;
 

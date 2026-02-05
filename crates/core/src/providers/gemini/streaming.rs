@@ -78,7 +78,7 @@ where
 	{
 		let span = if tracing::Span::current().is_disabled() {
 			info_span!(
-				target: "rig::completions",
+				target: "clankers::completions",
 				"chat_streaming",
 				gen_ai.operation.name = "chat_streaming",
 				gen_ai.provider.name = "gcp.gemini",
@@ -96,7 +96,7 @@ where
 
 		if enabled!(Level::TRACE) {
 			tracing::trace!(
-				target: "rig::streaming",
+				target: "clankers::streaming",
 				"Gemini streaming completion request: {}",
 				serde_json::to_string_pretty(&request)?
 			);

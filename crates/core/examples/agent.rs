@@ -1,6 +1,6 @@
-use rig::client::{CompletionClient, ProviderClient};
-use rig::completion::Prompt;
-use rig::providers::openai;
+use clankers::client::{CompletionClient, ProviderClient};
+use clankers::completion::Prompt;
+use clankers::providers::openai;
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {

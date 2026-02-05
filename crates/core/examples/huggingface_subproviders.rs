@@ -1,11 +1,11 @@
 use std::env;
 
-use rig::agent::AgentBuilder;
-use rig::completion::{Prompt, ToolDefinition};
-use rig::prelude::*;
-use rig::providers::huggingface::SubProvider;
-use rig::providers::{self};
-use rig::tool::Tool;
+use clankers::agent::AgentBuilder;
+use clankers::completion::{Prompt, ToolDefinition};
+use clankers::prelude::*;
+use clankers::providers::huggingface::SubProvider;
+use clankers::providers::{self};
+use clankers::tool::Tool;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 #[tokio::main]

@@ -1,8 +1,8 @@
-//! Google Gemini API client and Rig integration
+//! Google Gemini API client and Clankers integration
 //!
 //! # Example
 //! ```
-//! use rig::providers::gemini;
+//! use clankers::providers::gemini;
 //!
 //! let client = gemini::Client::new("YOUR_API_KEY");
 //!

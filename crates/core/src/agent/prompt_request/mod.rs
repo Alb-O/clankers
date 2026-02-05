@@ -267,7 +267,7 @@ where
 
 			let span = tracing::Span::current();
 			let chat_span = info_span!(
-				target: "rig::agent_chat",
+				target: "clankers::agent_chat",
 				parent: &span,
 				"chat",
 				gen_ai.operation.name = "chat",

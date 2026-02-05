@@ -2,7 +2,7 @@
 //!
 //! # Example
 //! ```
-//! use rig::providers::huggingface::{client::self, completion::self}
+//! use clankers::providers::huggingface::{client::self, completion::self}
 //!
 //! // Initialize the Huggingface client
 //! let client = client::Client::new("your-huggingface-api-key");

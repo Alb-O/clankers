@@ -1,10 +1,10 @@
-use rig::agent::AgentBuilder;
-use rig::completion::{Prompt, ToolDefinition};
-use rig::loaders::FileLoader;
-use rig::prelude::*;
-use rig::providers;
-use rig::providers::xai;
-use rig::tool::Tool;
+use clankers::agent::AgentBuilder;
+use clankers::completion::{Prompt, ToolDefinition};
+use clankers::loaders::FileLoader;
+use clankers::prelude::*;
+use clankers::providers;
+use clankers::providers::xai;
+use clankers::tool::Tool;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
@@ -70,12 +70,12 @@ async fn tools() -> Result<(), anyhow::Error> {
 
 /// Create an xAI agent (grok) with loaders
 /// Based upon the `loaders` example
-/// This example loads in all the rust examples from the rig-core crate and uses them as\\
+/// This example loads in all the rust examples from the clankers-core crate and uses them as\\
 ///  context for the agent
 async fn loaders() -> Result<(), anyhow::Error> {
 	let model = client().completion_model(providers::xai::completion::GROK_3_MINI);
 	// Load in all the rust examples
-	let examples = FileLoader::with_glob("rig-core/examples/*.rs")?
+	let examples = FileLoader::with_glob("clankers-core/examples/*.rs")?
 		.read_with_path()
 		.ignore_errors()
 		.into_iter();

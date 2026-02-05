@@ -130,7 +130,7 @@ impl ProviderClient for Client {
 ///
 /// # Example
 /// ```
-/// use rig::providers::anthropic::{ClientBuilder, self};
+/// use clankers::providers::anthropic::{ClientBuilder, self};
 ///
 /// // Initialize the Anthropic client
 /// let anthropic_client = ClientBuilder::new("your-claude-api-key")

@@ -117,11 +117,11 @@ where
 			match body {
 				ApiResponse::Ok(response) => {
 					match response.meta {
-						Some(meta) => tracing::info!(target: "rig",
+						Some(meta) => tracing::info!(target: "clankers",
 							"Cohere embeddings billed units: {}",
 							meta.billed_units,
 						),
-						None => tracing::info!(target: "rig",
+						None => tracing::info!(target: "clankers",
 							"Cohere embeddings billed units: n/a",
 						),
 					};

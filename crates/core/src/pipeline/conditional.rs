@@ -16,8 +16,8 @@
 ///
 /// # Example
 /// ```rust
-/// use rig::pipeline::*;
-/// use rig::conditional;
+/// use clankers::pipeline::*;
+/// use clankers::conditional;
 /// use tokio;
 ///
 /// #[tokio::main]
@@ -98,8 +98,8 @@ macro_rules! conditional {
 ///
 /// # Example
 /// ```rust
-/// use rig::pipeline::*;
-/// use rig::try_conditional;
+/// use clankers::pipeline::*;
+/// use clankers::try_conditional;
 /// use tokio;
 ///
 /// #[tokio::main]

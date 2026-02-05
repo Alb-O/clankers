@@ -1,8 +1,8 @@
-use rig::agent::AgentBuilder;
-use rig::completion::{Prompt, ToolDefinition};
-use rig::prelude::*;
-use rig::providers::together;
-use rig::tool::Tool;
+use clankers::agent::AgentBuilder;
+use clankers::completion::{Prompt, ToolDefinition};
+use clankers::prelude::*;
+use clankers::providers::together;
+use clankers::tool::Tool;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
@@ -21,8 +21,8 @@ async fn main() -> Result<(), anyhow::Error> {
 async fn basic() -> Result<(), anyhow::Error> {
 	let together_ai_client = together::Client::from_env();
 	// Choose a model, replace "together-model-v1" with an actual Together AI model name
-	let model =
-		together_ai_client.completion_model(rig::providers::together::MIXTRAL_8X7B_INSTRUCT_V0_1);
+	let model = together_ai_client
+		.completion_model(clankers::providers::together::MIXTRAL_8X7B_INSTRUCT_V0_1);
 	let agent = AgentBuilder::new(model)
 		.preamble("You are a comedian here to entertain the user using humour and jokes.")
 		.build();
@@ -36,8 +36,8 @@ async fn tools() -> Result<(), anyhow::Error> {
 	// Create Together AI client
 	let together_ai_client = together::Client::from_env();
 	// Choose a model, replace "together-model-v1" with an actual Together AI model name
-	let model =
-		together_ai_client.completion_model(rig::providers::together::MIXTRAL_8X7B_INSTRUCT_V0_1);
+	let model = together_ai_client
+		.completion_model(clankers::providers::together::MIXTRAL_8X7B_INSTRUCT_V0_1);
 	// Create an agent with multiple context documents
 	let calculator_agent = AgentBuilder::new(model)
         .preamble("You are a calculator here to help the user perform arithmetic operations. Use the tools provided to answer the user's question.")
@@ -57,8 +57,8 @@ async fn context() -> Result<(), anyhow::Error> {
 	let together_ai_client = together::Client::from_env();
 
 	// Choose a model, replace "together-model-v1" with an actual Together AI model name
-	let model =
-		together_ai_client.completion_model(rig::providers::together::MIXTRAL_8X7B_INSTRUCT_V0_1);
+	let model = together_ai_client
+		.completion_model(clankers::providers::together::MIXTRAL_8X7B_INSTRUCT_V0_1);
 
 	// Create an agent with multiple context documents
 	let agent = AgentBuilder::new(model)

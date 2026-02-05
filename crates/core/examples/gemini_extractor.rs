@@ -1,6 +1,6 @@
-use rig::client::{CompletionClient, ProviderClient};
-use rig::providers::gemini;
-use rig::providers::gemini::completion::gemini_api_types::{
+use clankers::client::{CompletionClient, ProviderClient};
+use clankers::providers::gemini;
+use clankers::providers::gemini::completion::gemini_api_types::{
 	AdditionalParameters, GenerationConfig,
 };
 use schemars::JsonSchema;

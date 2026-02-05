@@ -29,7 +29,7 @@ impl EmbedError {
 /// use std::env;
 ///
 /// use serde::{Deserialize, Serialize};
-/// use rig::{Embed, embeddings::{TextEmbedder, EmbedError}};
+/// use clankers::{Embed, embeddings::{TextEmbedder, EmbedError}};
 ///
 /// struct WordDefinition {
 ///     id: String,

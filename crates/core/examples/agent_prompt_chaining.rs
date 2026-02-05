@@ -1,7 +1,7 @@
-use rig::pipeline::{self, Op};
-use rig::prelude::*;
-use rig::providers::openai;
-use rig::providers::openai::client::Client;
+use clankers::pipeline::{self, Op};
+use clankers::prelude::*;
+use clankers::providers::openai;
+use clankers::providers::openai::client::Client;
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
 	// Create OpenAI client

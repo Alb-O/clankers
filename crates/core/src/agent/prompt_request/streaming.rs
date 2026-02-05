@@ -234,7 +234,7 @@ where
 				}
 
 				let chat_stream_span = info_span!(
-					target: "rig::agent_chat",
+					target: "clankers::agent_chat",
 					parent: tracing::Span::current(),
 					"chat_streaming",
 					gen_ai.operation.name = "chat",
@@ -263,7 +263,7 @@ where
 
 				let mut tool_calls = vec![];
 				let mut tool_results = vec![];
-				let mut accumulated_reasoning: Option<rig::message::Reasoning> = None;
+				let mut accumulated_reasoning: Option<clankers::message::Reasoning> = None;
 
 				while let Some(content) = stream.next().await {
 					match content {
@@ -377,8 +377,8 @@ where
 						Ok(StreamedAssistantContent::ToolCallDelta { id, internal_call_id, content }) => {
 							if let Some(ref hook) = self.hook {
 								let (name, delta) = match &content {
-									rig::streaming::ToolCallDeltaContent::Name(n) => (Some(n.as_str()), ""),
-									rig::streaming::ToolCallDeltaContent::Delta(d) => (None, d.as_str()),
+									clankers::streaming::ToolCallDeltaContent::Name(n) => (Some(n.as_str()), ""),
+									clankers::streaming::ToolCallDeltaContent::Delta(d) => (None, d.as_str()),
 								};
 
 								if let HookAction::Terminate { reason } = hook.on_tool_call_delta(&id, &internal_call_id, name, delta)
@@ -389,20 +389,20 @@ where
 								}
 							}
 						}
-						Ok(StreamedAssistantContent::Reasoning(rig::message::Reasoning { reasoning, id, signature })) => {
+						Ok(StreamedAssistantContent::Reasoning(clankers::message::Reasoning { reasoning, id, signature })) => {
 							// Accumulate reasoning for inclusion in chat history with tool calls.
 							// OpenAI Responses API requires reasoning items to be sent back
 							// alongside function_call items in multi-turn conversations.
 							if let Some(ref mut existing) = accumulated_reasoning {
 								existing.reasoning.extend(reasoning.clone());
 							} else {
-								accumulated_reasoning = Some(rig::message::Reasoning {
+								accumulated_reasoning = Some(clankers::message::Reasoning {
 									reasoning: reasoning.clone(),
 									id: id.clone(),
 									signature: signature.clone(),
 								});
 							}
-							yield Ok(MultiTurnStreamItem::stream_item(StreamedAssistantContent::Reasoning(rig::message::Reasoning { reasoning, id, signature })));
+							yield Ok(MultiTurnStreamItem::stream_item(StreamedAssistantContent::Reasoning(clankers::message::Reasoning { reasoning, id, signature })));
 							did_call_tool = false;
 						},
 						Ok(StreamedAssistantContent::ReasoningDelta { reasoning, id }) => {
@@ -434,11 +434,11 @@ where
 				// Add reasoning and tool calls to chat history.
 				// OpenAI Responses API requires reasoning items to precede function_call items.
 				if !tool_calls.is_empty() || accumulated_reasoning.is_some() {
-					let mut content_items: Vec<rig::message::AssistantContent> = vec![];
+					let mut content_items: Vec<clankers::message::AssistantContent> = vec![];
 
 					// Reasoning must come before tool calls (OpenAI requirement)
 					if let Some(reasoning) = accumulated_reasoning.take() {
-						content_items.push(rig::message::AssistantContent::Reasoning(reasoning));
+						content_items.push(clankers::message::AssistantContent::Reasoning(reasoning));
 					}
 
 					content_items.extend(tool_calls.clone());

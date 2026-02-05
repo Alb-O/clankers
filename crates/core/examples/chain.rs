@@ -1,11 +1,11 @@
-use rig::embeddings::EmbeddingsBuilder;
-use rig::parallel;
-use rig::pipeline::agent_ops::lookup;
-use rig::pipeline::{self, Op, passthrough};
-use rig::prelude::*;
-use rig::providers::openai;
-use rig::providers::openai::Client;
-use rig::vector_store::in_memory_store::InMemoryVectorStore;
+use clankers::embeddings::EmbeddingsBuilder;
+use clankers::parallel;
+use clankers::pipeline::agent_ops::lookup;
+use clankers::pipeline::{self, Op, passthrough};
+use clankers::prelude::*;
+use clankers::providers::openai;
+use clankers::providers::openai::Client;
+use clankers::vector_store::in_memory_store::InMemoryVectorStore;
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {

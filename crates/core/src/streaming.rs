@@ -84,7 +84,7 @@ where
 	ToolCallDelta {
 		/// Provider-supplied tool call ID.
 		id: String,
-		/// Rig-generated unique identifier for this tool call.
+		/// Clankers-generated unique identifier for this tool call.
 		internal_call_id: String,
 		content: ToolCallDeltaContent,
 	},
@@ -110,7 +110,7 @@ where
 pub struct RawStreamingToolCall {
 	/// Provider-supplied tool call ID.
 	pub id: String,
-	/// Rig-generated unique identifier for this tool call.
+	/// Clankers-generated unique identifier for this tool call.
 	pub internal_call_id: String,
 	pub call_id: Option<String>,
 	pub name: String,
@@ -604,14 +604,14 @@ pub enum StreamedAssistantContent<R> {
 	Text(Text),
 	ToolCall {
 		tool_call: ToolCall,
-		/// Rig-generated unique identifier for this tool call.
+		/// Clankers-generated unique identifier for this tool call.
 		/// Use this to correlate with ToolCallDelta events.
 		internal_call_id: String,
 	},
 	ToolCallDelta {
 		/// Provider-supplied tool call ID.
 		id: String,
-		/// Rig-generated unique identifier for this tool call.
+		/// Clankers-generated unique identifier for this tool call.
 		internal_call_id: String,
 		content: ToolCallDeltaContent,
 	},
@@ -644,7 +644,7 @@ where
 pub enum StreamedUserContent {
 	ToolResult {
 		tool_result: ToolResult,
-		/// Rig-generated unique identifier for the tool call this result
+		/// Clankers-generated unique identifier for the tool call this result
 		/// belongs to. Use this to correlate with the originating
 		/// [`StreamedAssistantContent::ToolCall::internal_call_id`].
 		internal_call_id: String,

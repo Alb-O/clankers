@@ -1,10 +1,10 @@
 use anyhow::Result;
-use rig::agent::stream_to_stdout;
-use rig::completion::ToolDefinition;
-use rig::prelude::*;
-use rig::providers;
-use rig::streaming::StreamingPrompt;
-use rig::tool::Tool;
+use clankers::agent::stream_to_stdout;
+use clankers::completion::ToolDefinition;
+use clankers::prelude::*;
+use clankers::providers;
+use clankers::streaming::StreamingPrompt;
+use clankers::tool::Tool;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 

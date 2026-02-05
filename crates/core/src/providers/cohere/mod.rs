@@ -1,8 +1,8 @@
-//! Cohere API client and Rig integration
+//! Cohere API client and Clankers integration
 //!
 //! # Example
 //! ```
-//! use rig::providers::cohere;
+//! use clankers::providers::cohere;
 //!
 //! let client = cohere::Client::new("YOUR_API_KEY");
 //!

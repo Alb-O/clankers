@@ -1,11 +1,11 @@
-use rig::client::{CompletionClient, ProviderClient};
-use rig::completion::Prompt;
-use rig::providers;
-use rig::tool::Tool;
-use rig_derive::rig_tool;
+use clankers::client::{CompletionClient, ProviderClient};
+use clankers::completion::Prompt;
+use clankers::providers;
+use clankers::tool::Tool;
+use clankers_derive::clankers_tool;
 
 // Example with full attributes including parameter descriptions
-#[rig_tool(
+#[clankers_tool(
 	description = "A tool that performs string operations",
 	params(
 		text = "The input text to process",
@@ -13,13 +13,13 @@ use rig_derive::rig_tool;
 	),
 	required(text, operation)
 )]
-fn string_processor(text: String, operation: String) -> Result<String, rig::tool::ToolError> {
+fn string_processor(text: String, operation: String) -> Result<String, clankers::tool::ToolError> {
 	let result = match operation.as_str() {
 		"uppercase" => text.to_uppercase(),
 		"lowercase" => text.to_lowercase(),
 		"reverse" => text.chars().rev().collect(),
 		_ => {
-			return Err(rig::tool::ToolError::ToolCallError(
+			return Err(clankers::tool::ToolError::ToolCallError(
 				format!("Unknown operation: {operation}").into(),
 			));
 		}

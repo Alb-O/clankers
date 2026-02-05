@@ -1,13 +1,13 @@
 use base64::Engine;
 use base64::prelude::BASE64_STANDARD;
-use rig::completion::Prompt;
-use rig::completion::message::Image;
-use rig::message::{DocumentSourceKind, ImageMediaType};
-use rig::prelude::*;
-use rig::providers::ollama;
+use clankers::completion::Prompt;
+use clankers::completion::message::Image;
+use clankers::message::{DocumentSourceKind, ImageMediaType};
+use clankers::prelude::*;
+use clankers::providers::ollama;
 use tokio::fs;
 
-const IMAGE_FILE_PATH: &str = "rig-core/examples/images/camponotus_flavomarginatus_ant.jpg";
+const IMAGE_FILE_PATH: &str = "clankers-core/examples/images/camponotus_flavomarginatus_ant.jpg";
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {

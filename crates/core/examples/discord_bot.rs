@@ -1,13 +1,13 @@
-use rig::integrations::discord_bot::DiscordExt;
-use rig::prelude::*;
-use rig::providers::openai;
+use clankers::integrations::discord_bot::DiscordExt;
+use clankers::prelude::*;
+use clankers::providers::openai;
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
 	let discord_bot_token = std::env::var("DISCORD_BOT_TOKEN")
 		.expect("DISCORD_BOT_TOKEN to be set as an environment variable");
 	// Create OpenAI client
-	let client = rig::providers::openai::Client::from_env();
+	let client = clankers::providers::openai::Client::from_env();
 
 	// Create agent with a single context prompt
 	let mut discord_bot = client

@@ -1,14 +1,14 @@
 use std::pin::Pin;
 
+use clankers::OneOrMany;
+use clankers::agent::Agent;
+use clankers::client::{CompletionClient, ProviderClient};
+use clankers::completion::{self, CompletionError, CompletionModel, PromptError, ToolDefinition};
+use clankers::message::{AssistantContent, Message, Text, ToolResultContent, UserContent};
+use clankers::providers::gemini;
+use clankers::streaming::{StreamedAssistantContent, StreamingCompletion};
+use clankers::tool::{Tool, ToolError, ToolSetError};
 use futures::{Stream, StreamExt};
-use rig::OneOrMany;
-use rig::agent::Agent;
-use rig::client::{CompletionClient, ProviderClient};
-use rig::completion::{self, CompletionError, CompletionModel, PromptError, ToolDefinition};
-use rig::message::{AssistantContent, Message, Text, ToolResultContent, UserContent};
-use rig::providers::gemini;
-use rig::streaming::{StreamedAssistantContent, StreamingCompletion};
-use rig::tool::{Tool, ToolError, ToolSetError};
 use schemars::{JsonSchema, schema_for};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
@@ -107,7 +107,7 @@ where
 						did_call_tool = true;
 						// break;
 					},
-					Ok(StreamedAssistantContent::Reasoning(rig::message::Reasoning { reasoning, .. })) => {
+					Ok(StreamedAssistantContent::Reasoning(clankers::message::Reasoning { reasoning, .. })) => {
 						if !reasoning.is_empty() {
 							yield Ok(Text { text: reasoning.first().unwrap().to_owned() });
 						}

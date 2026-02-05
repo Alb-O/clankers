@@ -1,9 +1,9 @@
 //! This example shows how you can use OpenAI's Completions API.
 //! By default, the OpenAI integration uses the Responses API. However, for the sake of backwards compatibility you may wish to use the Completions API.
 
-use rig::completion::Prompt;
-use rig::prelude::*;
-use rig::providers::openai;
+use clankers::completion::Prompt;
+use clankers::prelude::*;
+use clankers::providers::openai;
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {

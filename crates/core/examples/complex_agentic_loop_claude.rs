@@ -1,14 +1,14 @@
 use std::env;
 
 use anyhow::Result;
-use rig::Embed;
-use rig::completion::Prompt;
-use rig::embeddings::EmbeddingsBuilder;
-use rig::message::Message;
-use rig::prelude::*;
-use rig::providers::anthropic::{self, Client};
-use rig::tool::ThinkTool;
-use rig::vector_store::in_memory_store::InMemoryVectorStore;
+use clankers::Embed;
+use clankers::completion::Prompt;
+use clankers::embeddings::EmbeddingsBuilder;
+use clankers::message::Message;
+use clankers::prelude::*;
+use clankers::providers::anthropic::{self, Client};
+use clankers::tool::ThinkTool;
+use clankers::vector_store::in_memory_store::InMemoryVectorStore;
 use serde::{Deserialize, Serialize};
 
 // Define a knowledge base entry for our vector store
@@ -37,9 +37,9 @@ async fn main() -> Result<(), anyhow::Error> {
 
 	// Create the embedding model for our vector store
 	// We'll use OpenAI's embedding model for this example
-	let openai_client = rig::providers::openai::Client::from_env();
+	let openai_client = clankers::providers::openai::Client::from_env();
 	let embedding_model =
-		openai_client.embedding_model(rig::providers::openai::TEXT_EMBEDDING_ADA_002);
+		openai_client.embedding_model(clankers::providers::openai::TEXT_EMBEDDING_ADA_002);
 
 	// Create a knowledge base with sample entries
 	let knowledge_entries = vec![

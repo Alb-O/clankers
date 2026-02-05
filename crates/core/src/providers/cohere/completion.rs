@@ -619,7 +619,7 @@ where
 
 		let llm_span = if tracing::Span::current().is_disabled() {
 			info_span!(
-			target: "rig::completions",
+			target: "clankers::completions",
 			"chat",
 			gen_ai.operation.name = "chat",
 			gen_ai.provider.name = "cohere",
@@ -662,7 +662,7 @@ where
 
 				if enabled!(Level::TRACE) {
 					tracing::trace!(
-						target: "rig::completions",
+						target: "clankers::completions",
 						"Cohere completion response: {}",
 						serde_json::to_string_pretty(&json_response)?
 					);

@@ -1,8 +1,8 @@
-//! Perplexity API client and Rig integration
+//! Perplexity API client and Clankers integration
 //!
 //! # Example
 //! ```
-//! use rig::providers::perplexity;
+//! use clankers::providers::perplexity;
 //!
 //! let client = perplexity::Client::new("YOUR_API_KEY");
 //!
@@ -294,7 +294,7 @@ where
 			PerplexityCompletionRequest::try_from((self.model.as_ref(), completion_request))?;
 
 		if tracing::enabled!(tracing::Level::TRACE) {
-			tracing::trace!(target: "rig::completions",
+			tracing::trace!(target: "clankers::completions",
 				"Perplexity completion request: {}",
 				serde_json::to_string_pretty(&request)?
 			);
@@ -327,7 +327,7 @@ where
 			current_span.record("gen_ai.response.model", response.model.to_string());
 
 			if tracing::enabled!(tracing::Level::TRACE) {
-				tracing::trace!(target: "rig::responses",
+				tracing::trace!(target: "clankers::responses",
 					"Perplexity completion response: {}",
 					serde_json::to_string_pretty(&response)?
 				);
@@ -362,7 +362,7 @@ where
 		request.stream = true;
 
 		if tracing::enabled!(tracing::Level::TRACE) {
-			tracing::trace!(target: "rig::completions",
+			tracing::trace!(target: "clankers::completions",
 				"Perplexity streaming completion request: {}",
 				serde_json::to_string_pretty(&request)?
 			);

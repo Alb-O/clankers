@@ -28,7 +28,7 @@ pub fn derive_provider_client(input: TokenStream) -> TokenStream {
 //References:
 //<https://doc.rust-lang.org/book/ch19-06-macros.html#how-to-write-a-custom-derive-macro>
 //<https://doc.rust-lang.org/reference/procedural-macros.html>
-/// A macro that allows you to implement the `rig::embedding::Embed` trait by deriving it.
+/// A macro that allows you to implement the `clankers::embedding::Embed` trait by deriving it.
 /// Usage can be found below:
 ///
 /// ```rust,ignore
@@ -162,58 +162,58 @@ fn get_json_type(ty: &Type) -> proc_macro2::TokenStream {
 	}
 }
 
-/// A procedural macro that transforms a function into a `rig::tool::Tool` that can be used with a `rig::agent::Agent`.
+/// A procedural macro that transforms a function into a `clankers::tool::Tool` that can be used with a `clankers::agent::Agent`.
 ///
 /// # Examples
 ///
 /// Basic usage:
 /// ```rust
-/// use rig_derive::rig_tool;
+/// use clankers_derive::clankers_tool;
 ///
-/// #[rig_tool]
-/// fn add(a: i32, b: i32) -> Result<i32, rig::tool::ToolError> {
+/// #[clankers_tool]
+/// fn add(a: i32, b: i32) -> Result<i32, clankers::tool::ToolError> {
 ///     Ok(a + b)
 /// }
 /// ```
 ///
 /// With description:
 /// ```rust
-/// use rig_derive::rig_tool;
+/// use clankers_derive::clankers_tool;
 ///
-/// #[rig_tool(description = "Perform basic arithmetic operations")]
-/// fn calculator(x: i32, y: i32, operation: String) -> Result<i32, rig::tool::ToolError> {
+/// #[clankers_tool(description = "Perform basic arithmetic operations")]
+/// fn calculator(x: i32, y: i32, operation: String) -> Result<i32, clankers::tool::ToolError> {
 ///     match operation.as_str() {
 ///         "add" => Ok(x + y),
 ///         "subtract" => Ok(x - y),
 ///         "multiply" => Ok(x * y),
 ///         "divide" => Ok(x / y),
-///         _ => Err(rig::tool::ToolError::ToolCallError("Unknown operation".into())),
+///         _ => Err(clankers::tool::ToolError::ToolCallError("Unknown operation".into())),
 ///     }
 /// }
 /// ```
 ///
 /// With parameter descriptions:
 /// ```rust
-/// use rig_derive::rig_tool;
+/// use clankers_derive::clankers_tool;
 ///
-/// #[rig_tool(
+/// #[clankers_tool(
 ///     description = "A tool that performs string operations",
 ///     params(
 ///         text = "The input text to process",
 ///         operation = "The operation to perform (uppercase, lowercase, reverse)"
 ///     )
 /// )]
-/// fn string_processor(text: String, operation: String) -> Result<String, rig::tool::ToolError> {
+/// fn string_processor(text: String, operation: String) -> Result<String, clankers::tool::ToolError> {
 ///     match operation.as_str() {
 ///         "uppercase" => Ok(text.to_uppercase()),
 ///         "lowercase" => Ok(text.to_lowercase()),
 ///         "reverse" => Ok(text.chars().rev().collect()),
-///         _ => Err(rig::tool::ToolError::ToolCallError("Unknown operation".into())),
+///         _ => Err(clankers::tool::ToolError::ToolCallError("Unknown operation".into())),
 ///     }
 /// }
 /// ```
 #[proc_macro_attribute]
-pub fn rig_tool(args: TokenStream, input: TokenStream) -> TokenStream {
+pub fn clankers_tool(args: TokenStream, input: TokenStream) -> TokenStream {
 	let args = parse_macro_input!(args as MacroArgs);
 	let input_fn = parse_macro_input!(input as syn::ItemFn);
 
@@ -321,7 +321,7 @@ pub fn rig_tool(args: TokenStream, input: TokenStream) -> TokenStream {
 		#[derive(Default)]
 		pub(crate) struct #struct_name;
 
-		impl rig::tool::Tool for #struct_name {
+		impl clankers::tool::Tool for #struct_name {
 			const NAME: &'static str = #fn_name_str;
 
 			type Args = #params_struct_name;
@@ -332,7 +332,7 @@ pub fn rig_tool(args: TokenStream, input: TokenStream) -> TokenStream {
 				#fn_name_str.to_string()
 			}
 
-			async fn definition(&self, _prompt: String) -> rig::completion::ToolDefinition {
+			async fn definition(&self, _prompt: String) -> clankers::completion::ToolDefinition {
 				let parameters = serde_json::json!({
 					"type": "object",
 					"properties": {
@@ -346,7 +346,7 @@ pub fn rig_tool(args: TokenStream, input: TokenStream) -> TokenStream {
 					"required": [#(#required_args),*]
 				});
 
-				rig::completion::ToolDefinition {
+				clankers::completion::ToolDefinition {
 					name: #fn_name_str.to_string(),
 					description: #tool_description.to_string(),
 					parameters,

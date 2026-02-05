@@ -1,9 +1,9 @@
-//! Azure OpenAI API client and Rig integration
+//! Azure OpenAI API client and Clankers integration
 //!
 //! # Example
 //! ```
-//! use rig::providers::azure;
-//! use rig::client::CompletionClient;
+//! use clankers::providers::azure;
+//! use clankers::client::CompletionClient;
 //!
 //! let client: azure::Client<reqwest::Client> = azure::Client::builder()
 //!     .api_key("test")
@@ -472,7 +472,7 @@ where
 
 			match body {
 				ApiResponse::Ok(response) => {
-					tracing::info!(target: "rig",
+					tracing::info!(target: "clankers",
 						"Azure embedding token usage: {}",
 						response.usage
 					);
@@ -579,7 +579,7 @@ impl TryFrom<(&str, CompletionRequest)> for AzureOpenAICompletionRequest {
 		//FIXME: Must fix!
 		if req.tool_choice.is_some() {
 			tracing::warn!(
-				"Tool choice is currently not supported in Azure OpenAI. This should be fixed by Rig 0.25."
+				"Tool choice is currently not supported in Azure OpenAI. This should be fixed by Clankers 0.25."
 			);
 		}
 
@@ -661,7 +661,7 @@ where
 	) -> Result<completion::CompletionResponse<openai::CompletionResponse>, CompletionError> {
 		let span = if tracing::Span::current().is_disabled() {
 			info_span!(
-				target: "rig::completions",
+				target: "clankers::completions",
 				"chat",
 				gen_ai.operation.name = "chat",
 				gen_ai.provider.name = "azure.openai",
@@ -680,7 +680,7 @@ where
 			AzureOpenAICompletionRequest::try_from((self.model.as_ref(), completion_request))?;
 
 		if enabled!(Level::TRACE) {
-			tracing::trace!(target: "rig::completions",
+			tracing::trace!(target: "clankers::completions",
 				"Azure OpenAI completion request: {}",
 				serde_json::to_string_pretty(&request)?
 			);
@@ -709,7 +709,7 @@ where
 						span.record_response_metadata(&response);
 						span.record_token_usage(&response.usage);
 						if enabled!(Level::TRACE) {
-							tracing::trace!(target: "rig::completions",
+							tracing::trace!(target: "clankers::completions",
 								"Azure OpenAI completion response: {}",
 								serde_json::to_string_pretty(&response)?
 							);
@@ -744,7 +744,7 @@ where
 		request.additional_params = Some(params);
 
 		if enabled!(Level::TRACE) {
-			tracing::trace!(target: "rig::completions",
+			tracing::trace!(target: "clankers::completions",
 				"Azure OpenAI completion request: {}",
 				serde_json::to_string_pretty(&request)?
 			);
@@ -760,7 +760,7 @@ where
 
 		let span = if tracing::Span::current().is_disabled() {
 			info_span!(
-				target: "rig::completions",
+				target: "clankers::completions",
 				"chat_streaming",
 				gen_ai.operation.name = "chat_streaming",
 				gen_ai.provider.name = "azure.openai",

@@ -11,7 +11,7 @@ use crate::OneOrMany;
 // Message models
 // ================================================================
 
-/// A useful trait to help convert `rig::completion::Message` to your own message type.
+/// A useful trait to help convert `clankers::completion::Message` to your own message type.
 ///
 /// Particularly useful if you don't want to create a free-standing function as
 /// when trying to use `TryFrom<T>`, you would normally run into the orphan rule as Vec is

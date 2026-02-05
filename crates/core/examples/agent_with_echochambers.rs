@@ -1,12 +1,12 @@
 use std::env;
 
 use anyhow::Result;
+use clankers::completion::ToolDefinition;
+use clankers::integrations::cli_chatbot::ChatBotBuilder;
+use clankers::prelude::*;
+use clankers::providers::openai::{self, Client};
+use clankers::tool::Tool;
 use reqwest::header::{CONTENT_TYPE, HeaderMap, HeaderValue};
-use rig::completion::ToolDefinition;
-use rig::integrations::cli_chatbot::ChatBotBuilder;
-use rig::prelude::*;
-use rig::providers::openai::{self, Client};
-use rig::tool::Tool;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 

@@ -1,7 +1,7 @@
-use rig::tool::Tool;
-use rig_derive::rig_tool;
+use clankers::tool::Tool;
+use clankers_derive::clankers_tool;
 
-#[rig_tool(
+#[clankers_tool(
 	description = "Perform basic arithmetic operations",
 	params(
 		x = "First number in the calculation",
@@ -9,27 +9,27 @@ use rig_derive::rig_tool;
 		operation = "The operation to perform (add, subtract, multiply, divide)"
 	)
 )]
-async fn calculator(x: i32, y: i32, operation: String) -> Result<i32, rig::tool::ToolError> {
+async fn calculator(x: i32, y: i32, operation: String) -> Result<i32, clankers::tool::ToolError> {
 	match operation.as_str() {
 		"add" => Ok(x + y),
 		"subtract" => Ok(x - y),
 		"multiply" => Ok(x * y),
 		"divide" => {
 			if y == 0 {
-				Err(rig::tool::ToolError::ToolCallError(
+				Err(clankers::tool::ToolError::ToolCallError(
 					"Division by zero".into(),
 				))
 			} else {
 				Ok(x / y)
 			}
 		}
-		_ => Err(rig::tool::ToolError::ToolCallError(
+		_ => Err(clankers::tool::ToolError::ToolCallError(
 			format!("Unknown operation: {operation}").into(),
 		)),
 	}
 }
 
-#[rig_tool(
+#[clankers_tool(
 	description = "Perform basic arithmetic operations",
 	params(
 		x = "First number in the calculation",
@@ -37,21 +37,21 @@ async fn calculator(x: i32, y: i32, operation: String) -> Result<i32, rig::tool:
 		operation = "The operation to perform (add, subtract, multiply, divide)"
 	)
 )]
-fn sync_calculator(x: i32, y: i32, operation: String) -> Result<i32, rig::tool::ToolError> {
+fn sync_calculator(x: i32, y: i32, operation: String) -> Result<i32, clankers::tool::ToolError> {
 	match operation.as_str() {
 		"add" => Ok(x + y),
 		"subtract" => Ok(x - y),
 		"multiply" => Ok(x * y),
 		"divide" => {
 			if y == 0 {
-				Err(rig::tool::ToolError::ToolCallError(
+				Err(clankers::tool::ToolError::ToolCallError(
 					"Division by zero".into(),
 				))
 			} else {
 				Ok(x / y)
 			}
 		}
-		_ => Err(rig::tool::ToolError::ToolCallError(
+		_ => Err(clankers::tool::ToolError::ToolCallError(
 			format!("Unknown operation: {operation}").into(),
 		)),
 	}
@@ -119,7 +119,7 @@ async fn test_calculator_tool() {
 		operation: "divide".to_string(),
 	};
 	let err = calculator.call(div_zero).await.unwrap_err();
-	assert!(matches!(err, rig::tool::ToolError::ToolCallError(_)));
+	assert!(matches!(err, clankers::tool::ToolError::ToolCallError(_)));
 
 	// Test invalid operation
 	let invalid_op = CalculatorParameters {
@@ -128,7 +128,7 @@ async fn test_calculator_tool() {
 		operation: "power".to_string(),
 	};
 	let err = calculator.call(invalid_op).await.unwrap_err();
-	assert!(matches!(err, rig::tool::ToolError::ToolCallError(_)));
+	assert!(matches!(err, clankers::tool::ToolError::ToolCallError(_)));
 
 	// Test sync calculator
 	let sync_calculator = SyncCalculator;

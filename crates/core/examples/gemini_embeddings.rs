@@ -1,6 +1,6 @@
-use rig::Embed;
-use rig::prelude::*;
-use rig::providers::gemini;
+use clankers::Embed;
+use clankers::prelude::*;
+use clankers::providers::gemini;
 
 #[derive(Embed, Debug)]
 struct Greetings {

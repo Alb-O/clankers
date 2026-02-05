@@ -1,8 +1,8 @@
-//! Hyperbolic Inference API client and Rig integration
+//! Hyperbolic Inference API client and Clankers integration
 //!
 //! # Example
 //! ```
-//! use rig::providers::hyperbolic;
+//! use clankers::providers::hyperbolic;
 //!
 //! let client = hyperbolic::Client::new("YOUR_API_KEY");
 //!
@@ -298,7 +298,7 @@ where
 			HyperbolicCompletionRequest::try_from((self.model.as_ref(), completion_request))?;
 
 		if tracing::enabled!(tracing::Level::TRACE) {
-			tracing::trace!(target: "rig::completions",
+			tracing::trace!(target: "clankers::completions",
 				"Hyperbolic completion request: {}",
 				serde_json::to_string_pretty(&request)?
 			);
@@ -342,7 +342,7 @@ where
 		openai_compat::merge_stream_params(&mut request.additional_params);
 
 		if tracing::enabled!(tracing::Level::TRACE) {
-			tracing::trace!(target: "rig::completions",
+			tracing::trace!(target: "clankers::completions",
 				"Hyperbolic streaming completion request: {}",
 				serde_json::to_string_pretty(&request)?
 			);

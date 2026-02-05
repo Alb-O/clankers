@@ -1,8 +1,8 @@
-//! Together AI API client and Rig integration
+//! Together AI API client and Clankers integration
 //!
 //! # Example
 //! ```
-//! use rig::providers::together_ai;
+//! use clankers::providers::together_ai;
 //!
 //! let client = together_ai::Client::new("YOUR_API_KEY");
 //!

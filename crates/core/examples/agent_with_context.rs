@@ -1,8 +1,8 @@
-use rig::agent::AgentBuilder;
-use rig::completion::Prompt;
-use rig::prelude::*;
-use rig::providers::cohere;
-use rig::providers::cohere::COMMAND_R;
+use clankers::agent::AgentBuilder;
+use clankers::completion::Prompt;
+use clankers::prelude::*;
+use clankers::providers::cohere;
+use clankers::providers::cohere::COMMAND_R;
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {

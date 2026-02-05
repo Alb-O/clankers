@@ -34,7 +34,7 @@ impl<D: Serialize + Eq> InMemoryVectorStore<D> {
 	/// # Examples
 	///
 	/// ```ignore
-	/// use rig::vector_store::InMemoryVectorStore;
+	/// use clankers::vector_store::InMemoryVectorStore;
 	///
 	/// let store = InMemoryVectorStore::<String>::builder()
 	///     .with_lsh()
@@ -170,7 +170,7 @@ impl<D: Serialize + Eq> InMemoryVectorStore<D> {
 		}
 
 		// Log selected tools with their distances
-		tracing::info!(target: "rig",
+		tracing::info!(target: "clankers",
 			"Selected documents: {}",
 			docs.iter()
 				.map(|Reverse(RankingItem(distance, id, _, _))| format!("{id} ({distance})"))
@@ -234,7 +234,7 @@ impl<D: Serialize + Eq> InMemoryVectorStore<D> {
 		}
 
 		// Log selected tools with their distances
-		tracing::info!(target: "rig",
+		tracing::info!(target: "clankers",
 			"Selected documents (LSH): {}",
 			docs.iter()
 				.map(|Reverse(RankingItem(distance, id, _, _))| format!("{id} ({distance})"))

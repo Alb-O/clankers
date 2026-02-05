@@ -1,11 +1,11 @@
 use base64::Engine;
 use base64::prelude::BASE64_STANDARD;
+use clankers::completion::Prompt;
+use clankers::completion::message::Image;
+use clankers::message::{DocumentSourceKind, ImageMediaType};
+use clankers::prelude::*;
+use clankers::providers::anthropic::{self};
 use reqwest::Client;
-use rig::completion::Prompt;
-use rig::completion::message::Image;
-use rig::message::{DocumentSourceKind, ImageMediaType};
-use rig::prelude::*;
-use rig::providers::anthropic::{self};
 
 const IMAGE_URL: &str =
 	"https://upload.wikimedia.org/wikipedia/commons/a/a7/Camponotus_flavomarginatus_ant.jpg";

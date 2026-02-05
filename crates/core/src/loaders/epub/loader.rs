@@ -56,7 +56,7 @@ impl<T: Loadable> Loadable for Result<T, EpubLoaderError> {
 /// # Example Usage
 ///
 /// ```rust
-/// use rig::loaders::{EpubFileLoader, RawTextProcessor, StripXmlProcessor};
+/// use clankers::loaders::{EpubFileLoader, RawTextProcessor, StripXmlProcessor};
 ///
 /// fn main() -> Result<(), Box<dyn std::error::Error>> {
 ///     // Create a FileLoader using a glob pattern
@@ -120,7 +120,7 @@ impl<'a, P> EpubFileLoader<'a, Result<PathBuf, EpubLoaderError>, P> {
 	/// Load epub files in directory "tests/data/*.epub" and return the loaded documents
 	///
 	/// ```rust
-	/// use rig::loaders::EpubFileLoader;
+	/// use clankers::loaders::EpubFileLoader;
 	///
 	/// let content = EpubFileLoader::<_, RawTextProcessor>::with_glob("tests/data/*.epub")?.load().into_iter();
 	/// for result in content {
@@ -145,7 +145,7 @@ impl<'a, P> EpubFileLoader<'a, Result<PathBuf, EpubLoaderError>, P> {
 	/// Load epub files in directory "tests/data/*.epub" and return the loaded documents
 	///
 	/// ```rust
-	/// use rig::loaders::EpubFileLoader;
+	/// use clankers::loaders::EpubFileLoader;
 	///
 	/// let content = EpubFileLoader::<_, RawTextProcessor>::with_glob("tests/data/*.epub").unwrap().load_with_path().into_iter();
 	/// for result in content {

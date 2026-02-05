@@ -1,9 +1,9 @@
 use std::env;
 
-use rig::completion::Prompt;
-use rig::prelude::*;
-use rig::providers;
-use rig::providers::galadriel;
+use clankers::completion::Prompt;
+use clankers::prelude::*;
+use clankers::providers;
+use clankers::providers::galadriel;
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {

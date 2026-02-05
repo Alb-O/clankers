@@ -1,5 +1,5 @@
-use rig::prelude::*;
-use rig::providers::deepseek;
+use clankers::prelude::*;
+use clankers::providers::deepseek;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 

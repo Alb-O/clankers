@@ -1,11 +1,11 @@
-use rig::OneOrMany;
-use rig::completion::Prompt;
-use rig::message::{Message, UserContent, Video};
-use rig::prelude::*;
-use rig::providers::gemini::completion::gemini_api_types::{
+use clankers::OneOrMany;
+use clankers::completion::Prompt;
+use clankers::message::{Message, UserContent, Video};
+use clankers::prelude::*;
+use clankers::providers::gemini::completion::gemini_api_types::{
 	AdditionalParameters, GenerationConfig,
 };
-use rig::providers::gemini::{self};
+use clankers::providers::gemini::{self};
 use serde_json::json;
 
 #[tracing::instrument(ret)]
@@ -43,7 +43,7 @@ async fn main() -> Result<(), anyhow::Error> {
 			content: OneOrMany::many(vec![
 				UserContent::text("Summarize the video."),
 				UserContent::Video(Video {
-					data: rig::message::DocumentSourceKind::Url(
+					data: clankers::message::DocumentSourceKind::Url(
 						"https://www.youtube.com/watch?v=emtHJIxLwEc".to_string(),
 					),
 					media_type: None,

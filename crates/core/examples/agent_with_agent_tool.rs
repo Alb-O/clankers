@@ -1,8 +1,8 @@
 use anyhow::Result;
-use rig::completion::{Prompt, ToolDefinition};
-use rig::prelude::*;
-use rig::providers;
-use rig::tool::Tool;
+use clankers::completion::{Prompt, ToolDefinition};
+use clankers::prelude::*;
+use clankers::providers;
+use clankers::tool::Tool;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 

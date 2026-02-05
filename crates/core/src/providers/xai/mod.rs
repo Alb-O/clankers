@@ -1,8 +1,8 @@
-//! xAI API client and Rig integration
+//! xAI API client and Clankers integration
 //!
 //! # Example
 //! ```
-//! use rig::providers::xai;
+//! use clankers::providers::xai;
 //!
 //! let client = xai::Client::new("YOUR_API_KEY");
 //!

@@ -1,5 +1,5 @@
 //! Everything related to audio generation (ie, Text To Speech).
-//! Rig abstracts over a number of different providers using the [AudioGenerationModel] trait.
+//! Clankers abstracts over a number of different providers using the [AudioGenerationModel] trait.
 use serde_json::Value;
 use thiserror::Error;
 

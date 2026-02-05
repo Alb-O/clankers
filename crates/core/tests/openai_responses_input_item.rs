@@ -1,5 +1,5 @@
-use rig::OneOrMany;
-use rig::providers::openai::responses_api::{InputItem, Message, UserContent};
+use clankers::OneOrMany;
+use clankers::providers::openai::responses_api::{InputItem, Message, UserContent};
 
 #[test]
 fn test_input_item_serialization_avoids_duplicate_role() {

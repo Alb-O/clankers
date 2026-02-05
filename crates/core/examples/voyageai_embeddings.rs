@@ -1,6 +1,6 @@
-use rig::Embed;
-use rig::prelude::*;
-use rig::providers::voyageai;
+use clankers::Embed;
+use clankers::prelude::*;
+use clankers::providers::voyageai;
 
 #[derive(Embed, Debug)]
 struct Greetings {

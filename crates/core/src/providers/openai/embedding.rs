@@ -132,7 +132,7 @@ where
 
 			match body {
 				ApiResponse::Ok(response) => {
-					tracing::info!(target: "rig",
+					tracing::info!(target: "clankers",
 						"OpenAI embedding token usage: {:?}",
 						response.usage
 					);

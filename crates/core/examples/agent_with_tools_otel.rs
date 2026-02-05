@@ -7,14 +7,14 @@
 use std::time::Duration;
 
 use anyhow::Result;
+use clankers::completion::{Prompt, ToolDefinition};
+use clankers::prelude::*;
+use clankers::providers;
+use clankers::tool::Tool;
 use opentelemetry::trace::TracerProvider;
 use opentelemetry_otlp::WithExportConfig;
 use opentelemetry_sdk::Resource;
 use opentelemetry_sdk::trace::SdkTracerProvider;
-use rig::completion::{Prompt, ToolDefinition};
-use rig::prelude::*;
-use rig::providers;
-use rig::tool::Tool;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use tracing::Level;
@@ -118,7 +118,11 @@ async fn main() -> Result<(), anyhow::Error> {
 	// Create a new OpenTelemetry trace pipeline that prints to stdout
 	let provider = SdkTracerProvider::builder()
 		.with_batch_exporter(exporter)
-		.with_resource(Resource::builder().with_service_name("rig-demo").build())
+		.with_resource(
+			Resource::builder()
+				.with_service_name("clankers-demo")
+				.build(),
+		)
 		.build();
 	let tracer = provider.tracer("readme_example");
 

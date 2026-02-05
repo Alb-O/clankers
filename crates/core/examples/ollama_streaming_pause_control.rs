@@ -1,9 +1,9 @@
 use std::time::Duration;
 
+use clankers::completion::{CompletionModel, GetTokenUsage};
+use clankers::prelude::*;
+use clankers::providers::ollama;
 use futures::StreamExt;
-use rig::completion::{CompletionModel, GetTokenUsage};
-use rig::prelude::*;
-use rig::providers::ollama;
 use tokio::time::sleep;
 
 #[tokio::main]
@@ -24,23 +24,23 @@ async fn main() -> Result<(), anyhow::Error> {
 		match chunk_result {
 			Ok(content) => {
 				match content {
-					rig::streaming::StreamedAssistantContent::Text(text) => {
+					clankers::streaming::StreamedAssistantContent::Text(text) => {
 						print!("{}", text.text);
 						std::io::Write::flush(&mut std::io::stdout())?;
 						chunk_count += 1;
 					}
-					rig::streaming::StreamedAssistantContent::ToolCall {
+					clankers::streaming::StreamedAssistantContent::ToolCall {
 						tool_call,
 						internal_call_id: _,
 					} => {
 						println!("\n[Tool Call: {}]", tool_call.function.name);
 						chunk_count += 1;
 					}
-					rig::streaming::StreamedAssistantContent::Reasoning(reasoning) => {
+					clankers::streaming::StreamedAssistantContent::Reasoning(reasoning) => {
 						println!("\n[Reasoning: {}]", reasoning.reasoning.join(""));
 						chunk_count += 1;
 					}
-					rig::streaming::StreamedAssistantContent::Final(response) => {
+					clankers::streaming::StreamedAssistantContent::Final(response) => {
 						println!("\n\n[Stream completed]");
 						if let Some(usage) = response.token_usage() {
 							println!("Token usage: {:?}", usage);

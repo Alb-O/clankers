@@ -1,11 +1,11 @@
 use anyhow::Result;
-use rig::completion::{Prompt, ToolDefinition};
-use rig::embeddings::EmbeddingsBuilder;
-use rig::prelude::*;
-use rig::providers::openai;
-use rig::providers::openai::Client;
-use rig::tool::{Tool, ToolEmbedding, ToolSet};
-use rig::vector_store::in_memory_store::InMemoryVectorStore;
+use clankers::completion::{Prompt, ToolDefinition};
+use clankers::embeddings::EmbeddingsBuilder;
+use clankers::prelude::*;
+use clankers::providers::openai;
+use clankers::providers::openai::Client;
+use clankers::tool::{Tool, ToolEmbedding, ToolSet};
+use clankers::vector_store::in_memory_store::InMemoryVectorStore;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 

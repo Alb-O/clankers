@@ -1,14 +1,14 @@
 use std::path::PathBuf;
 
 use anyhow::{Context, Result};
-use rig::Embed;
-use rig::client::Nothing;
-use rig::embeddings::EmbeddingsBuilder;
-use rig::integrations::cli_chatbot::ChatBotBuilder;
-use rig::loaders::PdfFileLoader;
-use rig::prelude::*;
-use rig::providers::ollama;
-use rig::vector_store::in_memory_store::InMemoryVectorStore;
+use clankers::Embed;
+use clankers::client::Nothing;
+use clankers::embeddings::EmbeddingsBuilder;
+use clankers::integrations::cli_chatbot::ChatBotBuilder;
+use clankers::loaders::PdfFileLoader;
+use clankers::prelude::*;
+use clankers::providers::ollama;
+use clankers::vector_store::in_memory_store::InMemoryVectorStore;
 use serde::{Deserialize, Serialize};
 
 #[derive(Embed, Clone, Debug, Serialize, Deserialize, Eq, PartialEq)]
@@ -63,8 +63,8 @@ async fn main() -> Result<()> {
 		.build()
 		.unwrap();
 
-	// Load PDFs using Rig's built-in PDF loader
-	let documents_dir = std::env::current_dir()?.join("rig-core/examples/documents");
+	// Load PDFs using Clankers' built-in PDF loader
+	let documents_dir = std::env::current_dir()?.join("clankers-core/examples/documents");
 	let pdf_chunks =
 		load_pdf(documents_dir.join("deepseek_r1.pdf")).context("Failed to load pdf documents")?;
 	println!("Successfully loaded and chunked PDF documents");

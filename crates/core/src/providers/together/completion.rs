@@ -124,7 +124,7 @@ pub const SOLAR_10_7B_INSTRUCT_V1_INT4: &str = "togethercomputer/SOLAR-10.7B-Ins
 pub const WIZARDLM_13B_V1_2: &str = "WizardLM/WizardLM-13B-V1.2";
 
 // =================================================================
-// Rig Implementation Types
+// Clankers Implementation Types
 // =================================================================
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -221,7 +221,7 @@ where
 	) -> Result<completion::CompletionResponse<openai::CompletionResponse>, CompletionError> {
 		let span = if tracing::Span::current().is_disabled() {
 			info_span!(
-				target: "rig::completions",
+				target: "clankers::completions",
 				"chat",
 				gen_ai.operation.name = "chat",
 				gen_ai.provider.name = "together",
@@ -244,7 +244,7 @@ where
 		))?;
 
 		if enabled!(Level::TRACE) {
-			tracing::trace!(target: "rig::completions",
+			tracing::trace!(target: "clankers::completions",
 				"TogetherAI completion request: {}",
 				serde_json::to_string_pretty(&request)?
 			);
@@ -280,7 +280,7 @@ where
 						}
 						if enabled!(Level::TRACE) {
 							tracing::trace!(
-								target: "rig::completions",
+								target: "clankers::completions",
 								"TogetherAI completion response: {}",
 								serde_json::to_string_pretty(&response)?
 							);

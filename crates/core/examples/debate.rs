@@ -1,9 +1,9 @@
 use anyhow::Result;
-use rig::agent::Agent;
-use rig::completion::Prompt;
-use rig::message::Message;
-use rig::prelude::*;
-use rig::providers::{cohere, openai};
+use clankers::agent::Agent;
+use clankers::completion::Prompt;
+use clankers::message::Message;
+use clankers::prelude::*;
+use clankers::providers::{cohere, openai};
 
 struct Debater {
 	gpt_4: Agent<openai::responses_api::ResponsesCompletionModel>,

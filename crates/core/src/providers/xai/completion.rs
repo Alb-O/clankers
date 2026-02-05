@@ -169,7 +169,7 @@ where
 	) -> Result<completion::CompletionResponse<CompletionResponse>, CompletionError> {
 		let span = if tracing::Span::current().is_disabled() {
 			info_span!(
-				target: "rig::completions",
+				target: "clankers::completions",
 				"chat",
 				gen_ai.operation.name = "chat",
 				gen_ai.provider.name = "xai",
@@ -190,7 +190,7 @@ where
 			XAICompletionRequest::try_from((self.model.to_string().as_ref(), completion_request))?;
 
 		if enabled!(Level::TRACE) {
-			tracing::trace!(target: "rig::completions",
+			tracing::trace!(target: "clankers::completions",
 				"xAI completion request: {}",
 				serde_json::to_string_pretty(&request)?
 			);
@@ -212,7 +212,7 @@ where
 				match serde_json::from_slice::<ApiResponse<CompletionResponse>>(&response_body)? {
 					ApiResponse::Ok(response) => {
 						if enabled!(Level::TRACE) {
-							tracing::trace!(target: "rig::completions",
+							tracing::trace!(target: "clankers::completions",
 								"xAI completion response: {}",
 								serde_json::to_string_pretty(&response)?
 							);

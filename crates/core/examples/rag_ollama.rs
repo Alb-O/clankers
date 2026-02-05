@@ -1,10 +1,10 @@
-use rig::Embed;
-use rig::client::Nothing;
-use rig::completion::Prompt;
-use rig::embeddings::EmbeddingsBuilder;
-use rig::prelude::*;
-use rig::providers::ollama::Client;
-use rig::vector_store::in_memory_store::InMemoryVectorStore;
+use clankers::Embed;
+use clankers::client::Nothing;
+use clankers::completion::Prompt;
+use clankers::embeddings::EmbeddingsBuilder;
+use clankers::prelude::*;
+use clankers::providers::ollama::Client;
+use clankers::vector_store::in_memory_store::InMemoryVectorStore;
 use serde::Serialize;
 
 // Data to be RAGged.

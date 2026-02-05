@@ -1,8 +1,8 @@
-//! OpenRouter Inference API client and Rig integration
+//! OpenRouter Inference API client and Clankers integration
 //!
 //! # Example
 //! ```
-//! use rig::providers::openrouter;
+//! use clankers::providers::openrouter;
 //!
 //! let client = openrouter::Client::new("YOUR_API_KEY");
 //!

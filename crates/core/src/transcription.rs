@@ -112,7 +112,7 @@ pub struct TranscriptionRequest {
 ///
 /// Example usage:
 /// ```rust
-/// use rig::{
+/// use clankers::{
 ///     providers::openai::{Client, self},
 ///     transcription::TranscriptionRequestBuilder,
 /// };
@@ -132,7 +132,7 @@ pub struct TranscriptionRequest {
 ///
 /// Alternatively, you can execute the transcription request directly from the builder:
 /// ```rust
-/// use rig::{
+/// use clankers::{
 ///     providers::openai::{Client, self},
 ///     transcription::TranscriptionRequestBuilder,
 /// };

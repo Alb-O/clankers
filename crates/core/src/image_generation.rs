@@ -1,5 +1,5 @@
-//! Everything related to core image generation abstractions in Rig.
-//! Rig allows calling a number of different providers (that support image generation) using the [ImageGenerationModel] trait.
+//! Everything related to core image generation abstractions in Clankers.
+//! Clankers allows calling a number of different providers (that support image generation) using the [ImageGenerationModel] trait.
 use serde_json::Value;
 use thiserror::Error;
 

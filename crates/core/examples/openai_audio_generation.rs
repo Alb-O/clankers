@@ -3,10 +3,10 @@ use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 
-use rig::audio_generation::AudioGenerationModel;
-use rig::client::audio_generation::AudioGenerationClient;
-use rig::prelude::*;
-use rig::providers::openai;
+use clankers::audio_generation::AudioGenerationModel;
+use clankers::client::audio_generation::AudioGenerationClient;
+use clankers::prelude::*;
+use clankers::providers::openai;
 
 const DEFAULT_PATH: &str = "./output.mp3";
 

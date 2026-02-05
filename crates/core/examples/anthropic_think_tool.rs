@@ -1,9 +1,9 @@
 use anyhow::Result;
-use rig::client::ProviderClient;
-use rig::completion::Prompt;
-use rig::prelude::CompletionClient;
-use rig::providers;
-use rig::tool::ThinkTool;
+use clankers::client::ProviderClient;
+use clankers::completion::Prompt;
+use clankers::prelude::CompletionClient;
+use clankers::providers;
+use clankers::tool::ThinkTool;
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {

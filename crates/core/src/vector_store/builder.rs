@@ -46,7 +46,7 @@ where
 	/// # Examples
 	///
 	/// ```ignore
-	/// use rig::vector_store::{InMemoryVectorStoreBuilder, IndexStrategy};
+	/// use clankers::vector_store::{InMemoryVectorStoreBuilder, IndexStrategy};
 	///
 	/// let store = InMemoryVectorStoreBuilder::<String>::new()
 	///     .index_strategy(IndexStrategy::LSH {

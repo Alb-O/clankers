@@ -1,6 +1,6 @@
-use rig::completion::Prompt;
-use rig::prelude::*;
-use rig::providers::gemini::{self};
+use clankers::completion::Prompt;
+use clankers::prelude::*;
+use clankers::providers::gemini::{self};
 #[tracing::instrument(ret)]
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {

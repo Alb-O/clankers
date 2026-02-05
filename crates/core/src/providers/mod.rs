@@ -1,4 +1,4 @@
-//! This module contains clients for the different LLM providers that Rig supports.
+//! This module contains clients for the different LLM providers that Clankers supports.
 //!
 //! Currently, the following providers are supported:
 //! - Cohere
@@ -20,7 +20,7 @@
 //!
 //! # Example
 //! ```
-//! use rig::{providers::openai, agent::AgentBuilder};
+//! use clankers::{providers::openai, agent::AgentBuilder};
 //!
 //! // Initialize the OpenAI client
 //! let openai = openai::Client::new("your-openai-api-key");

@@ -1,10 +1,10 @@
-use rig::agent::Agent;
-use rig::completion::{CompletionError, CompletionModel, Prompt, PromptError, ToolDefinition};
-use rig::extractor::Extractor;
-use rig::message::Message;
-use rig::prelude::*;
-use rig::providers::anthropic;
-use rig::tool::Tool;
+use clankers::agent::Agent;
+use clankers::completion::{CompletionError, CompletionModel, Prompt, PromptError, ToolDefinition};
+use clankers::extractor::Extractor;
+use clankers::message::Message;
+use clankers::prelude::*;
+use clankers::providers::anthropic;
+use clankers::tool::Tool;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::json;

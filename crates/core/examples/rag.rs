@@ -1,12 +1,12 @@
 use std::vec;
 
-use rig::Embed;
-use rig::completion::Prompt;
-use rig::embeddings::EmbeddingsBuilder;
-use rig::prelude::*;
-use rig::providers::openai;
-use rig::providers::openai::client::Client;
-use rig::vector_store::in_memory_store::InMemoryVectorStore;
+use clankers::Embed;
+use clankers::completion::Prompt;
+use clankers::embeddings::EmbeddingsBuilder;
+use clankers::prelude::*;
+use clankers::providers::openai;
+use clankers::providers::openai::client::Client;
+use clankers::vector_store::in_memory_store::InMemoryVectorStore;
 use serde::Serialize;
 
 // Data to be RAGged.

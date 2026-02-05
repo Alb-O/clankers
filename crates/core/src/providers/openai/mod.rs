@@ -1,8 +1,8 @@
-//! OpenAI API client and Rig integration
+//! OpenAI API client and Clankers integration
 //!
 //! # Example
 //! ```
-//! use rig::providers::openai;
+//! use clankers::providers::openai;
 //!
 //! let client = openai::Client::new("YOUR_API_KEY");
 //!
