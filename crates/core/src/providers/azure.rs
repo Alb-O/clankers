@@ -544,7 +544,7 @@ pub const GPT_4O_MINI: &str = "gpt-4o-mini";
 /// `gpt-4o-realtime-preview` completion model
 pub const GPT_4O_REALTIME_PREVIEW: &str = "gpt-4o-realtime-preview";
 /// `gpt-4-turbo` completion model
-pub const GPT_4_TURBO: &str = "gpt-4";
+pub const GPT_4_TURBO: &str = "gpt-4-turbo";
 /// `gpt-4` completion model
 pub const GPT_4: &str = "gpt-4";
 /// `gpt-4-32k` completion model

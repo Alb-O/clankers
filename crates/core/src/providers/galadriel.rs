@@ -201,7 +201,7 @@ impl TryFrom<CompletionResponse> for completion::CompletionResponse<CompletionRe
 
 		content.extend(message.tool_calls.iter().map(|call| {
 			completion::AssistantContent::tool_call(
-				&call.function.name,
+				&call.id,
 				&call.function.name,
 				call.function.arguments.clone(),
 			)

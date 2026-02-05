@@ -311,11 +311,11 @@ pub mod rmcp {
 					.content
 					.into_iter()
 					.map(|c| match c.raw {
-						rmcp::model::RawContent::Text(raw) => raw.text,
+						rmcp::model::RawContent::Text(raw) => Ok(raw.text),
 						rmcp::model::RawContent::Image(raw) => {
-							format!("data:{};base64,{}", raw.mime_type, raw.data)
+							Ok(format!("data:{};base64,{}", raw.mime_type, raw.data))
 						}
-						rmcp::model::RawContent::Resource(raw) => match raw.resource {
+						rmcp::model::RawContent::Resource(raw) => Ok(match raw.resource {
 							rmcp::model::ResourceContents::TextResourceContents {
 								uri,
 								mime_type,
@@ -338,17 +338,17 @@ pub mod rmcp {
 								mime_type =
 									mime_type.map(|m| format!("data:{m};")).unwrap_or_default(),
 							),
-						},
-						RawContent::Audio(_) => {
-							panic!(
-								"Support for audio results from an MCP tool is currently unimplemented. Come back later!"
-							)
-						}
-						thing => {
-							panic!("Unsupported type found: {thing:?}")
-						}
+						}),
+						RawContent::Audio(_) => Err(McpToolError(
+							"Audio results from MCP tools are not supported".to_string(),
+						)
+						.into()),
+						thing => Err(McpToolError(format!(
+							"Unsupported MCP content type: {thing:?}"
+						))
+						.into()),
 					})
-					.collect::<String>())
+					.collect::<Result<String, ToolError>>()?)
 			})
 		}
 	}

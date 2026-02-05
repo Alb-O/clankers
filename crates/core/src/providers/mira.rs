@@ -200,7 +200,7 @@ impl TryFrom<(&str, CompletionRequest)> for MiraCompletionRequest {
 
 		if let Some(content) = &req.preamble {
 			messages.push(RawMessage {
-				role: "user".to_string(),
+				role: "system".to_string(),
 				content: content.to_string(),
 			});
 		}

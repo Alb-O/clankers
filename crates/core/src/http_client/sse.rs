@@ -255,13 +255,22 @@ where
 			.as_mut()
 			.poll_next(cx)
 		{
-			Poll::Ready(Some(Err(err))) => {
-				let EventStreamError::Transport(err) = err else {
-					panic!("u");
-				};
-				this.handle_error(&err);
-				Poll::Ready(Some(Err(err)))
-			}
+			Poll::Ready(Some(Err(err))) => match err {
+				EventStreamError::Transport(err) => {
+					this.handle_error(&err);
+					Poll::Ready(Some(Err(err)))
+				}
+				EventStreamError::Utf8(err) => {
+					let err = instance_error(err);
+					this.handle_error(&err);
+					Poll::Ready(Some(Err(err)))
+				}
+				EventStreamError::Parser(err) => {
+					let err = instance_error(err);
+					this.handle_error(&err);
+					Poll::Ready(Some(Err(err)))
+				}
+			},
 			Poll::Ready(Some(Ok(event))) => {
 				this.handle_event(&event);
 				Poll::Ready(Some(Ok(event.into())))

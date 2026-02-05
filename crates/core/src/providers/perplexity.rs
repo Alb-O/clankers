@@ -30,7 +30,7 @@ impl OpenAiCompat for Perplexity {
 	const BASE_URL: &'static str = "https://api.perplexity.ai";
 	const API_KEY_ENV: &'static str = "PERPLEXITY_API_KEY";
 	const VERIFY_PATH: &'static str = "";
-	const COMPLETION_PATH: &'static str = "/v1/chat/completions";
+	const COMPLETION_PATH: &'static str = "/chat/completions";
 	type BuilderState = ();
 	type Completion<H> = Capable<CompletionModel<Self, H>>;
 	type Embeddings<H> = Nothing;
@@ -304,7 +304,7 @@ where
 
 		let req = self
 			.client
-			.post("/v1/chat/completions")?
+			.post("/chat/completions")?
 			.body(body)
 			.map_err(http_client::Error::from)?;
 
