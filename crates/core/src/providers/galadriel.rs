@@ -20,7 +20,7 @@ use crate::http_client::{self, HttpClientExt};
 use crate::message::MessageError;
 use crate::providers::openai_compat::{self, FlatApiError, OpenAiCompat, PBuilder};
 use crate::streaming::StreamingCompletionResponse;
-use crate::{OneOrMany, json_utils, message};
+use crate::{json_utils, message};
 
 // ================================================================
 // Main Galadriel Client
@@ -111,22 +111,6 @@ impl ProviderClient for Client {
 	}
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct Usage {
-	pub prompt_tokens: usize,
-	pub total_tokens: usize,
-}
-
-impl std::fmt::Display for Usage {
-	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		write!(
-			f,
-			"Prompt tokens: {} Total tokens: {}",
-			self.prompt_tokens, self.total_tokens
-		)
-	}
-}
-
 // ================================================================
 // Galadriel Completion API
 // ================================================================
@@ -174,71 +158,6 @@ pub const GPT_35_TURBO_1106: &str = "gpt-3.5-turbo-1106";
 /// `gpt-3.5-turbo-instruct` completion model
 pub const GPT_35_TURBO_INSTRUCT: &str = "gpt-3.5-turbo-instruct";
 
-#[derive(Debug, Deserialize, Serialize)]
-pub struct CompletionResponse {
-	pub id: String,
-	pub object: String,
-	pub created: u64,
-	pub model: String,
-	pub system_fingerprint: Option<String>,
-	pub choices: Vec<Choice>,
-	pub usage: Option<Usage>,
-}
-
-impl TryFrom<CompletionResponse> for completion::CompletionResponse<CompletionResponse> {
-	type Error = CompletionError;
-
-	fn try_from(response: CompletionResponse) -> Result<Self, Self::Error> {
-		let Choice { message, .. } = response.choices.first().ok_or_else(|| {
-			CompletionError::ResponseError("Response contained no choices".to_owned())
-		})?;
-
-		let mut content = message
-			.content
-			.as_ref()
-			.map(|c| vec![completion::AssistantContent::text(c)])
-			.unwrap_or_default();
-
-		content.extend(message.tool_calls.iter().map(|call| {
-			completion::AssistantContent::tool_call(
-				&call.id,
-				&call.function.name,
-				call.function.arguments.clone(),
-			)
-		}));
-
-		let choice = OneOrMany::many(content).map_err(|_| {
-			CompletionError::ResponseError(
-				"Response contained no message or tool call (empty)".to_owned(),
-			)
-		})?;
-		let usage = response
-			.usage
-			.as_ref()
-			.map(|usage| completion::Usage {
-				input_tokens: usage.prompt_tokens as u64,
-				output_tokens: (usage.total_tokens - usage.prompt_tokens) as u64,
-				total_tokens: usage.total_tokens as u64,
-				cached_input_tokens: 0,
-			})
-			.unwrap_or_default();
-
-		Ok(completion::CompletionResponse {
-			choice,
-			usage,
-			raw_response: response,
-		})
-	}
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct Choice {
-	pub index: usize,
-	pub message: Message,
-	pub logprobs: Option<serde_json::Value>,
-	pub finish_reason: String,
-}
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Message {
 	pub role: String,
@@ -253,52 +172,6 @@ impl Message {
 			role: "system".to_string(),
 			content: Some(preamble.to_string()),
 			tool_calls: Vec::new(),
-		}
-	}
-}
-
-impl TryFrom<Message> for message::Message {
-	type Error = message::MessageError;
-
-	fn try_from(message: Message) -> Result<Self, Self::Error> {
-		let tool_calls: Vec<message::ToolCall> = message
-			.tool_calls
-			.into_iter()
-			.map(|tool_call| tool_call.into())
-			.collect();
-
-		match message.role.as_str() {
-			"user" => Ok(Self::User {
-				content: OneOrMany::one(
-					message
-						.content
-						.map(|content| message::UserContent::text(&content))
-						.ok_or_else(|| {
-							message::MessageError::ConversionError("Empty user message".to_string())
-						})?,
-				),
-			}),
-			"assistant" => Ok(Self::Assistant {
-				id: None,
-				content: OneOrMany::many(
-					tool_calls
-						.into_iter()
-						.map(message::AssistantContent::ToolCall)
-						.chain(
-							message
-								.content
-								.map(|content| message::AssistantContent::text(&content))
-								.into_iter(),
-						),
-				)
-				.map_err(|_| {
-					message::MessageError::ConversionError("Empty assistant message".to_string())
-				})?,
-			}),
-			_ => Err(message::MessageError::ConversionError(format!(
-				"Unknown role: {}",
-				message.role
-			))),
 		}
 	}
 }
@@ -374,12 +247,6 @@ impl From<completion::ToolDefinition> for ToolDefinition {
 	}
 }
 
-#[derive(Debug, Deserialize)]
-pub struct Function {
-	pub name: String,
-	pub arguments: String,
-}
-
 #[derive(Debug, Serialize, Deserialize)]
 pub(super) struct GaladrielCompletionRequest {
 	model: String,
@@ -451,7 +318,7 @@ where
 	async fn completion_impl(
 		&self,
 		completion_request: CompletionRequest,
-	) -> Result<completion::CompletionResponse<CompletionResponse>, CompletionError> {
+	) -> Result<completion::CompletionResponse<openai::CompletionResponse>, CompletionError> {
 		let span = if tracing::Span::current().is_disabled() {
 			info_span!(
 				target: "rig::completions",
@@ -490,11 +357,12 @@ where
 			.map_err(http_client::Error::from)?;
 
 		async move {
-			let response = openai_compat::send_and_parse::<_, CompletionResponse, FlatApiError, _>(
-				&self.client,
-				req,
-				"Galadriel",
-			)
+			let response = openai_compat::send_and_parse::<
+				_,
+				openai::CompletionResponse,
+				FlatApiError,
+				_,
+			>(&self.client, req, "Galadriel")
 			.await?;
 
 			let span = tracing::Span::current();
@@ -566,7 +434,7 @@ impl<T> completion::CompletionModel for CompletionModel<T>
 where
 	T: HttpClientExt + Clone + Default + std::fmt::Debug + Send + 'static,
 {
-	type Response = CompletionResponse;
+	type Response = openai::CompletionResponse;
 	type StreamingResponse = openai::StreamingCompletionResponse;
 	type Client = Client<T>;
 
@@ -580,7 +448,7 @@ where
 	async fn completion(
 		&self,
 		completion_request: CompletionRequest,
-	) -> Result<completion::CompletionResponse<CompletionResponse>, CompletionError> {
+	) -> Result<completion::CompletionResponse<openai::CompletionResponse>, CompletionError> {
 		self.completion_impl(completion_request).await
 	}
 

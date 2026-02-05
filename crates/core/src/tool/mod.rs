@@ -350,38 +350,19 @@ impl ToolSet {
 	pub async fn documents(&self) -> Result<Vec<completion::Document>, ToolSetError> {
 		let mut docs = Vec::new();
 		for tool in self.tools.values() {
-			match tool {
-				ToolType::Simple(tool) => {
-					docs.push(completion::Document {
-						id: tool.name(),
-						text: format!(
-							"\
-                            Tool: {}\n\
-                            Definition: \n\
-                            {}\
-                        ",
-							tool.name(),
-							serde_json::to_string_pretty(&tool.definition("".to_string()).await)?
-						),
-						additional_props: HashMap::new(),
-					});
-				}
-				ToolType::Embedding(tool) => {
-					docs.push(completion::Document {
-						id: tool.name(),
-						text: format!(
-							"\
-                            Tool: {}\n\
-                            Definition: \n\
-                            {}\
-                        ",
-							tool.name(),
-							serde_json::to_string_pretty(&tool.definition("".to_string()).await)?
-						),
-						additional_props: HashMap::new(),
-					});
-				}
-			}
+			docs.push(completion::Document {
+				id: tool.name(),
+				text: format!(
+					"\
+                    Tool: {}\n\
+                    Definition: \n\
+                    {}\
+                    ",
+					tool.name(),
+					serde_json::to_string_pretty(&tool.definition("".to_string()).await)?
+				),
+				additional_props: HashMap::new(),
+			});
 		}
 		Ok(docs)
 	}

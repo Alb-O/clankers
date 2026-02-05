@@ -37,6 +37,8 @@ struct StreamingDelta {
 	content: Option<String>,
 	#[serde(default, deserialize_with = "json_utils::null_or_vec")]
 	tool_calls: Vec<StreamingToolCall>,
+	#[serde(default, alias = "reasoning")]
+	reasoning_content: Option<String>,
 }
 
 #[derive(Deserialize, Debug, PartialEq)]
@@ -57,9 +59,9 @@ struct StreamingChoice {
 }
 
 #[derive(Deserialize, Debug)]
-struct StreamingCompletionChunk {
+struct StreamingCompletionChunk<U> {
 	choices: Vec<StreamingChoice>,
-	usage: Option<Usage>,
+	usage: Option<U>,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -74,6 +76,28 @@ impl GetTokenUsage for StreamingCompletionResponse {
 		usage.output_tokens = self.usage.total_tokens as u64 - self.usage.prompt_tokens as u64;
 		usage.total_tokens = self.usage.total_tokens as u64;
 		Some(usage)
+	}
+}
+
+/// Trait for providers that reuse the OpenAI-compatible streaming helper.
+/// Allows plugging in provider-specific Usage types while sharing the streaming logic.
+pub trait CompatStreamingResponse: Clone + Unpin + GetTokenUsage + Send + 'static {
+	type Usage: Default + Clone + for<'de> Deserialize<'de> + Send + 'static;
+	fn from_usage(usage: Self::Usage) -> Self;
+	fn prompt_tokens(usage: &Self::Usage) -> u64;
+	fn output_tokens(usage: &Self::Usage) -> u64;
+}
+
+impl CompatStreamingResponse for StreamingCompletionResponse {
+	type Usage = Usage;
+	fn from_usage(usage: Usage) -> Self {
+		Self { usage }
+	}
+	fn prompt_tokens(usage: &Usage) -> u64 {
+		usage.prompt_tokens as u64
+	}
+	fn output_tokens(usage: &Usage) -> u64 {
+		(usage.total_tokens - usage.prompt_tokens) as u64
 	}
 }
 
@@ -141,12 +165,13 @@ where
 	}
 }
 
-pub async fn send_compatible_streaming_request<T>(
+pub async fn send_compatible_streaming_request<T, R>(
 	http_client: T,
 	req: Request<Vec<u8>>,
-) -> Result<streaming::StreamingCompletionResponse<StreamingCompletionResponse>, CompletionError>
+) -> Result<streaming::StreamingCompletionResponse<R>, CompletionError>
 where
 	T: HttpClientExt + Clone + 'static,
+	R: CompatStreamingResponse,
 {
 	let span = tracing::Span::current();
 	// Build the request with proper headers for SSE
@@ -173,7 +198,7 @@ where
                         continue;
                     }
 
-                    let data = match serde_json::from_str::<StreamingCompletionChunk>(&message.data) {
+                    let data = match serde_json::from_str::<StreamingCompletionChunk<R::Usage>>(&message.data) {
                         Ok(data) => data,
                         Err(error) => {
                             tracing::error!(?error, message = message.data, "Failed to parse SSE message");
@@ -251,6 +276,14 @@ where
                         yield Ok(streaming::RawStreamingChoice::Message(content.clone()));
                     }
 
+                    // Reasoning content (e.g. DeepSeek, Groq)
+                    if let Some(reasoning) = &delta.reasoning_content && !reasoning.is_empty() {
+                        yield Ok(streaming::RawStreamingChoice::ReasoningDelta {
+                            id: None,
+                            reasoning: reasoning.to_string(),
+                        });
+                    }
+
                     // Finish reason
                     if let Some(finish_reason) = &choice.finish_reason && *finish_reason == FinishReason::ToolCalls {
                         for (_idx, tool_call) in tool_calls.into_iter() {
@@ -289,13 +322,11 @@ where
 
         let final_usage = final_usage.unwrap_or_default();
         if !span.is_disabled() {
-            span.record("gen_ai.usage.input_tokens", final_usage.prompt_tokens);
-            span.record("gen_ai.usage.output_tokens", final_usage.total_tokens - final_usage.prompt_tokens);
+            span.record("gen_ai.usage.input_tokens", R::prompt_tokens(&final_usage));
+            span.record("gen_ai.usage.output_tokens", R::output_tokens(&final_usage));
         }
 
-        yield Ok(RawStreamingChoice::FinalResponse(StreamingCompletionResponse {
-            usage: final_usage
-        }));
+        yield Ok(RawStreamingChoice::FinalResponse(R::from_usage(final_usage)));
     }.instrument(span);
 
 	Ok(streaming::StreamingCompletionResponse::stream(Box::pin(
@@ -386,7 +417,7 @@ mod tests {
                 "total_tokens": 15
             }
         }"#;
-		let chunk: StreamingCompletionChunk = serde_json::from_str(json).unwrap();
+		let chunk: StreamingCompletionChunk<Usage> = serde_json::from_str(json).unwrap();
 		assert_eq!(chunk.choices.len(), 1);
 		assert_eq!(chunk.choices[0].delta.content, Some("Hello".to_string()));
 		assert!(chunk.usage.is_some());
@@ -447,7 +478,8 @@ mod tests {
         }"#;
 
 		// Verify each chunk deserializes correctly
-		let start_chunk: StreamingCompletionChunk = serde_json::from_str(json_start).unwrap();
+		let start_chunk: StreamingCompletionChunk<Usage> =
+			serde_json::from_str(json_start).unwrap();
 		assert_eq!(start_chunk.choices[0].delta.tool_calls.len(), 1);
 		assert_eq!(
 			start_chunk.choices[0].delta.tool_calls[0]
@@ -458,7 +490,7 @@ mod tests {
 			"get_weather"
 		);
 
-		let chunk1: StreamingCompletionChunk = serde_json::from_str(json_chunk1).unwrap();
+		let chunk1: StreamingCompletionChunk<Usage> = serde_json::from_str(json_chunk1).unwrap();
 		assert_eq!(chunk1.choices[0].delta.tool_calls.len(), 1);
 		assert_eq!(
 			chunk1.choices[0].delta.tool_calls[0]
@@ -469,7 +501,7 @@ mod tests {
 			"{\"loc"
 		);
 
-		let chunk2: StreamingCompletionChunk = serde_json::from_str(json_chunk2).unwrap();
+		let chunk2: StreamingCompletionChunk<Usage> = serde_json::from_str(json_chunk2).unwrap();
 		assert_eq!(chunk2.choices[0].delta.tool_calls.len(), 1);
 		assert_eq!(
 			chunk2.choices[0].delta.tool_calls[0]
@@ -573,9 +605,10 @@ mod tests {
 			.body(Vec::new())
 			.unwrap();
 
-		let mut stream = send_compatible_streaming_request(client, req)
-			.await
-			.unwrap();
+		let mut stream =
+			send_compatible_streaming_request::<_, StreamingCompletionResponse>(client, req)
+				.await
+				.unwrap();
 
 		let mut final_usage = None;
 		while let Some(chunk) = stream.next().await {

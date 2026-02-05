@@ -6,10 +6,6 @@ use std::str::FromStr;
 use serde::Deserialize;
 use serde::de::{self, Deserializer, SeqAccess, Visitor};
 
-pub fn empty_or_none(value: &Option<String>) -> bool {
-	value.as_ref().map(|v| v.is_empty()).unwrap_or(true)
-}
-
 pub fn merge(a: serde_json::Value, b: serde_json::Value) -> serde_json::Value {
 	match (a, b) {
 		(serde_json::Value::Object(mut a_map), serde_json::Value::Object(b_map)) => {
