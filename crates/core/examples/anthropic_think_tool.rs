@@ -3,7 +3,7 @@ use rig::client::ProviderClient;
 use rig::completion::Prompt;
 use rig::prelude::CompletionClient;
 use rig::providers;
-use rig::tools::ThinkTool;
+use rig::tool::ThinkTool;
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {

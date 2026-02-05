@@ -16,9 +16,7 @@ use crate::completion::{self, CompletionError, CompletionRequest};
 use crate::http_client::HttpClientExt;
 use crate::providers::openai;
 use crate::providers::openai::send_compatible_streaming_request;
-use crate::providers::openai_compat::{
-	self, CompletionModel, FlatApiError, OpenAiCompat, PBuilder,
-};
+use crate::providers::openai_compat::{self, FlatApiError, OpenAiCompat, PBuilder};
 use crate::streaming::StreamingCompletionResponse;
 use crate::{http_client, message};
 
@@ -37,7 +35,7 @@ impl OpenAiCompat for Moonshot {
 	const COMPLETION_PATH: &'static str = "/chat/completions";
 
 	type BuilderState = ();
-	type Completion<H> = Capable<CompletionModel<Self, H>>;
+	type Completion<H> = Capable<openai_compat::CompletionModel<Self, H>>;
 	type Embeddings<H> = Nothing;
 	type Transcription<H> = Nothing;
 	#[cfg(feature = "image")]
@@ -49,6 +47,7 @@ impl OpenAiCompat for Moonshot {
 pub type Client<H = reqwest::Client> = client::Client<Moonshot, H>;
 pub type ClientBuilder<H = reqwest::Client> =
 	client::ClientBuilder<PBuilder<Moonshot>, BearerAuth, H>;
+pub type CompletionModel<T = reqwest::Client> = openai_compat::CompletionModel<Moonshot, T>;
 
 impl ProviderClient for Client {
 	type Input = String;
@@ -137,7 +136,7 @@ impl TryFrom<(&str, CompletionRequest)> for MoonshotCompletionRequest {
 	}
 }
 
-impl<T> completion::CompletionModel for CompletionModel<Moonshot, T>
+impl<T> completion::CompletionModel for openai_compat::CompletionModel<Moonshot, T>
 where
 	T: HttpClientExt + Clone + Default + std::fmt::Debug + Send + 'static,
 {

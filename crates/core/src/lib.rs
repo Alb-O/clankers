@@ -133,7 +133,6 @@ pub mod providers;
 
 pub mod streaming;
 pub mod tool;
-pub mod tools;
 pub mod transcription;
 pub mod vector_store;
 pub mod wasm_compat;

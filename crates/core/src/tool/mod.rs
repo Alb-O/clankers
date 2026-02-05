@@ -10,11 +10,13 @@
 //! and optionally RAGged.
 
 pub mod server;
+pub mod think;
 use std::collections::HashMap;
 use std::fmt;
 
 use futures::Future;
 use serde::{Deserialize, Serialize};
+pub use think::ThinkTool;
 
 use crate::completion::{self, ToolDefinition};
 use crate::embeddings::embed::EmbedError;
@@ -337,8 +339,7 @@ impl ToolSet {
 	pub async fn call(&self, toolname: &str, args: String) -> Result<String, ToolSetError> {
 		if let Some(tool) = self.tools.get(toolname) {
 			tracing::debug!(target: "rig",
-				"Calling tool {toolname} with args:\n{}",
-				serde_json::to_string_pretty(&args).unwrap()
+				"Calling tool {toolname} with args:\n{args}",
 			);
 			Ok(tool.call(args).await?)
 		} else {

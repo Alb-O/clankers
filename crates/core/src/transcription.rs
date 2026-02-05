@@ -3,13 +3,10 @@
 //! handling transcription responses, and defining transcription models.
 use std::fs;
 use std::path::Path;
-use std::sync::Arc;
 
 use thiserror::Error;
 
-#[allow(deprecated)]
-use crate::client::transcription::TranscriptionModelHandle;
-use crate::wasm_compat::{WasmBoxedFuture, WasmCompatSend, WasmCompatSync};
+use crate::wasm_compat::{WasmCompatSend, WasmCompatSync};
 use crate::{http_client, json_utils};
 
 // Errors
@@ -92,46 +89,6 @@ pub trait TranscriptionModel: Clone + WasmCompatSend + WasmCompatSync {
 	/// Generates a transcription request builder for the given `file`
 	fn transcription_request(&self) -> TranscriptionRequestBuilder<Self> {
 		TranscriptionRequestBuilder::new(self.clone())
-	}
-}
-
-#[allow(deprecated)]
-#[deprecated(
-	since = "0.25.0",
-	note = "`DynClientBuilder` and related features have been deprecated and will be removed in a future release. In this case, use `TranscriptionModel` instead."
-)]
-pub trait TranscriptionModelDyn: WasmCompatSend + WasmCompatSync {
-	fn transcription(
-		&self,
-		request: TranscriptionRequest,
-	) -> WasmBoxedFuture<'_, Result<TranscriptionResponse<()>, TranscriptionError>>;
-
-	fn transcription_request(&self) -> TranscriptionRequestBuilder<TranscriptionModelHandle<'_>>;
-}
-
-#[allow(deprecated)]
-impl<T> TranscriptionModelDyn for T
-where
-	T: TranscriptionModel,
-{
-	fn transcription(
-		&self,
-		request: TranscriptionRequest,
-	) -> WasmBoxedFuture<'_, Result<TranscriptionResponse<()>, TranscriptionError>> {
-		Box::pin(async move {
-			let resp = self.transcription(request).await?;
-
-			Ok(TranscriptionResponse {
-				text: resp.text,
-				response: (),
-			})
-		})
-	}
-
-	fn transcription_request(&self) -> TranscriptionRequestBuilder<TranscriptionModelHandle<'_>> {
-		TranscriptionRequestBuilder::new(TranscriptionModelHandle {
-			inner: Arc::new(self.clone()),
-		})
 	}
 }
 

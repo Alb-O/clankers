@@ -7,7 +7,7 @@ use rig::embeddings::EmbeddingsBuilder;
 use rig::message::Message;
 use rig::prelude::*;
 use rig::providers::anthropic::{self, Client};
-use rig::tools::ThinkTool;
+use rig::tool::ThinkTool;
 use rig::vector_store::in_memory_store::InMemoryVectorStore;
 use serde::{Deserialize, Serialize};
 

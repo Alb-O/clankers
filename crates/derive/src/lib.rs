@@ -31,7 +31,7 @@ pub fn derive_provider_client(input: TokenStream) -> TokenStream {
 /// A macro that allows you to implement the `rig::embedding::Embed` trait by deriving it.
 /// Usage can be found below:
 ///
-/// ```rust
+/// ```rust,ignore
 /// #[derive(Embed)]
 /// struct Foo {
 ///     id: String,

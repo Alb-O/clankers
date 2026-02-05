@@ -21,7 +21,6 @@ use tokio::sync::watch;
 use crate::OneOrMany;
 use crate::agent::Agent;
 use crate::agent::prompt_request::streaming::StreamingPromptRequest;
-use crate::client::FinalCompletionResponse;
 use crate::completion::{
 	CompletionError, CompletionModel, CompletionRequestBuilder, CompletionResponse, GetTokenUsage,
 	Message, Usage,
@@ -45,11 +44,11 @@ impl PauseControl {
 	}
 
 	pub fn pause(&self) {
-		self.paused_tx.send(true).unwrap();
+		let _ = self.paused_tx.send(true);
 	}
 
 	pub fn resume(&self) {
-		self.paused_tx.send(false).unwrap();
+		let _ = self.paused_tx.send(false);
 	}
 
 	pub fn is_paused(&self) -> bool {
@@ -409,61 +408,6 @@ pub trait StreamingCompletion<M: CompletionModel> {
 	) -> impl Future<Output = Result<CompletionRequestBuilder<M>, CompletionError>>;
 }
 
-pub(crate) struct StreamingResultDyn<R: Clone + Unpin + GetTokenUsage> {
-	pub(crate) inner: StreamingResult<R>,
-}
-
-impl<R: Clone + Unpin + GetTokenUsage> Stream for StreamingResultDyn<R> {
-	type Item = Result<RawStreamingChoice<FinalCompletionResponse>, CompletionError>;
-
-	fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
-		let stream = self.get_mut();
-
-		match stream.inner.as_mut().poll_next(cx) {
-			Poll::Pending => Poll::Pending,
-			Poll::Ready(None) => Poll::Ready(None),
-			Poll::Ready(Some(Err(err))) => Poll::Ready(Some(Err(err))),
-			Poll::Ready(Some(Ok(chunk))) => match chunk {
-				RawStreamingChoice::FinalResponse(res) => Poll::Ready(Some(Ok(
-					RawStreamingChoice::FinalResponse(FinalCompletionResponse {
-						usage: res.token_usage(),
-					}),
-				))),
-				RawStreamingChoice::Message(m) => {
-					Poll::Ready(Some(Ok(RawStreamingChoice::Message(m))))
-				}
-				RawStreamingChoice::ToolCallDelta {
-					id,
-					internal_call_id,
-					content,
-				} => Poll::Ready(Some(Ok(RawStreamingChoice::ToolCallDelta {
-					id,
-					internal_call_id,
-					content,
-				}))),
-				RawStreamingChoice::Reasoning {
-					id,
-					reasoning,
-					signature,
-				} => Poll::Ready(Some(Ok(RawStreamingChoice::Reasoning {
-					id,
-					reasoning,
-					signature,
-				}))),
-				RawStreamingChoice::ReasoningDelta { id, reasoning } => {
-					Poll::Ready(Some(Ok(RawStreamingChoice::ReasoningDelta {
-						id,
-						reasoning,
-					})))
-				}
-				RawStreamingChoice::ToolCall(tool_call) => {
-					Poll::Ready(Some(Ok(RawStreamingChoice::ToolCall(tool_call))))
-				}
-			},
-		}
-	}
-}
-
 /// A helper function to stream a completion request to stdout.
 /// Tool call deltas are ignored as tool calls are generally much easier to handle when received in their entirety rather than using deltas.
 pub async fn stream_to_stdout<M>(
@@ -500,7 +444,8 @@ where
 				println!("\nResult: {res}");
 			}
 			Ok(StreamedAssistantContent::Final(res)) => {
-				let json_res = serde_json::to_string_pretty(&res).unwrap();
+				let json_res = serde_json::to_string_pretty(&res)
+					.unwrap_or_else(|e| format!("<serialization error: {e}>"));
 				println!();
 				tracing::info!("Final result: {json_res}");
 			}
