@@ -8,100 +8,53 @@
 //!
 //! let llama_3_1_sonar_small_online = client.completion_model(perplexity::LLAMA_3_1_SONAR_SMALL_ONLINE);
 //! ```
-use bytes::Bytes;
 use serde::{Deserialize, Serialize};
-use tracing::{Instrument, info_span};
+use tracing::Instrument;
 
 use crate::OneOrMany;
-use crate::client::{
-	self, BearerAuth, Capabilities, Capable, DebugExt, Nothing, Provider, ProviderBuilder,
-	ProviderClient,
-};
+use crate::client::{self, BearerAuth, Capable, Nothing, ProviderClient};
 use crate::completion::{self, CompletionError, CompletionRequest, MessageError, message};
 use crate::http_client::{self, HttpClientExt};
 use crate::providers::openai;
 use crate::providers::openai::send_compatible_streaming_request;
+use crate::providers::openai_compat::{
+	self, CompletionModel, FlatApiError, OpenAiCompat, PBuilder,
+};
 use crate::streaming::StreamingCompletionResponse;
 
-// ================================================================
-// Main Cohere Client
-// ================================================================
-const PERPLEXITY_API_BASE_URL: &str = "https://api.perplexity.ai";
-
 #[derive(Debug, Default, Clone, Copy)]
-pub struct PerplexityExt;
+pub struct Perplexity;
 
-#[derive(Debug, Default, Clone, Copy)]
-pub struct PerplexityBuilder;
-
-type PerplexityApiKey = BearerAuth;
-
-impl Provider for PerplexityExt {
-	type Builder = PerplexityBuilder;
-
-	// There is currently no way to verify a perplexity api key without consuming tokens
+impl OpenAiCompat for Perplexity {
+	const PROVIDER_NAME: &'static str = "perplexity";
+	const BASE_URL: &'static str = "https://api.perplexity.ai";
+	const API_KEY_ENV: &'static str = "PERPLEXITY_API_KEY";
 	const VERIFY_PATH: &'static str = "";
-
-	fn build<H>(
-		_: &crate::client::ClientBuilder<
-			Self::Builder,
-			<Self::Builder as crate::client::ProviderBuilder>::ApiKey,
-			H,
-		>,
-	) -> http_client::Result<Self> {
-		Ok(Self)
-	}
-}
-
-impl<H> Capabilities<H> for PerplexityExt {
-	type Completion = Capable<CompletionModel<H>>;
-	type Transcription = Nothing;
-	type Embeddings = Nothing;
+	const COMPLETION_PATH: &'static str = "/v1/chat/completions";
+	type BuilderState = ();
+	type Completion<H> = Capable<CompletionModel<Self, H>>;
+	type Embeddings<H> = Nothing;
+	type Transcription<H> = Nothing;
 	#[cfg(feature = "image")]
-	type ImageGeneration = Nothing;
-
+	type ImageGeneration<H> = Nothing;
 	#[cfg(feature = "audio")]
-	type AudioGeneration = Nothing;
+	type AudioGeneration<H> = Nothing;
 }
 
-impl DebugExt for PerplexityExt {}
-
-impl ProviderBuilder for PerplexityBuilder {
-	type Output = PerplexityExt;
-	type ApiKey = PerplexityApiKey;
-
-	const BASE_URL: &'static str = PERPLEXITY_API_BASE_URL;
-}
-
-pub type Client<H = reqwest::Client> = client::Client<PerplexityExt, H>;
+pub type Client<H = reqwest::Client> = client::Client<Perplexity, H>;
 pub type ClientBuilder<H = reqwest::Client> =
-	client::ClientBuilder<PerplexityBuilder, PerplexityApiKey, H>;
+	client::ClientBuilder<PBuilder<Perplexity>, BearerAuth, H>;
 
 impl ProviderClient for Client {
 	type Input = String;
 
-	/// Create a new Perplexity client from the `PERPLEXITY_API_KEY` environment variable.
-	/// Panics if the environment variable is not set.
 	fn from_env() -> Self {
-		let api_key = std::env::var("PERPLEXITY_API_KEY").expect("PERPLEXITY_API_KEY not set");
-		Self::new(&api_key).unwrap()
+		openai_compat::default_from_env::<Perplexity>()
 	}
 
 	fn from_val(input: Self::Input) -> Self {
 		Self::new(&input).unwrap()
 	}
-}
-
-#[derive(Debug, Deserialize)]
-struct ApiErrorResponse {
-	message: String,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(untagged)]
-enum ApiResponse<T> {
-	Ok(T),
-	Err(ApiErrorResponse),
 }
 
 // ================================================================
@@ -246,21 +199,6 @@ impl TryFrom<(&str, CompletionRequest)> for PerplexityCompletionRequest {
 	}
 }
 
-#[derive(Clone)]
-pub struct CompletionModel<T = reqwest::Client> {
-	client: Client<T>,
-	pub model: String,
-}
-
-impl<T> CompletionModel<T> {
-	pub fn new(client: Client<T>, model: impl Into<String>) -> Self {
-		Self {
-			client,
-			model: model.into(),
-		}
-	}
-}
-
 impl TryFrom<message::Message> for Message {
 	type Error = MessageError;
 
@@ -321,7 +259,7 @@ impl From<Message> for message::Message {
 	}
 }
 
-impl<T> completion::CompletionModel for CompletionModel<T>
+impl<T> completion::CompletionModel for CompletionModel<Perplexity, T>
 where
 	T: HttpClientExt + Clone + Default + std::fmt::Debug + Send + 'static,
 {
@@ -338,24 +276,11 @@ where
 		&self,
 		completion_request: completion::CompletionRequest,
 	) -> Result<completion::CompletionResponse<CompletionResponse>, CompletionError> {
-		let span = if tracing::Span::current().is_disabled() {
-			info_span!(
-				target: "rig::completions",
-				"chat",
-				gen_ai.operation.name = "chat",
-				gen_ai.provider.name = "perplexity",
-				gen_ai.request.model = self.model,
-				gen_ai.system_instructions = tracing::field::Empty,
-				gen_ai.response.id = tracing::field::Empty,
-				gen_ai.response.model = tracing::field::Empty,
-				gen_ai.usage.output_tokens = tracing::field::Empty,
-				gen_ai.usage.input_tokens = tracing::field::Empty,
-			)
-		} else {
-			tracing::Span::current()
-		};
-
-		span.record("gen_ai.system_instructions", &completion_request.preamble);
+		let span = openai_compat::completion_span(
+			Perplexity::PROVIDER_NAME,
+			&self.model,
+			&completion_request.preamble,
+		);
 
 		if completion_request.tool_choice.is_some() {
 			tracing::warn!("WARNING: `tool_choice` not supported on Perplexity");
@@ -364,6 +289,7 @@ where
 		if !completion_request.tools.is_empty() {
 			tracing::warn!("WARNING: `tools` not supported on Perplexity");
 		}
+
 		let request =
 			PerplexityCompletionRequest::try_from((self.model.as_ref(), completion_request))?;
 
@@ -383,37 +309,31 @@ where
 			.map_err(http_client::Error::from)?;
 
 		let async_block = async move {
-			let response = self.client.send::<_, Bytes>(req).await?;
+			let response = openai_compat::send_and_parse::<_, CompletionResponse, FlatApiError, _>(
+				&self.client,
+				req,
+				Perplexity::PROVIDER_NAME,
+			)
+			.await?;
 
-			let status = response.status();
-			let response_body = response.into_body().into_future().await?.to_vec();
+			// Record span fields manually for Perplexity
+			let current_span = tracing::Span::current();
+			current_span.record("gen_ai.usage.input_tokens", response.usage.prompt_tokens);
+			current_span.record(
+				"gen_ai.usage.output_tokens",
+				response.usage.completion_tokens,
+			);
+			current_span.record("gen_ai.response.id", response.id.to_string());
+			current_span.record("gen_ai.response.model", response.model.to_string());
 
-			if status.is_success() {
-				match serde_json::from_slice::<ApiResponse<CompletionResponse>>(&response_body)? {
-					ApiResponse::Ok(response) => {
-						let span = tracing::Span::current();
-						span.record("gen_ai.usage.input_tokens", response.usage.prompt_tokens);
-						span.record(
-							"gen_ai.usage.output_tokens",
-							response.usage.completion_tokens,
-						);
-						span.record("gen_ai.response.id", response.id.to_string());
-						span.record("gen_ai.response.model_name", response.model.to_string());
-						if tracing::enabled!(tracing::Level::TRACE) {
-							tracing::trace!(target: "rig::responses",
-								"Perplexity completion response: {}",
-								serde_json::to_string_pretty(&response)?
-							);
-						}
-						Ok(response.try_into()?)
-					}
-					ApiResponse::Err(error) => Err(CompletionError::ProviderError(error.message)),
-				}
-			} else {
-				Err(CompletionError::ProviderError(
-					String::from_utf8_lossy(&response_body).to_string(),
-				))
+			if tracing::enabled!(tracing::Level::TRACE) {
+				tracing::trace!(target: "rig::responses",
+					"Perplexity completion response: {}",
+					serde_json::to_string_pretty(&response)?
+				);
 			}
+
+			response.try_into()
 		};
 
 		async_block.instrument(span).await
@@ -423,24 +343,11 @@ where
 		&self,
 		completion_request: completion::CompletionRequest,
 	) -> Result<StreamingCompletionResponse<Self::StreamingResponse>, CompletionError> {
-		let span = if tracing::Span::current().is_disabled() {
-			info_span!(
-				target: "rig::completions",
-				"chat_streaming",
-				gen_ai.operation.name = "chat_streaming",
-				gen_ai.provider.name = "perplexity",
-				gen_ai.request.model = self.model,
-				gen_ai.system_instructions = tracing::field::Empty,
-				gen_ai.response.id = tracing::field::Empty,
-				gen_ai.response.model = tracing::field::Empty,
-				gen_ai.usage.output_tokens = tracing::field::Empty,
-				gen_ai.usage.input_tokens = tracing::field::Empty,
-			)
-		} else {
-			tracing::Span::current()
-		};
-
-		span.record("gen_ai.system_instructions", &completion_request.preamble);
+		let span = openai_compat::streaming_span(
+			Perplexity::PROVIDER_NAME,
+			&self.model,
+			&completion_request.preamble,
+		);
 
 		if completion_request.tool_choice.is_some() {
 			tracing::warn!("WARNING: `tool_choice` not supported on Perplexity");

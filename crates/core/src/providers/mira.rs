@@ -11,66 +11,55 @@ use std::string::FromUtf8Error;
 
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
-use tracing::{self, Instrument, info_span};
+use tracing::{self, Instrument};
 
 use crate::OneOrMany;
-use crate::client::{
-	self, BearerAuth, Capabilities, Capable, DebugExt, Nothing, Provider, ProviderBuilder,
-	ProviderClient,
-};
+use crate::client::{self, BearerAuth, Capable, Nothing, ProviderClient};
 use crate::completion::{self, CompletionError, CompletionRequest};
 use crate::http_client::{self, HttpClientExt};
 use crate::message::{self, AssistantContent, Document, DocumentSourceKind, Message, UserContent};
 use crate::providers::openai;
 use crate::providers::openai::send_compatible_streaming_request;
+use crate::providers::openai_compat::{self, OpenAiCompat};
 use crate::streaming::StreamingCompletionResponse;
 
 #[derive(Debug, Default, Clone, Copy)]
-pub struct MiraExt;
-#[derive(Debug, Default, Clone, Copy)]
-pub struct MiraBuilder;
+pub struct Mira;
 
-type MiraApiKey = BearerAuth;
-
-impl Provider for MiraExt {
-	type Builder = MiraBuilder;
-
+impl OpenAiCompat for Mira {
+	const PROVIDER_NAME: &'static str = "mira";
+	const BASE_URL: &'static str = "https://api.mira.network";
+	const API_KEY_ENV: &'static str = "MIRA_API_KEY";
 	const VERIFY_PATH: &'static str = "/user-credits";
+	const COMPLETION_PATH: &'static str = "/v1/chat/completions";
 
-	fn build<H>(
-		_: &crate::client::ClientBuilder<
-			Self::Builder,
-			<Self::Builder as crate::client::ProviderBuilder>::ApiKey,
-			H,
-		>,
-	) -> http_client::Result<Self> {
-		Ok(Self)
-	}
-}
-
-impl<H> Capabilities<H> for MiraExt {
-	type Completion = Capable<CompletionModel<H>>;
-	type Embeddings = Nothing;
-	type Transcription = Nothing;
+	type BuilderState = ();
+	type Completion<H> = Capable<CompletionModel<H>>;
+	type Embeddings<H> = Nothing;
+	type Transcription<H> = Nothing;
 
 	#[cfg(feature = "image")]
-	type ImageGeneration = Nothing;
+	type ImageGeneration<H> = Nothing;
 
 	#[cfg(feature = "audio")]
-	type AudioGeneration = Nothing;
+	type AudioGeneration<H> = Nothing;
 }
 
-impl DebugExt for MiraExt {}
+pub type Client<H = reqwest::Client> = client::Client<Mira, H>;
+pub type ClientBuilder<H = reqwest::Client> =
+	client::ClientBuilder<openai_compat::PBuilder<Mira>, BearerAuth, H>;
 
-impl ProviderBuilder for MiraBuilder {
-	type Output = MiraExt;
-	type ApiKey = MiraApiKey;
+impl ProviderClient for Client {
+	type Input = String;
 
-	const BASE_URL: &'static str = MIRA_API_BASE_URL;
+	fn from_env() -> Self {
+		openai_compat::default_from_env::<Mira>()
+	}
+
+	fn from_val(input: Self::Input) -> Self {
+		Self::new(&input).unwrap()
+	}
 }
-
-pub type Client<H = reqwest::Client> = client::Client<MiraExt, H>;
-pub type ClientBuilder<H = reqwest::Client> = client::ClientBuilder<MiraBuilder, MiraApiKey, H>;
 
 #[derive(Debug, Error)]
 pub enum MiraError {
@@ -91,13 +80,17 @@ struct ApiErrorResponse {
 	message: String,
 }
 
+impl From<ApiErrorResponse> for CompletionError {
+	fn from(err: ApiErrorResponse) -> Self {
+		CompletionError::ProviderError(err.message)
+	}
+}
+
 #[derive(Debug, Deserialize, Clone, Serialize)]
 pub struct RawMessage {
 	pub role: String,
 	pub content: String,
 }
-
-const MIRA_API_BASE_URL: &str = "https://api.mira.network";
 
 impl TryFrom<RawMessage> for message::Message {
 	type Error = CompletionError;
@@ -185,21 +178,6 @@ where
 		})?;
 
 		Ok(models.data.into_iter().map(|model| model.id).collect())
-	}
-}
-
-impl ProviderClient for Client {
-	type Input = String;
-
-	/// Create a new Mira client from the `MIRA_API_KEY` environment variable.
-	/// Panics if the environment variable is not set.
-	fn from_env() -> Self {
-		let api_key = std::env::var("MIRA_API_KEY").expect("MIRA_API_KEY not set");
-		Self::new(&api_key).unwrap()
-	}
-
-	fn from_val(input: Self::Input) -> Self {
-		Self::new(&input).unwrap()
 	}
 }
 
@@ -323,24 +301,11 @@ where
 		&self,
 		completion_request: CompletionRequest,
 	) -> Result<completion::CompletionResponse<CompletionResponse>, CompletionError> {
-		let span = if tracing::Span::current().is_disabled() {
-			info_span!(
-				target: "rig::completions",
-				"chat",
-				gen_ai.operation.name = "chat",
-				gen_ai.provider.name = "mira",
-				gen_ai.request.model = self.model,
-				gen_ai.system_instructions = tracing::field::Empty,
-				gen_ai.response.id = tracing::field::Empty,
-				gen_ai.response.model = tracing::field::Empty,
-				gen_ai.usage.output_tokens = tracing::field::Empty,
-				gen_ai.usage.input_tokens = tracing::field::Empty,
-			)
-		} else {
-			tracing::Span::current()
-		};
-
-		span.record("gen_ai.system_instructions", &completion_request.preamble);
+		let span = openai_compat::completion_span(
+			Mira::PROVIDER_NAME,
+			&self.model,
+			&completion_request.preamble,
+		);
 
 		if !completion_request.tools.is_empty() {
 			tracing::warn!(target: "rig::completions",
@@ -427,24 +392,11 @@ where
 		&self,
 		completion_request: CompletionRequest,
 	) -> Result<StreamingCompletionResponse<Self::StreamingResponse>, CompletionError> {
-		let span = if tracing::Span::current().is_disabled() {
-			info_span!(
-				target: "rig::completions",
-				"chat_streaming",
-				gen_ai.operation.name = "chat_streaming",
-				gen_ai.provider.name = "mira",
-				gen_ai.request.model = self.model,
-				gen_ai.system_instructions = tracing::field::Empty,
-				gen_ai.response.id = tracing::field::Empty,
-				gen_ai.response.model = tracing::field::Empty,
-				gen_ai.usage.output_tokens = tracing::field::Empty,
-				gen_ai.usage.input_tokens = tracing::field::Empty,
-			)
-		} else {
-			tracing::Span::current()
-		};
-
-		span.record("gen_ai.system_instructions", &completion_request.preamble);
+		let span = openai_compat::streaming_span(
+			Mira::PROVIDER_NAME,
+			&self.model,
+			&completion_request.preamble,
+		);
 
 		if !completion_request.tools.is_empty() {
 			tracing::warn!(target: "rig::completions",
@@ -482,12 +434,6 @@ where
 		send_compatible_streaming_request(self.client.clone(), req)
 			.instrument(span)
 			.await
-	}
-}
-
-impl From<ApiErrorResponse> for CompletionError {
-	fn from(err: ApiErrorResponse) -> Self {
-		CompletionError::ProviderError(err.message)
 	}
 }
 

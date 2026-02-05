@@ -16,16 +16,13 @@ use futures::StreamExt;
 use http::Request;
 use serde::{Deserialize, Serialize};
 use serde_json::Map;
-use tracing::info_span;
 use tracing_futures::Instrument;
 
 use super::openai::{
 	CompletionResponse, Message as OpenAIMessage, StreamingToolCall, TranscriptionResponse, Usage,
 };
-use crate::client::{
-	self, BearerAuth, Capabilities, Capable, DebugExt, Nothing, Provider, ProviderBuilder,
-	ProviderClient,
-};
+use super::openai_compat::{self, OpenAiCompat, PBuilder};
+use crate::client::{self, BearerAuth, Capable, Nothing, ProviderClient};
 use crate::completion::{self, CompletionError, CompletionRequest, GetTokenUsage};
 use crate::http_client::multipart::Part;
 use crate::http_client::sse::{Event, GenericEventSource};
@@ -39,53 +36,28 @@ use crate::transcription::{self, TranscriptionError};
 // ================================================================
 // Main Groq Client
 // ================================================================
-const GROQ_API_BASE_URL: &str = "https://api.groq.com/openai/v1";
 
 #[derive(Debug, Default, Clone, Copy)]
-pub struct GroqExt;
-#[derive(Debug, Default, Clone, Copy)]
-pub struct GroqBuilder;
+pub struct Groq;
 
-type GroqApiKey = BearerAuth;
-
-impl Provider for GroqExt {
-	type Builder = GroqBuilder;
-
+impl OpenAiCompat for Groq {
+	const PROVIDER_NAME: &'static str = "groq";
+	const BASE_URL: &'static str = "https://api.groq.com/openai/v1";
+	const API_KEY_ENV: &'static str = "GROQ_API_KEY";
 	const VERIFY_PATH: &'static str = "/models";
-
-	fn build<H>(
-		_: &crate::client::ClientBuilder<
-			Self::Builder,
-			<Self::Builder as crate::client::ProviderBuilder>::ApiKey,
-			H,
-		>,
-	) -> http_client::Result<Self> {
-		Ok(Self)
-	}
-}
-
-impl<H> Capabilities<H> for GroqExt {
-	type Completion = Capable<CompletionModel<H>>;
-	type Embeddings = Nothing;
-	type Transcription = Capable<TranscriptionModel<H>>;
+	const COMPLETION_PATH: &'static str = "/chat/completions";
+	type BuilderState = ();
+	type Completion<H> = Capable<CompletionModel<Self, H>>;
+	type Embeddings<H> = Nothing;
+	type Transcription<H> = Capable<TranscriptionModel<H>>;
 	#[cfg(feature = "image")]
-	type ImageGeneration = Nothing;
-
+	type ImageGeneration<H> = Nothing;
 	#[cfg(feature = "audio")]
-	type AudioGeneration = Nothing;
+	type AudioGeneration<H> = Nothing;
 }
 
-impl DebugExt for GroqExt {}
-
-impl ProviderBuilder for GroqBuilder {
-	type Output = GroqExt;
-	type ApiKey = GroqApiKey;
-
-	const BASE_URL: &'static str = GROQ_API_BASE_URL;
-}
-
-pub type Client<H = reqwest::Client> = client::Client<GroqExt, H>;
-pub type ClientBuilder<H = reqwest::Client> = client::ClientBuilder<GroqBuilder, String, H>;
+pub type Client<H = reqwest::Client> = client::Client<Groq, H>;
+pub type ClientBuilder<H = reqwest::Client> = client::ClientBuilder<PBuilder<Groq>, BearerAuth, H>;
 
 impl ProviderClient for Client {
 	type Input = String;
@@ -249,22 +221,24 @@ pub struct GroqAdditionalParameters {
 }
 
 #[derive(Clone, Debug)]
-pub struct CompletionModel<T = reqwest::Client> {
+pub struct CompletionModel<P, T = reqwest::Client> {
 	client: Client<T>,
 	/// Name of the model (e.g.: deepseek-r1-distill-llama-70b)
 	pub model: String,
+	_phantom: std::marker::PhantomData<P>,
 }
 
-impl<T> CompletionModel<T> {
+impl<P, T> CompletionModel<P, T> {
 	pub fn new(client: Client<T>, model: impl Into<String>) -> Self {
 		Self {
 			client,
 			model: model.into(),
+			_phantom: std::marker::PhantomData,
 		}
 	}
 }
 
-impl<T> completion::CompletionModel for CompletionModel<T>
+impl<T> completion::CompletionModel for CompletionModel<Groq, T>
 where
 	T: HttpClientExt + Clone + Send + std::fmt::Debug + Default + 'static,
 {
@@ -281,24 +255,11 @@ where
 		&self,
 		completion_request: CompletionRequest,
 	) -> Result<completion::CompletionResponse<CompletionResponse>, CompletionError> {
-		let span = if tracing::Span::current().is_disabled() {
-			info_span!(
-				target: "rig::completions",
-				"chat",
-				gen_ai.operation.name = "chat",
-				gen_ai.provider.name = "groq",
-				gen_ai.request.model = self.model,
-				gen_ai.system_instructions = tracing::field::Empty,
-				gen_ai.response.id = tracing::field::Empty,
-				gen_ai.response.model = tracing::field::Empty,
-				gen_ai.usage.output_tokens = tracing::field::Empty,
-				gen_ai.usage.input_tokens = tracing::field::Empty,
-			)
-		} else {
-			tracing::Span::current()
-		};
-
-		span.record("gen_ai.system_instructions", &completion_request.preamble);
+		let span = openai_compat::completion_span(
+			Groq::PROVIDER_NAME,
+			&self.model,
+			&completion_request.preamble,
+		);
 
 		let request = GroqCompletionRequest::try_from((self.model.as_ref(), completion_request))?;
 
@@ -317,40 +278,26 @@ where
 			.map_err(|e| http_client::Error::Instance(e.into()))?;
 
 		let async_block = async move {
-			let response = self.client.send::<_, Bytes>(req).await?;
-			let status = response.status();
-			let response_body = response.into_body().into_future().await?.to_vec();
+			let response = openai_compat::send_and_parse::<
+				_,
+				CompletionResponse,
+				openai_compat::FlatApiError,
+				_,
+			>(&self.client, req, "Groq")
+			.await?;
 
-			if status.is_success() {
-				match serde_json::from_slice::<ApiResponse<CompletionResponse>>(&response_body)? {
-					ApiResponse::Ok(response) => {
-						let span = tracing::Span::current();
-						span.record("gen_ai.response.id", response.id.clone());
-						span.record("gen_ai.response.model_name", response.model.clone());
-						if let Some(ref usage) = response.usage {
-							span.record("gen_ai.usage.input_tokens", usage.prompt_tokens);
-							span.record(
-								"gen_ai.usage.output_tokens",
-								usage.total_tokens - usage.prompt_tokens,
-							);
-						}
+			// Record response span manually since groq uses openai::CompletionResponse
+			let span = tracing::Span::current();
+			openai_compat::record_openai_response_span(&span, &response);
 
-						if tracing::enabled!(tracing::Level::TRACE) {
-							tracing::trace!(target: "rig::completions",
-								"Groq completion response: {}",
-								serde_json::to_string_pretty(&response)?
-							);
-						}
-
-						response.try_into()
-					}
-					ApiResponse::Err(err) => Err(CompletionError::ProviderError(err.message)),
-				}
-			} else {
-				Err(CompletionError::ProviderError(
-					String::from_utf8_lossy(&response_body).to_string(),
-				))
+			if tracing::enabled!(tracing::Level::TRACE) {
+				tracing::trace!(target: "rig::completions",
+					"Groq completion response: {}",
+					serde_json::to_string_pretty(&response)?
+				);
 			}
+
+			response.try_into()
 		};
 
 		tracing::Instrument::instrument(async_block, span).await
@@ -363,24 +310,8 @@ where
 		crate::streaming::StreamingCompletionResponse<Self::StreamingResponse>,
 		CompletionError,
 	> {
-		let span = if tracing::Span::current().is_disabled() {
-			info_span!(
-				target: "rig::completions",
-				"chat_streaming",
-				gen_ai.operation.name = "chat_streaming",
-				gen_ai.provider.name = "groq",
-				gen_ai.request.model = self.model,
-				gen_ai.system_instructions = tracing::field::Empty,
-				gen_ai.response.id = tracing::field::Empty,
-				gen_ai.response.model = tracing::field::Empty,
-				gen_ai.usage.output_tokens = tracing::field::Empty,
-				gen_ai.usage.input_tokens = tracing::field::Empty,
-			)
-		} else {
-			tracing::Span::current()
-		};
-
-		span.record("gen_ai.system_instructions", &request.preamble);
+		let span =
+			openai_compat::streaming_span(Groq::PROVIDER_NAME, &self.model, &request.preamble);
 
 		let mut request = GroqCompletionRequest::try_from((self.model.as_ref(), request))?;
 

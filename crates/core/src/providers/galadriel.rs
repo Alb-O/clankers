@@ -14,14 +14,11 @@ use serde::{Deserialize, Serialize};
 use tracing::{Instrument, enabled, info_span};
 
 use super::openai;
-use crate::client::{
-	self, BearerAuth, Capabilities, Capable, DebugExt, Nothing, Provider, ProviderBuilder,
-	ProviderClient,
-};
+use crate::client::{self, BearerAuth, Capable, Nothing, ProviderClient};
 use crate::completion::{self, CompletionError, CompletionRequest};
 use crate::http_client::{self, HttpClientExt};
 use crate::message::MessageError;
-use crate::providers::openai::send_compatible_streaming_request;
+use crate::providers::openai_compat::{self, FlatApiError, OpenAiCompat, PBuilder};
 use crate::streaming::StreamingCompletionResponse;
 use crate::{OneOrMany, json_utils, message};
 
@@ -31,75 +28,55 @@ use crate::{OneOrMany, json_utils, message};
 const GALADRIEL_API_BASE_URL: &str = "https://api.galadriel.com/v1/verified";
 
 #[derive(Debug, Default, Clone)]
-pub struct GaladrielExt {
+pub struct Galadriel {
 	fine_tune_api_key: Option<String>,
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct GaladrielBuilder {
-	fine_tune_api_key: Option<String>,
+pub struct GaladrielBuildState {
+	pub fine_tune_api_key: Option<String>,
 }
 
-type GaladrielApiKey = BearerAuth;
-
-impl Provider for GaladrielExt {
-	type Builder = GaladrielBuilder;
-
-	/// There is currently no way to verify a Galadriel api key without consuming tokens
+impl OpenAiCompat for Galadriel {
+	const PROVIDER_NAME: &'static str = "galadriel";
+	const BASE_URL: &'static str = GALADRIEL_API_BASE_URL;
+	const API_KEY_ENV: &'static str = "GALADRIEL_API_KEY";
 	const VERIFY_PATH: &'static str = "";
+	const COMPLETION_PATH: &'static str = "/chat/completions";
 
-	fn build<H>(
-		builder: &crate::client::ClientBuilder<
-			Self::Builder,
-			<Self::Builder as crate::client::ProviderBuilder>::ApiKey,
-			H,
-		>,
+	type BuilderState = GaladrielBuildState;
+	type Completion<H> = Capable<CompletionModel<H>>;
+	type Embeddings<H> = Nothing;
+	type Transcription<H> = Nothing;
+	#[cfg(feature = "image")]
+	type ImageGeneration<H> = Nothing;
+	#[cfg(feature = "audio")]
+	type AudioGeneration<H> = Nothing;
+
+	fn build_from<H>(
+		builder: &client::ClientBuilder<PBuilder<Self>, BearerAuth, H>,
 	) -> http_client::Result<Self> {
-		let GaladrielBuilder { fine_tune_api_key } = builder.ext().clone();
-
+		let GaladrielBuildState { fine_tune_api_key } = builder.ext().state.clone();
 		Ok(Self { fine_tune_api_key })
 	}
-}
 
-impl<H> Capabilities<H> for GaladrielExt {
-	type Completion = Capable<CompletionModel<H>>;
-	type Embeddings = Nothing;
-	type Transcription = Nothing;
-	#[cfg(feature = "image")]
-	type ImageGeneration = Nothing;
-	#[cfg(feature = "audio")]
-	type AudioGeneration = Nothing;
-}
-
-impl DebugExt for GaladrielExt {
-	fn fields(&self) -> impl Iterator<Item = (&'static str, &dyn std::fmt::Debug)> {
-		std::iter::once((
-			"fine_tune_api_key",
-			(&self.fine_tune_api_key as &dyn std::fmt::Debug),
-		))
+	fn debug_fields(&self) -> Vec<(&'static str, &dyn std::fmt::Debug)> {
+		vec![("fine_tune_api_key", &self.fine_tune_api_key)]
 	}
 }
 
-impl ProviderBuilder for GaladrielBuilder {
-	type Output = GaladrielExt;
-	type ApiKey = GaladrielApiKey;
-
-	const BASE_URL: &'static str = GALADRIEL_API_BASE_URL;
-}
-
-pub type Client<H = reqwest::Client> = client::Client<GaladrielExt, H>;
+pub type Client<H = reqwest::Client> = client::Client<Galadriel, H>;
 pub type ClientBuilder<H = reqwest::Client> =
-	client::ClientBuilder<GaladrielBuilder, GaladrielApiKey, H>;
+	client::ClientBuilder<PBuilder<Galadriel>, BearerAuth, H>;
 
 impl<T> ClientBuilder<T> {
 	pub fn fine_tune_api_key<S>(mut self, fine_tune_api_key: S) -> Self
 	where
 		S: AsRef<str>,
 	{
-		*self.ext_mut() = GaladrielBuilder {
+		self.ext_mut().state = GaladrielBuildState {
 			fine_tune_api_key: Some(fine_tune_api_key.as_ref().into()),
 		};
-
 		self
 	}
 }
@@ -132,18 +109,6 @@ impl ProviderClient for Client {
 
 		builder.build().unwrap()
 	}
-}
-
-#[derive(Debug, Deserialize)]
-struct ApiErrorResponse {
-	message: String,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(untagged)]
-enum ApiResponse<T> {
-	Ok(T),
-	Err(ApiErrorResponse),
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -218,12 +183,6 @@ pub struct CompletionResponse {
 	pub system_fingerprint: Option<String>,
 	pub choices: Vec<Choice>,
 	pub usage: Option<Usage>,
-}
-
-impl From<ApiErrorResponse> for CompletionError {
-	fn from(err: ApiErrorResponse) -> Self {
-		CompletionError::ProviderError(err.message)
-	}
 }
 
 impl TryFrom<CompletionResponse> for completion::CompletionResponse<CompletionResponse> {
@@ -482,46 +441,14 @@ impl TryFrom<(&str, CompletionRequest)> for GaladrielCompletionRequest {
 	}
 }
 
-#[derive(Clone)]
-pub struct CompletionModel<T = reqwest::Client> {
-	client: Client<T>,
-	/// Name of the model (e.g.: gpt-3.5-turbo-1106)
-	pub model: String,
-}
+pub type CompletionModel<T = reqwest::Client> =
+	crate::providers::openai_compat::CompletionModel<Galadriel, T>;
 
 impl<T> CompletionModel<T>
 where
-	T: HttpClientExt,
-{
-	pub fn new(client: Client<T>, model: impl Into<String>) -> Self {
-		Self {
-			client,
-			model: model.into(),
-		}
-	}
-
-	pub fn with_model(client: Client<T>, model: &str) -> Self {
-		Self {
-			client,
-			model: model.into(),
-		}
-	}
-}
-
-impl<T> completion::CompletionModel for CompletionModel<T>
-where
 	T: HttpClientExt + Clone + Default + std::fmt::Debug + Send + 'static,
 {
-	type Response = CompletionResponse;
-	type StreamingResponse = openai::StreamingCompletionResponse;
-
-	type Client = Client<T>;
-
-	fn make(client: &Self::Client, model: impl Into<String>) -> Self {
-		Self::new(client.clone(), model.into())
-	}
-
-	async fn completion(
+	async fn completion_impl(
 		&self,
 		completion_request: CompletionRequest,
 	) -> Result<completion::CompletionResponse<CompletionResponse>, CompletionError> {
@@ -563,48 +490,34 @@ where
 			.map_err(http_client::Error::from)?;
 
 		async move {
-			let response = self.client.send(req).await?;
+			let response = openai_compat::send_and_parse::<_, CompletionResponse, FlatApiError, _>(
+				&self.client,
+				req,
+				"Galadriel",
+			)
+			.await?;
 
-			if response.status().is_success() {
-				let t = http_client::text(response).await?;
-
-				if enabled!(tracing::Level::TRACE) {
-					tracing::trace!(target: "rig::completions",
-						"Galadriel completion response: {}",
-						serde_json::to_string_pretty(&t)?
-					);
-				}
-
-				match serde_json::from_str::<ApiResponse<CompletionResponse>>(&t)? {
-					ApiResponse::Ok(response) => {
-						let span = tracing::Span::current();
-						span.record("gen_ai.response.id", response.id.clone());
-						span.record("gen_ai.response.model_name", response.model.clone());
-						if let Some(ref usage) = response.usage {
-							span.record("gen_ai.usage.input_tokens", usage.prompt_tokens);
-							span.record(
-								"gen_ai.usage.output_tokens",
-								usage.total_tokens - usage.prompt_tokens,
-							);
-						}
-						response.try_into()
-					}
-					ApiResponse::Err(err) => Err(CompletionError::ProviderError(err.message)),
-				}
-			} else {
-				let text = http_client::text(response).await?;
-
-				Err(CompletionError::ProviderError(text))
+			let span = tracing::Span::current();
+			span.record("gen_ai.response.id", response.id.clone());
+			span.record("gen_ai.response.model_name", response.model.clone());
+			if let Some(ref usage) = response.usage {
+				span.record("gen_ai.usage.input_tokens", usage.prompt_tokens);
+				span.record(
+					"gen_ai.usage.output_tokens",
+					usage.total_tokens - usage.prompt_tokens,
+				);
 			}
+			response.try_into()
 		}
 		.instrument(span)
 		.await
 	}
 
-	async fn stream(
+	async fn stream_impl(
 		&self,
 		completion_request: CompletionRequest,
-	) -> Result<StreamingCompletionResponse<Self::StreamingResponse>, CompletionError> {
+	) -> Result<StreamingCompletionResponse<openai::StreamingCompletionResponse>, CompletionError>
+	{
 		let preamble = completion_request.preamble.clone();
 		let mut request =
 			GaladrielCompletionRequest::try_from((self.model.as_ref(), completion_request))?;
@@ -643,8 +556,38 @@ where
 			tracing::Span::current()
 		};
 
-		send_compatible_streaming_request(self.client.clone(), req)
+		openai::send_compatible_streaming_request(self.client.clone(), req)
 			.instrument(span)
 			.await
+	}
+}
+
+impl<T> completion::CompletionModel for CompletionModel<T>
+where
+	T: HttpClientExt + Clone + Default + std::fmt::Debug + Send + 'static,
+{
+	type Response = CompletionResponse;
+	type StreamingResponse = openai::StreamingCompletionResponse;
+	type Client = Client<T>;
+
+	fn make(client: &Self::Client, model: impl Into<String>) -> Self {
+		Self {
+			client: client.clone(),
+			model: model.into(),
+		}
+	}
+
+	async fn completion(
+		&self,
+		completion_request: CompletionRequest,
+	) -> Result<completion::CompletionResponse<CompletionResponse>, CompletionError> {
+		self.completion_impl(completion_request).await
+	}
+
+	async fn stream(
+		&self,
+		completion_request: CompletionRequest,
+	) -> Result<StreamingCompletionResponse<Self::StreamingResponse>, CompletionError> {
+		self.stream_impl(completion_request).await
 	}
 }

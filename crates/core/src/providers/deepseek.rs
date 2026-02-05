@@ -12,17 +12,14 @@
 use std::collections::HashMap;
 
 use async_stream::stream;
-use bytes::Bytes;
 use futures::StreamExt;
 use http::Request;
 use serde::{Deserialize, Serialize};
-use tracing::{Instrument, Level, enabled, info_span};
+use tracing::{Level, enabled};
 
 use super::openai::StreamingToolCall;
-use crate::client::{
-	self, BearerAuth, Capabilities, Capable, DebugExt, Nothing, Provider, ProviderBuilder,
-	ProviderClient,
-};
+use super::openai_compat::{self, OpenAiCompat, PBuilder};
+use crate::client::{self, BearerAuth, Capable, Nothing, ProviderClient};
 use crate::completion::{self, CompletionError, CompletionRequest, GetTokenUsage};
 use crate::http_client::sse::{Event, GenericEventSource};
 use crate::http_client::{self, HttpClientExt};
@@ -36,85 +33,38 @@ use crate::{OneOrMany, json_utils, message};
 const DEEPSEEK_API_BASE_URL: &str = "https://api.deepseek.com";
 
 #[derive(Debug, Default, Clone, Copy)]
-pub struct DeepSeekExt;
-#[derive(Debug, Default, Clone, Copy)]
-pub struct DeepSeekExtBuilder;
+pub struct DeepSeek;
 
-type DeepSeekApiKey = BearerAuth;
-
-impl Provider for DeepSeekExt {
-	type Builder = DeepSeekExtBuilder;
-
-	const VERIFY_PATH: &'static str = "/user/balance";
-
-	fn build<H>(
-		_: &crate::client::ClientBuilder<
-			Self::Builder,
-			<Self::Builder as crate::client::ProviderBuilder>::ApiKey,
-			H,
-		>,
-	) -> http_client::Result<Self> {
-		Ok(Self)
-	}
-}
-
-impl<H> Capabilities<H> for DeepSeekExt {
-	type Completion = Capable<CompletionModel<H>>;
-	type Embeddings = Nothing;
-	type Transcription = Nothing;
-	#[cfg(feature = "image")]
-	type ImageGeneration = Nothing;
-	#[cfg(feature = "audio")]
-	type AudioGeneration = Nothing;
-}
-
-impl DebugExt for DeepSeekExt {}
-
-impl ProviderBuilder for DeepSeekExtBuilder {
-	type Output = DeepSeekExt;
-	type ApiKey = DeepSeekApiKey;
-
+impl OpenAiCompat for DeepSeek {
+	const PROVIDER_NAME: &'static str = "deepseek";
 	const BASE_URL: &'static str = DEEPSEEK_API_BASE_URL;
+	const API_KEY_ENV: &'static str = "DEEPSEEK_API_KEY";
+	const VERIFY_PATH: &'static str = "/user/balance";
+	const COMPLETION_PATH: &'static str = "/chat/completions";
+
+	type BuilderState = ();
+	type Completion<H> = Capable<CompletionModel<H>>;
+	type Embeddings<H> = Nothing;
+	type Transcription<H> = Nothing;
+	#[cfg(feature = "image")]
+	type ImageGeneration<H> = Nothing;
+	#[cfg(feature = "audio")]
+	type AudioGeneration<H> = Nothing;
 }
 
-pub type Client<H = reqwest::Client> = client::Client<DeepSeekExt, H>;
-pub type ClientBuilder<H = reqwest::Client> = client::ClientBuilder<DeepSeekExtBuilder, String, H>;
+pub type Client<H = reqwest::Client> = client::Client<DeepSeek, H>;
+pub type ClientBuilder<H = reqwest::Client> =
+	client::ClientBuilder<PBuilder<DeepSeek>, BearerAuth, H>;
 
 impl ProviderClient for Client {
-	type Input = DeepSeekApiKey;
+	type Input = String;
 
-	// If you prefer the environment variable approach:
 	fn from_env() -> Self {
-		let api_key = std::env::var("DEEPSEEK_API_KEY").expect("DEEPSEEK_API_KEY not set");
-		let mut client_builder = Self::builder();
-		client_builder.headers_mut().insert(
-			http::header::CONTENT_TYPE,
-			http::HeaderValue::from_static("application/json"),
-		);
-		let client_builder = client_builder.api_key(&api_key);
-		client_builder.build().unwrap()
+		openai_compat::default_from_env::<DeepSeek>()
 	}
 
 	fn from_val(input: Self::Input) -> Self {
-		Self::new(input).unwrap()
-	}
-}
-
-#[derive(Debug, Deserialize)]
-struct ApiErrorResponse {
-	message: String,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(untagged)]
-enum ApiResponse<T> {
-	Ok(T),
-	Err(ApiErrorResponse),
-}
-
-impl From<ApiErrorResponse> for CompletionError {
-	fn from(err: ApiErrorResponse) -> Self {
-		CompletionError::ProviderError(err.message)
+		Self::new(&input).unwrap()
 	}
 }
 
@@ -546,11 +496,7 @@ impl TryFrom<(&str, CompletionRequest)> for DeepseekCompletionRequest {
 }
 
 /// The struct implementing the `CompletionModel` trait
-#[derive(Clone)]
-pub struct CompletionModel<T = reqwest::Client> {
-	pub client: Client<T>,
-	pub model: String,
-}
+pub type CompletionModel<T = reqwest::Client> = openai_compat::CompletionModel<DeepSeek, T>;
 
 impl<T> completion::CompletionModel for CompletionModel<T>
 where
@@ -562,37 +508,18 @@ where
 	type Client = Client<T>;
 
 	fn make(client: &Self::Client, model: impl Into<String>) -> Self {
-		Self {
-			client: client.clone(),
-			model: model.into().to_string(),
-		}
+		Self::new(client.clone(), model)
 	}
 
 	async fn completion(
 		&self,
 		completion_request: CompletionRequest,
-	) -> Result<
-		completion::CompletionResponse<CompletionResponse>,
-		crate::completion::CompletionError,
-	> {
-		let span = if tracing::Span::current().is_disabled() {
-			info_span!(
-				target: "rig::completions",
-				"chat",
-				gen_ai.operation.name = "chat",
-				gen_ai.provider.name = "deepseek",
-				gen_ai.request.model = self.model,
-				gen_ai.system_instructions = tracing::field::Empty,
-				gen_ai.response.id = tracing::field::Empty,
-				gen_ai.response.model = tracing::field::Empty,
-				gen_ai.usage.output_tokens = tracing::field::Empty,
-				gen_ai.usage.input_tokens = tracing::field::Empty,
-			)
-		} else {
-			tracing::Span::current()
-		};
-
-		span.record("gen_ai.system_instructions", &completion_request.preamble);
+	) -> Result<completion::CompletionResponse<CompletionResponse>, CompletionError> {
+		let span = openai_compat::completion_span(
+			DeepSeek::PROVIDER_NAME,
+			&self.model,
+			&completion_request.preamble,
+		);
 
 		let request =
 			DeepseekCompletionRequest::try_from((self.model.as_ref(), completion_request))?;
@@ -609,40 +536,29 @@ where
 			.client
 			.post("/chat/completions")?
 			.body(body)
-			.map_err(|e| CompletionError::HttpError(e.into()))?;
+			.map_err(http_client::Error::from)?;
 
-		async move {
-			let response = self.client.send::<_, Bytes>(req).await?;
-			let status = response.status();
-			let response_body = response.into_body().into_future().await?.to_vec();
+		let async_block = async move {
+			let response = openai_compat::send_and_parse::<
+				_,
+				CompletionResponse,
+				openai_compat::FlatApiError,
+				_,
+			>(&self.client, req, "DeepSeek")
+			.await?;
 
-			if status.is_success() {
-				match serde_json::from_slice::<ApiResponse<CompletionResponse>>(&response_body)? {
-					ApiResponse::Ok(response) => {
-						let span = tracing::Span::current();
-						span.record("gen_ai.usage.input_tokens", response.usage.prompt_tokens);
-						span.record(
-							"gen_ai.usage.output_tokens",
-							response.usage.completion_tokens,
-						);
-						if enabled!(Level::TRACE) {
-							tracing::trace!(target: "rig::completions",
-								"DeepSeek completion response: {}",
-								serde_json::to_string_pretty(&response)?
-							);
-						}
-						response.try_into()
-					}
-					ApiResponse::Err(err) => Err(CompletionError::ProviderError(err.message)),
-				}
-			} else {
-				Err(CompletionError::ProviderError(
-					String::from_utf8_lossy(&response_body).to_string(),
-				))
-			}
-		}
-		.instrument(span)
-		.await
+			// Record DeepSeek-specific usage fields
+			let current_span = tracing::Span::current();
+			current_span.record("gen_ai.usage.input_tokens", response.usage.prompt_tokens);
+			current_span.record(
+				"gen_ai.usage.output_tokens",
+				response.usage.completion_tokens,
+			);
+
+			response.try_into()
+		};
+
+		tracing::Instrument::instrument(async_block, span).await
 	}
 
 	async fn stream(
@@ -652,7 +568,12 @@ where
 		crate::streaming::StreamingCompletionResponse<Self::StreamingResponse>,
 		CompletionError,
 	> {
-		let preamble = completion_request.preamble.clone();
+		let span = openai_compat::streaming_span(
+			DeepSeek::PROVIDER_NAME,
+			&self.model,
+			&completion_request.preamble,
+		);
+
 		let mut request =
 			DeepseekCompletionRequest::try_from((self.model.as_ref(), completion_request))?;
 
@@ -676,24 +597,7 @@ where
 			.client
 			.post("/chat/completions")?
 			.body(body)
-			.map_err(|e| CompletionError::HttpError(e.into()))?;
-
-		let span = if tracing::Span::current().is_disabled() {
-			info_span!(
-				target: "rig::completions",
-				"chat_streaming",
-				gen_ai.operation.name = "chat_streaming",
-				gen_ai.provider.name = "deepseek",
-				gen_ai.request.model = self.model,
-				gen_ai.system_instructions = preamble,
-				gen_ai.response.id = tracing::field::Empty,
-				gen_ai.response.model = tracing::field::Empty,
-				gen_ai.usage.output_tokens = tracing::field::Empty,
-				gen_ai.usage.input_tokens = tracing::field::Empty,
-			)
-		} else {
-			tracing::Span::current()
-		};
+			.map_err(http_client::Error::from)?;
 
 		tracing::Instrument::instrument(
 			send_compatible_streaming_request(self.client.clone(), req),
@@ -961,7 +865,7 @@ mod tests {
                     "index": 0,
                     "message": {
                         "role": "assistant",
-                        "content": "Why don’t skeletons fight each other?  \nBecause they don’t have the guts! 😄"
+                        "content": "Why don't skeletons fight each other?  \nBecause they don't have the guts! 😄"
                     },
                     "logprobs": null,
                     "finish_reason": "stop"
@@ -987,7 +891,7 @@ mod tests {
 			Ok(response) => match &response.choices.first().unwrap().message {
 				Message::Assistant { content, .. } => assert_eq!(
 					content,
-					"Why don’t skeletons fight each other?  \nBecause they don’t have the guts! 😄"
+					"Why don't skeletons fight each other?  \nBecause they don't have the guts! 😄"
 				),
 				_ => panic!("Expected assistant message"),
 			},

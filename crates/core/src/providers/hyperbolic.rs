@@ -11,75 +11,52 @@
 use serde::{Deserialize, Serialize};
 
 use super::openai::{AssistantContent, send_compatible_streaming_request};
-use crate::client::{
-	self, BearerAuth, Capabilities, Capable, DebugExt, Nothing, Provider, ProviderBuilder,
-	ProviderClient,
-};
+use crate::OneOrMany;
+use crate::client::{self, BearerAuth, Capable, Nothing, ProviderClient};
 use crate::completion::{self, CompletionError, CompletionRequest};
 use crate::http_client::{self, HttpClientExt};
 use crate::providers::openai;
 use crate::providers::openai::Message;
+use crate::providers::openai_compat::{
+	self, CompletionModel, FlatApiError, OpenAiCompat, PBuilder,
+};
 use crate::streaming::StreamingCompletionResponse;
-use crate::{OneOrMany, json_utils};
 
 // ================================================================
 // Main Hyperbolic Client
 // ================================================================
-const HYPERBOLIC_API_BASE_URL: &str = "https://api.hyperbolic.xyz";
 
 #[derive(Debug, Default, Clone, Copy)]
-pub struct HyperbolicExt;
-#[derive(Debug, Default, Clone, Copy)]
-pub struct HyperbolicBuilder;
+pub struct Hyperbolic;
 
-type HyperbolicApiKey = BearerAuth;
-
-impl Provider for HyperbolicExt {
-	type Builder = HyperbolicBuilder;
-
+impl OpenAiCompat for Hyperbolic {
+	const PROVIDER_NAME: &'static str = "hyperbolic";
+	const BASE_URL: &'static str = "https://api.hyperbolic.xyz";
+	const API_KEY_ENV: &'static str = "HYPERBOLIC_API_KEY";
 	const VERIFY_PATH: &'static str = "/models";
+	const COMPLETION_PATH: &'static str = "/v1/chat/completions";
 
-	fn build<H>(
-		_: &crate::client::ClientBuilder<
-			Self::Builder,
-			<Self::Builder as crate::client::ProviderBuilder>::ApiKey,
-			H,
-		>,
-	) -> http_client::Result<Self> {
-		Ok(Self)
-	}
-}
-
-impl<H> Capabilities<H> for HyperbolicExt {
-	type Completion = Capable<CompletionModel<H>>;
-	type Embeddings = Nothing;
-	type Transcription = Nothing;
+	type BuilderState = ();
+	type Completion<H> = Capable<CompletionModel<Self, H>>;
+	type Embeddings<H> = Nothing;
+	type Transcription<H> = Nothing;
 	#[cfg(feature = "image")]
-	type ImageGeneration = Capable<ImageGenerationModel<H>>;
+	type ImageGeneration<H> = Capable<ImageGenerationModel<H>>;
 	#[cfg(feature = "audio")]
-	type AudioGeneration = Capable<AudioGenerationModel<H>>;
+	type AudioGeneration<H> = Capable<AudioGenerationModel<H>>;
 }
 
-impl DebugExt for HyperbolicExt {}
-
-impl ProviderBuilder for HyperbolicBuilder {
-	type Output = HyperbolicExt;
-	type ApiKey = HyperbolicApiKey;
-
-	const BASE_URL: &'static str = HYPERBOLIC_API_BASE_URL;
-}
-
-pub type Client<H = reqwest::Client> = client::Client<HyperbolicExt, H>;
-pub type ClientBuilder<H = reqwest::Client> = client::ClientBuilder<HyperbolicBuilder, String, H>;
+pub type Client<H = reqwest::Client> = client::Client<Hyperbolic, H>;
+pub type ClientBuilder<H = reqwest::Client> =
+	client::ClientBuilder<PBuilder<Hyperbolic>, BearerAuth, H>;
 
 impl ProviderClient for Client {
-	type Input = HyperbolicApiKey;
+	type Input = BearerAuth;
 
 	/// Create a new Hyperbolic client from the `HYPERBOLIC_API_KEY` environment variable.
 	/// Panics if the environment variable is not set.
 	fn from_env() -> Self {
-		let api_key = std::env::var("HYPERBOLIC_API_KEY").expect("HYPERBOLIC_API_KEY not set");
-		Self::new(&api_key).unwrap()
+		openai_compat::default_from_env::<Hyperbolic>()
 	}
 
 	fn from_val(input: Self::Input) -> Self {
@@ -87,11 +64,13 @@ impl ProviderClient for Client {
 	}
 }
 
+#[cfg(any(feature = "image", feature = "audio"))]
 #[derive(Debug, Deserialize)]
 struct ApiErrorResponse {
 	message: String,
 }
 
+#[cfg(any(feature = "image", feature = "audio"))]
 #[derive(Debug, Deserialize)]
 #[serde(untagged)]
 enum ApiResponse<T> {
@@ -162,12 +141,6 @@ pub struct CompletionResponse {
 	pub model: String,
 	pub choices: Vec<Choice>,
 	pub usage: Option<Usage>,
-}
-
-impl From<ApiErrorResponse> for CompletionError {
-	fn from(err: ApiErrorResponse) -> Self {
-		CompletionError::ProviderError(err.message)
-	}
 }
 
 impl TryFrom<CompletionResponse> for completion::CompletionResponse<CompletionResponse> {
@@ -298,30 +271,7 @@ impl TryFrom<(&str, CompletionRequest)> for HyperbolicCompletionRequest {
 	}
 }
 
-#[derive(Clone)]
-pub struct CompletionModel<T = reqwest::Client> {
-	client: Client<T>,
-	/// Name of the model (e.g.: deepseek-ai/DeepSeek-R1)
-	pub model: String,
-}
-
-impl<T> CompletionModel<T> {
-	pub fn new(client: Client<T>, model: impl Into<String>) -> Self {
-		Self {
-			client,
-			model: model.into(),
-		}
-	}
-
-	pub fn with_model(client: Client<T>, model: &str) -> Self {
-		Self {
-			client,
-			model: model.into(),
-		}
-	}
-}
-
-impl<T> completion::CompletionModel for CompletionModel<T>
+impl<T> completion::CompletionModel for CompletionModel<Hyperbolic, T>
 where
 	T: HttpClientExt + Clone + Default + std::fmt::Debug + Send + 'static,
 {
@@ -338,24 +288,12 @@ where
 		&self,
 		completion_request: CompletionRequest,
 	) -> Result<completion::CompletionResponse<CompletionResponse>, CompletionError> {
-		let span = if tracing::Span::current().is_disabled() {
-			info_span!(
-				target: "rig::completions",
-				"chat",
-				gen_ai.operation.name = "chat",
-				gen_ai.provider.name = "hyperbolic",
-				gen_ai.request.model = self.model,
-				gen_ai.system_instructions = tracing::field::Empty,
-				gen_ai.response.id = tracing::field::Empty,
-				gen_ai.response.model = tracing::field::Empty,
-				gen_ai.usage.output_tokens = tracing::field::Empty,
-				gen_ai.usage.input_tokens = tracing::field::Empty,
-			)
-		} else {
-			tracing::Span::current()
-		};
+		let span = openai_compat::completion_span(
+			Hyperbolic::PROVIDER_NAME,
+			&self.model,
+			&completion_request.preamble,
+		);
 
-		span.record("gen_ai.system_instructions", &completion_request.preamble);
 		let request =
 			HyperbolicCompletionRequest::try_from((self.model.as_ref(), completion_request))?;
 
@@ -375,66 +313,33 @@ where
 			.map_err(http_client::Error::from)?;
 
 		let async_block = async move {
-			let response = self.client.send::<_, bytes::Bytes>(req).await?;
+			let response = openai_compat::send_and_parse::<_, CompletionResponse, FlatApiError, _>(
+				&self.client,
+				req,
+				"Hyperbolic",
+			)
+			.await?;
 
-			let status = response.status();
-			let response_body = response.into_body().into_future().await?.to_vec();
-
-			if status.is_success() {
-				match serde_json::from_slice::<ApiResponse<CompletionResponse>>(&response_body)? {
-					ApiResponse::Ok(response) => {
-						if tracing::enabled!(tracing::Level::TRACE) {
-							tracing::trace!(target: "rig::completions",
-								"Hyperbolic completion response: {}",
-								serde_json::to_string_pretty(&response)?
-							);
-						}
-
-						response.try_into()
-					}
-					ApiResponse::Err(err) => Err(CompletionError::ProviderError(err.message)),
-				}
-			} else {
-				Err(CompletionError::ProviderError(
-					String::from_utf8_lossy(&response_body).to_string(),
-				))
-			}
+			response.try_into()
 		};
 
-		async_block.instrument(span).await
+		tracing::Instrument::instrument(async_block, span).await
 	}
 
 	async fn stream(
 		&self,
 		completion_request: CompletionRequest,
 	) -> Result<StreamingCompletionResponse<Self::StreamingResponse>, CompletionError> {
-		let span = if tracing::Span::current().is_disabled() {
-			info_span!(
-				target: "rig::completions",
-				"chat_streaming",
-				gen_ai.operation.name = "chat_streaming",
-				gen_ai.provider.name = "hyperbolic",
-				gen_ai.request.model = self.model,
-				gen_ai.system_instructions = tracing::field::Empty,
-				gen_ai.response.id = tracing::field::Empty,
-				gen_ai.response.model = tracing::field::Empty,
-				gen_ai.usage.output_tokens = tracing::field::Empty,
-				gen_ai.usage.input_tokens = tracing::field::Empty,
-			)
-		} else {
-			tracing::Span::current()
-		};
+		let span = openai_compat::streaming_span(
+			Hyperbolic::PROVIDER_NAME,
+			&self.model,
+			&completion_request.preamble,
+		);
 
-		span.record("gen_ai.system_instructions", &completion_request.preamble);
 		let mut request =
 			HyperbolicCompletionRequest::try_from((self.model.as_ref(), completion_request))?;
 
-		let params = json_utils::merge(
-			request.additional_params.unwrap_or(serde_json::json!({})),
-			serde_json::json!({"stream": true, "stream_options": {"include_usage": true} }),
-		);
-
-		request.additional_params = Some(params);
+		openai_compat::merge_stream_params(&mut request.additional_params);
 
 		if tracing::enabled!(tracing::Level::TRACE) {
 			tracing::trace!(target: "rig::completions",
@@ -597,7 +502,7 @@ mod image_generation {
 // ======================================
 #[cfg(feature = "audio")]
 pub use audio_generation::*;
-use tracing::{Instrument, info_span};
+use tracing::Instrument;
 
 #[cfg(feature = "audio")]
 #[cfg_attr(docsrs, doc(cfg(feature = "image")))]

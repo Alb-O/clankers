@@ -1,4 +1,5 @@
 #![cfg_attr(docsrs, feature(doc_cfg))]
+#![feature(where_clause_attrs)]
 //! Rig is a Rust library for building LLM-powered applications that focuses on ergonomics and modularity.
 //!
 //! # Table of contents

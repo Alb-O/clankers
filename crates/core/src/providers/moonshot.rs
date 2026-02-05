@@ -9,69 +9,46 @@
 //! let moonshot_model = client.completion_model(moonshot::MOONSHOT_CHAT);
 //! ```
 use serde::{Deserialize, Serialize};
-use tracing::{Instrument, info_span};
+use tracing::Instrument;
 
-use crate::client::{
-	self, BearerAuth, Capabilities, Capable, DebugExt, Nothing, Provider, ProviderBuilder,
-	ProviderClient,
-};
+use crate::client::{self, BearerAuth, Capable, Nothing, ProviderClient};
 use crate::completion::{self, CompletionError, CompletionRequest};
 use crate::http_client::HttpClientExt;
 use crate::providers::openai;
 use crate::providers::openai::send_compatible_streaming_request;
+use crate::providers::openai_compat::{
+	self, CompletionModel, FlatApiError, OpenAiCompat, PBuilder,
+};
 use crate::streaming::StreamingCompletionResponse;
-use crate::{http_client, json_utils, message};
+use crate::{http_client, message};
 
 // ================================================================
 // Main Moonshot Client
 // ================================================================
-const MOONSHOT_API_BASE_URL: &str = "https://api.moonshot.cn/v1";
 
 #[derive(Debug, Default, Clone, Copy)]
-pub struct MoonshotExt;
-#[derive(Debug, Default, Clone, Copy)]
-pub struct MoonshotBuilder;
+pub struct Moonshot;
 
-type MoonshotApiKey = BearerAuth;
-
-impl Provider for MoonshotExt {
-	type Builder = MoonshotBuilder;
-
+impl OpenAiCompat for Moonshot {
+	const PROVIDER_NAME: &'static str = "moonshot";
+	const BASE_URL: &'static str = "https://api.moonshot.cn/v1";
+	const API_KEY_ENV: &'static str = "MOONSHOT_API_KEY";
 	const VERIFY_PATH: &'static str = "/models";
+	const COMPLETION_PATH: &'static str = "/chat/completions";
 
-	fn build<H>(
-		_: &crate::client::ClientBuilder<
-			Self::Builder,
-			<Self::Builder as crate::client::ProviderBuilder>::ApiKey,
-			H,
-		>,
-	) -> http_client::Result<Self> {
-		Ok(Self)
-	}
-}
-
-impl DebugExt for MoonshotExt {}
-
-impl ProviderBuilder for MoonshotBuilder {
-	type Output = MoonshotExt;
-	type ApiKey = MoonshotApiKey;
-
-	const BASE_URL: &'static str = MOONSHOT_API_BASE_URL;
-}
-
-impl<H> Capabilities<H> for MoonshotExt {
-	type Completion = Capable<CompletionModel<H>>;
-	type Embeddings = Nothing;
-	type Transcription = Nothing;
+	type BuilderState = ();
+	type Completion<H> = Capable<CompletionModel<Self, H>>;
+	type Embeddings<H> = Nothing;
+	type Transcription<H> = Nothing;
 	#[cfg(feature = "image")]
-	type ImageGeneration = Nothing;
+	type ImageGeneration<H> = Nothing;
 	#[cfg(feature = "audio")]
-	type AudioGeneration = Nothing;
+	type AudioGeneration<H> = Nothing;
 }
 
-pub type Client<H = reqwest::Client> = client::Client<MoonshotExt, H>;
+pub type Client<H = reqwest::Client> = client::Client<Moonshot, H>;
 pub type ClientBuilder<H = reqwest::Client> =
-	client::ClientBuilder<MoonshotBuilder, MoonshotApiKey, H>;
+	client::ClientBuilder<PBuilder<Moonshot>, BearerAuth, H>;
 
 impl ProviderClient for Client {
 	type Input = String;
@@ -79,30 +56,12 @@ impl ProviderClient for Client {
 	/// Create a new Moonshot client from the `MOONSHOT_API_KEY` environment variable.
 	/// Panics if the environment variable is not set.
 	fn from_env() -> Self {
-		let api_key = std::env::var("MOONSHOT_API_KEY").expect("MOONSHOT_API_KEY not set");
-		Self::new(&api_key).unwrap()
+		openai_compat::default_from_env::<Moonshot>()
 	}
 
 	fn from_val(input: Self::Input) -> Self {
 		Self::new(&input).unwrap()
 	}
-}
-
-#[derive(Debug, Deserialize)]
-struct ApiErrorResponse {
-	error: MoonshotError,
-}
-
-#[derive(Debug, Deserialize)]
-struct MoonshotError {
-	message: String,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(untagged)]
-enum ApiResponse<T> {
-	Ok(T),
-	Err(ApiErrorResponse),
 }
 
 // ================================================================
@@ -178,22 +137,7 @@ impl TryFrom<(&str, CompletionRequest)> for MoonshotCompletionRequest {
 	}
 }
 
-#[derive(Clone)]
-pub struct CompletionModel<T = reqwest::Client> {
-	client: Client<T>,
-	pub model: String,
-}
-
-impl<T> CompletionModel<T> {
-	pub fn new(client: Client<T>, model: impl Into<String>) -> Self {
-		Self {
-			client,
-			model: model.into(),
-		}
-	}
-}
-
-impl<T> completion::CompletionModel for CompletionModel<T>
+impl<T> completion::CompletionModel for CompletionModel<Moonshot, T>
 where
 	T: HttpClientExt + Clone + Default + std::fmt::Debug + Send + 'static,
 {
@@ -210,24 +154,11 @@ where
 		&self,
 		completion_request: CompletionRequest,
 	) -> Result<completion::CompletionResponse<openai::CompletionResponse>, CompletionError> {
-		let span = if tracing::Span::current().is_disabled() {
-			info_span!(
-				target: "rig::completions",
-				"chat",
-				gen_ai.operation.name = "chat",
-				gen_ai.provider.name = "moonshot",
-				gen_ai.request.model = self.model,
-				gen_ai.system_instructions = tracing::field::Empty,
-				gen_ai.response.id = tracing::field::Empty,
-				gen_ai.response.model = tracing::field::Empty,
-				gen_ai.usage.output_tokens = tracing::field::Empty,
-				gen_ai.usage.input_tokens = tracing::field::Empty,
-			)
-		} else {
-			tracing::Span::current()
-		};
-
-		span.record("gen_ai.system_instructions", &completion_request.preamble);
+		let span = openai_compat::completion_span(
+			Moonshot::PROVIDER_NAME,
+			&self.model,
+			&completion_request.preamble,
+		);
 
 		let request =
 			MoonshotCompletionRequest::try_from((self.model.as_ref(), completion_request))?;
@@ -247,41 +178,17 @@ where
 			.map_err(http_client::Error::from)?;
 
 		let async_block = async move {
-			let response = self.client.send::<_, bytes::Bytes>(req).await?;
+			let response = openai_compat::send_and_parse::<
+				_,
+				openai::CompletionResponse,
+				FlatApiError,
+				_,
+			>(&self.client, req, "MoonShot")
+			.await?;
 
-			let status = response.status();
-			let response_body = response.into_body().into_future().await?.to_vec();
-
-			if status.is_success() {
-				match serde_json::from_slice::<ApiResponse<openai::CompletionResponse>>(
-					&response_body,
-				)? {
-					ApiResponse::Ok(response) => {
-						let span = tracing::Span::current();
-						span.record("gen_ai.response.id", response.id.clone());
-						span.record("gen_ai.response.model_name", response.model.clone());
-						if let Some(ref usage) = response.usage {
-							span.record("gen_ai.usage.input_tokens", usage.prompt_tokens);
-							span.record(
-								"gen_ai.usage.output_tokens",
-								usage.total_tokens - usage.prompt_tokens,
-							);
-						}
-						if tracing::enabled!(tracing::Level::TRACE) {
-							tracing::trace!(target: "rig::completions",
-								"MoonShot completion response: {}",
-								serde_json::to_string_pretty(&response)?
-							);
-						}
-						response.try_into()
-					}
-					ApiResponse::Err(err) => Err(CompletionError::ProviderError(err.error.message)),
-				}
-			} else {
-				Err(CompletionError::ProviderError(
-					String::from_utf8_lossy(&response_body).to_string(),
-				))
-			}
+			let span = tracing::Span::current();
+			openai_compat::record_openai_response_span(&span, &response);
+			response.try_into()
 		};
 
 		async_block.instrument(span).await
@@ -291,32 +198,12 @@ where
 		&self,
 		request: CompletionRequest,
 	) -> Result<StreamingCompletionResponse<Self::StreamingResponse>, CompletionError> {
-		let span = if tracing::Span::current().is_disabled() {
-			info_span!(
-				target: "rig::completions",
-				"chat_streaming",
-				gen_ai.operation.name = "chat_streaming",
-				gen_ai.provider.name = "moonshot",
-				gen_ai.request.model = self.model,
-				gen_ai.system_instructions = tracing::field::Empty,
-				gen_ai.response.id = tracing::field::Empty,
-				gen_ai.response.model = tracing::field::Empty,
-				gen_ai.usage.output_tokens = tracing::field::Empty,
-				gen_ai.usage.input_tokens = tracing::field::Empty,
-			)
-		} else {
-			tracing::Span::current()
-		};
+		let span =
+			openai_compat::streaming_span(Moonshot::PROVIDER_NAME, &self.model, &request.preamble);
 
-		span.record("gen_ai.system_instructions", &request.preamble);
 		let mut request = MoonshotCompletionRequest::try_from((self.model.as_ref(), request))?;
 
-		let params = json_utils::merge(
-			request.additional_params.unwrap_or(serde_json::json!({})),
-			serde_json::json!({"stream": true, "stream_options": {"include_usage": true} }),
-		);
-
-		request.additional_params = Some(params);
+		openai_compat::merge_stream_params(&mut request.additional_params);
 
 		if tracing::enabled!(tracing::Level::TRACE) {
 			tracing::trace!(target: "rig::completions",
