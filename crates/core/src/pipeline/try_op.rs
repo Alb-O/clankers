@@ -7,9 +7,6 @@ use futures::try_join;
 use super::op::{self};
 use crate::wasm_compat::{WasmCompatSend, WasmCompatSync};
 
-// ================================================================
-// Core TryOp trait
-// ================================================================
 pub trait TryOp: WasmCompatSend + WasmCompatSync {
 	type Input: WasmCompatSend + WasmCompatSync;
 	type Output: WasmCompatSend + WasmCompatSync;
@@ -204,9 +201,6 @@ where
 	}
 }
 
-// ================================================================
-// TryOp combinators
-// ================================================================
 pub struct MapOk<Op1, Op2> {
 	prev: Op1,
 	op: Op2,

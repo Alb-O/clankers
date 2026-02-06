@@ -7,10 +7,6 @@ use thiserror::Error;
 use super::CompletionError;
 use crate::OneOrMany;
 
-// ================================================================
-// Message models
-// ================================================================
-
 /// A useful trait to help convert `clankers::completion::Message` to your own message type.
 ///
 /// Particularly useful if you don't want to create a free-standing function as
@@ -196,10 +192,6 @@ impl ToolFunction {
 		Self { name, arguments }
 	}
 }
-
-// ================================================================
-// Base content models
-// ================================================================
 
 /// Basic text content.
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
@@ -434,10 +426,6 @@ pub enum ImageDetail {
 	#[default]
 	Auto,
 }
-
-// ================================================================
-// Impl. for message models
-// ================================================================
 
 impl Message {
 	/// This helper method is primarily used to extract the first string prompt from a `Message`.
@@ -982,10 +970,6 @@ impl std::str::FromStr for ImageDetail {
 	}
 }
 
-// ================================================================
-// FromStr, From<String>, and From<&str> impls
-// ================================================================
-
 impl From<String> for Text {
 	fn from(text: String) -> Self {
 		Text { text }
@@ -1155,10 +1139,6 @@ pub enum ToolChoice {
 		function_names: Vec<String>,
 	},
 }
-
-// ================================================================
-// Error types
-// ================================================================
 
 /// Error type to represent issues with converting messages to and from specific provider messages.
 #[derive(Debug, Error)]

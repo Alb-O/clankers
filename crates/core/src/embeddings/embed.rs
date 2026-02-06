@@ -86,10 +86,6 @@ pub fn to_texts(item: impl Embed) -> Result<Vec<String>, EmbedError> {
 	Ok(embedder.texts)
 }
 
-// ================================================================
-// Implementations of Embed for common types
-// ================================================================
-
 impl Embed for String {
 	fn embed(&self, embedder: &mut TextEmbedder) -> Result<(), EmbedError> {
 		embedder.embed(self.clone());

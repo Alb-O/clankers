@@ -84,9 +84,6 @@ pub enum Message {
 	},
 }
 
-/// -----------------------------
-/// Provider Message Conversions
-/// -----------------------------
 /// Conversion from an internal Clankers message (crate::message::Message) to a provider Message.
 /// (Only User and Assistant variants are supported.)
 impl TryFrom<crate::message::Message> for Vec<Message> {

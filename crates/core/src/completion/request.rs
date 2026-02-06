@@ -191,9 +191,6 @@ pub struct ToolDefinition {
 	pub parameters: serde_json::Value,
 }
 
-// ================================================================
-// Implementations
-// ================================================================
 /// Trait defining a high-level LLM simple prompt interface (i.e.: prompt in, response out).
 pub trait Prompt: WasmCompatSend + WasmCompatSync {
 	/// Send a simple prompt to the underlying completion model.

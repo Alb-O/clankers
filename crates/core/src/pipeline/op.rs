@@ -6,9 +6,6 @@ use futures::stream;
 
 use crate::wasm_compat::*;
 
-// ================================================================
-// Core Op trait
-// ================================================================
 pub trait Op: WasmCompatSend + WasmCompatSync {
 	type Input: WasmCompatSend + WasmCompatSync;
 	type Output: WasmCompatSend + WasmCompatSync;
@@ -185,9 +182,6 @@ impl<T: Op> Op for &T {
 	}
 }
 
-// ================================================================
-// Op combinators
-// ================================================================
 pub struct Sequential<Op1, Op2> {
 	prev: Op1,
 	op: Op2,
@@ -217,9 +211,6 @@ where
 use super::agent_ops::{Lookup, Prompt};
 use crate::{completion, vector_store};
 
-// ================================================================
-// Core Op implementations
-// ================================================================
 pub struct Map<F, Input> {
 	f: F,
 	_t: std::marker::PhantomData<Input>,

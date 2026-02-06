@@ -19,10 +19,6 @@ pub enum PdfLoaderError {
 	PdfError(#[from] LopdfError),
 }
 
-// ================================================================
-// Implementing Loadable trait for loading pdfs
-// ================================================================
-
 pub(crate) trait Loadable {
 	fn load(self) -> Result<Document, PdfLoaderError>;
 	fn load_with_path(self) -> Result<(PathBuf, Document), PdfLoaderError>;
@@ -60,10 +56,6 @@ impl Loadable for Vec<u8> {
 		Ok((PathBuf::from("<memory>"), doc))
 	}
 }
-
-// ================================================================
-// PdfFileLoader definitions and implementations
-// ================================================================
 
 /// [PdfFileLoader] is a utility for loading pdf files from the filesystem using glob patterns or
 ///  directory paths. It provides methods to read file contents and handle errors gracefully.
@@ -426,10 +418,6 @@ impl<'a> PdfFileLoader<'a, Vec<u8>> {
 		}
 	}
 }
-
-// ================================================================
-// PDFFileLoader iterator implementations
-// ================================================================
 
 pub struct IntoIter<'a, T> {
 	iterator: Box<dyn Iterator<Item = T> + 'a>,
