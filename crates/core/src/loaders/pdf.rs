@@ -69,7 +69,7 @@ impl Loadable for Vec<u8> {
 /// # Example Usage
 ///
 /// ```rust
-/// use rig:loaders::PdfileLoader;
+/// use clankers::loaders::PdfFileLoader;
 ///
 /// fn main() -> Result<(), Box<dyn std::error::Error>> {
 ///     // Create a FileLoader using a glob pattern

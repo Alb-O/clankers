@@ -84,7 +84,7 @@ impl<T: Readable> Readable for Result<T, FileLoaderError> {
 /// # Example Usage
 ///
 /// ```rust
-/// use rig:loaders::FileLoader;
+/// use clankers::loaders::FileLoader;
 ///
 /// fn main() -> Result<(), Box<dyn std::error::Error>> {
 ///     // Create a FileLoader using a glob pattern

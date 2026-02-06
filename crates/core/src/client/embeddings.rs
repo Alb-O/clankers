@@ -33,7 +33,7 @@ pub trait EmbeddingsClient {
 	/// // Initialize the OpenAI client
 	/// let openai = Client::new("your-open-ai-api-key");
 	///
-	/// let embedding_model = openai.embedding_model("model-unknown-to-rig", 3072);
+	/// let embedding_model = openai.embedding_model("model-unknown-to-clankers", 3072);
 	/// ```
 	fn embedding_model_with_ndims(
 		&self,

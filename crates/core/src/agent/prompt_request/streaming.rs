@@ -613,8 +613,8 @@ mod tests {
 		// Small delay to let background logger start
 		tokio::time::sleep(Duration::from_millis(100)).await;
 
-		// Make streaming request WITHOUT an outer span so rig creates its own invoke_agent span
-		// (rig reuses current span if one exists, so we need to ensure there's no current span)
+		// Make streaming request WITHOUT an outer span so clankers creates its own invoke_agent span
+		// (clankers reuses current span if one exists, so we need to ensure there's no current span)
 		let client = anthropic::Client::from_env();
 		let agent = client
 			.agent(anthropic::completion::CLAUDE_3_5_HAIKU)

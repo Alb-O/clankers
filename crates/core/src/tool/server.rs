@@ -98,7 +98,7 @@ impl ToolServer {
 			}
 		});
 
-		// SAFETY: `rig` currently doesn't compile to WASM without the `worker` feature.
+		// SAFETY: `clankers` currently doesn't compile to WASM without the `worker` feature.
 		// Therefore, we can safely assume that the user won't try to compile to wasm without the worker feature.
 		#[cfg(all(feature = "wasm", target_arch = "wasm32"))]
 		wasm_bindgen_futures::spawn_local(async move {
