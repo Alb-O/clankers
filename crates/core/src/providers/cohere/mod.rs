@@ -18,10 +18,6 @@ pub use client::{ApiErrorResponse, ApiResponse, Client};
 pub use completion::CompletionModel;
 pub use embedding::EmbeddingModel;
 
-// ================================================================
-// Cohere Completion Models
-// ================================================================
-
 /// `command-r-plus` completion model
 pub const COMMAND_R_PLUS: &str = "command-r-plus";
 /// `command-r` completion model
@@ -34,10 +30,6 @@ pub const COMMAND_NIGHTLY: &str = "command-nightly";
 pub const COMMAND_LIGHT: &str = "command-light";
 /// `command-light-nightly` completion model
 pub const COMMAND_LIGHT_NIGHTLY: &str = "command-light-nightly";
-
-// ================================================================
-// Cohere Embedding Models
-// ================================================================
 
 /// `embed-english-v3.0` embedding model
 pub const EMBED_ENGLISH_V3: &str = "embed-english-v3.0";

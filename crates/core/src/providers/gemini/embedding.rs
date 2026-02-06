@@ -1,7 +1,5 @@
-// ================================================================
 //! Google Gemini Embeddings Integration
 //! From [Gemini API Reference](https://ai.google.dev/api/embeddings)
-// ================================================================
 
 use serde_json::json;
 
@@ -118,9 +116,6 @@ where
 	}
 }
 
-// =================================================================
-// Gemini API Types
-// =================================================================
 /// Rust Implementation of the Gemini Types from [Gemini API Reference](https://ai.google.dev/api/embeddings)
 #[allow(dead_code)]
 mod gemini_api_types {

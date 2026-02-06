@@ -10,9 +10,6 @@ use crate::embeddings;
 use crate::embeddings::EmbeddingError;
 use crate::http_client::{self, HttpClientExt};
 
-// ================================================================
-// Main Voyage AI Client
-// ================================================================
 const VOYAGEAI_API_BASE_URL: &str = "https://api.voyageai.com/v1";
 
 #[derive(Debug, Default, Clone, Copy)]
@@ -95,10 +92,6 @@ impl<T> EmbeddingModel<T> {
 		}
 	}
 }
-
-// ================================================================
-// Voyage AI Embedding API
-// ================================================================
 
 /// `voyage-3-large` embedding model (Voyage AI)
 pub const VOYAGE_3_LARGE: &str = "voyage-3-large";

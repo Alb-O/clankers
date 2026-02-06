@@ -22,10 +22,6 @@ use crate::providers::openai_compat::{
 };
 use crate::streaming::StreamingCompletionResponse;
 
-// ================================================================
-// Main Hyperbolic Client
-// ================================================================
-
 #[derive(Debug, Default, Clone, Copy)]
 pub struct Hyperbolic;
 
@@ -89,10 +85,6 @@ impl std::fmt::Display for Usage {
 		)
 	}
 }
-
-// ================================================================
-// Hyperbolic Completion API
-// ================================================================
 
 /// Meta Llama 3.1b Instruct model with 8B parameters.
 pub const LLAMA_3_1_8B: &str = "meta-llama/Meta-Llama-3.1-8B-Instruct";
@@ -351,10 +343,6 @@ where
 	}
 }
 
-// =======================================
-// Hyperbolic Image Generation API
-// =======================================
-
 #[cfg(feature = "image")]
 pub use image_generation::*;
 
@@ -486,9 +474,6 @@ mod image_generation {
 	}
 }
 
-// ======================================
-// Hyperbolic Audio Generation API
-// ======================================
 #[cfg(feature = "audio")]
 pub use audio_generation::*;
 use tracing::Instrument;

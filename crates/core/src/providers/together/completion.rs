@@ -1,7 +1,5 @@
-// ================================================================
 //! Together AI Completion Integration
 //! From [Together AI Reference](https://docs.together.ai/docs/chat-overview)
-// ================================================================
 
 use bytes::Bytes;
 use serde::{Deserialize, Serialize};
@@ -13,10 +11,6 @@ use crate::completion::{self, CompletionError, CompletionRequest};
 use crate::http_client::HttpClientExt;
 use crate::providers::openai;
 use crate::streaming::StreamingCompletionResponse;
-
-// ================================================================
-// Together Completion Models
-// ================================================================
 
 pub const YI_34B_CHAT: &str = "zero-one-ai/Yi-34B-Chat";
 pub const OLMO_7B_INSTRUCT: &str = "allenai/OLMo-7B-Instruct";
@@ -122,10 +116,6 @@ pub const TOPPY_M_7B: &str = "Undi95/Toppy-M-7B";
 pub const SOLAR_10_7B_INSTRUCT_V1: &str = "upstage/SOLAR-10.7B-Instruct-v1.0";
 pub const SOLAR_10_7B_INSTRUCT_V1_INT4: &str = "togethercomputer/SOLAR-10.7B-Instruct-v1.0-int4";
 pub const WIZARDLM_13B_V1_2: &str = "WizardLM/WizardLM-13B-V1.2";
-
-// =================================================================
-// Clankers Implementation Types
-// =================================================================
 
 #[derive(Debug, Serialize, Deserialize)]
 pub(super) struct TogetherAICompletionRequest {

@@ -39,20 +39,12 @@ pub use embedding::{EmbeddingModel, EmbeddingResponse};
 pub use image_generation::ImageGenerationModel;
 pub use transcription::TranscriptionModel;
 
-// ================================================================
-// Azure OpenAI Embedding Model Constants
-// ================================================================
-
 /// `text-embedding-3-large` embedding model
 pub const TEXT_EMBEDDING_3_LARGE: &str = "text-embedding-3-large";
 /// `text-embedding-3-small` embedding model
 pub const TEXT_EMBEDDING_3_SMALL: &str = "text-embedding-3-small";
 /// `text-embedding-ada-002` embedding model
 pub const TEXT_EMBEDDING_ADA_002: &str = "text-embedding-ada-002";
-
-// ================================================================
-// Azure OpenAI Completion Model Constants
-// ================================================================
 
 /// `o1` completion model
 pub const O1: &str = "o1";

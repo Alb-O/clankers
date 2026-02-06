@@ -8,9 +8,6 @@ use crate::client::{
 };
 use crate::http_client;
 
-// ================================================================
-// Google Gemini Client
-// ================================================================
 const GEMINI_API_BASE_URL: &str = "https://generativelanguage.googleapis.com";
 
 #[derive(Debug, Default, Clone)]

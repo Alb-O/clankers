@@ -8,9 +8,6 @@ use crate::client::{
 };
 use crate::http_client;
 
-// ================================================================
-// Main Anthropic Client
-// ================================================================
 #[derive(Debug, Default, Clone)]
 pub struct AnthropicExt;
 

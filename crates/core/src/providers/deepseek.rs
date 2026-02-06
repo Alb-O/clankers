@@ -19,9 +19,6 @@ use crate::http_client::{self, HttpClientExt};
 use crate::message::{Document, DocumentSourceKind};
 use crate::{OneOrMany, json_utils, message};
 
-// ================================================================
-// Main DeepSeek Client
-// ================================================================
 const DEEPSEEK_API_BASE_URL: &str = "https://api.deepseek.com";
 
 #[derive(Debug, Default, Clone, Copy)]
@@ -621,9 +618,6 @@ impl super::openai::CompatStreamingResponse for StreamingCompletionResponse {
 	}
 }
 
-// ================================================================
-// DeepSeek Completion API
-// ================================================================
 pub const DEEPSEEK_CHAT: &str = "deepseek-chat";
 pub const DEEPSEEK_REASONER: &str = "deepseek-reasoner";
 

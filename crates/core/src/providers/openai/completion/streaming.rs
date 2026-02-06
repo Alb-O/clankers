@@ -15,9 +15,6 @@ use crate::json_utils::{self, merge};
 use crate::providers::openai::completion::{self, CompletionModel, OpenAIRequestParams, Usage};
 use crate::streaming::{self, RawStreamingChoice};
 
-// ================================================================
-// OpenAI Completion Streaming API
-// ================================================================
 #[derive(Deserialize, Debug)]
 pub(crate) struct StreamingFunction {
 	pub(crate) name: Option<String>,

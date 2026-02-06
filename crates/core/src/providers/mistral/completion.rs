@@ -35,10 +35,6 @@ pub const MISTRAL_NEMO: &str = "open-mistral-nemo";
 /// The `open-mistral-mamba` model
 pub const CODESTRAL_MAMBA: &str = "open-codestral-mamba";
 
-// =================================================================
-// Clankers Implementation Types
-// =================================================================
-
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[serde(tag = "type", rename_all = "lowercase")]
 pub struct AssistantContent {

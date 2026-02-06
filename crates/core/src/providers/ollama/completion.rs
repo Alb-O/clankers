@@ -197,8 +197,6 @@ impl<T> CompletionModel<T> {
 	}
 }
 
-// ---------- CompletionModel Implementation ----------
-
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct StreamingCompletionResponse {
 	pub done_reason: Option<String>,

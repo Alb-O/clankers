@@ -22,9 +22,6 @@ use crate::providers::openai_compat::{self, FlatApiError, OpenAiCompat, PBuilder
 use crate::streaming::StreamingCompletionResponse;
 use crate::{json_utils, message};
 
-// ================================================================
-// Main Galadriel Client
-// ================================================================
 const GALADRIEL_API_BASE_URL: &str = "https://api.galadriel.com/v1/verified";
 
 #[derive(Debug, Default, Clone)]
@@ -110,10 +107,6 @@ impl ProviderClient for Client {
 		builder.build().unwrap()
 	}
 }
-
-// ================================================================
-// Galadriel Completion API
-// ================================================================
 
 /// `o1-preview` completion model
 pub const O1_PREVIEW: &str = "o1-preview";

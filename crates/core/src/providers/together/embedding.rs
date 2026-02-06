@@ -1,7 +1,5 @@
-// ================================================================
 //! Together AI Embeddings Integration
 //! From [Together AI Reference](https://docs.together.ai/docs/embeddings-overview)
-// ================================================================
 
 use serde::Deserialize;
 use serde_json::json;
@@ -11,9 +9,6 @@ use super::client::together_ai_api_types::{ApiErrorResponse, ApiResponse};
 use crate::embeddings::{self, EmbeddingError};
 use crate::http_client::{self, HttpClientExt};
 
-// ================================================================
-// Together AI Embedding API
-// ================================================================
 pub const BGE_BASE_EN_V1_5: &str = "BAAI/bge-base-en-v1.5";
 pub const BGE_LARGE_EN_V1_5: &str = "BAAI/bge-large-en-v1.5";
 pub const BERT_BASE_UNCASED: &str = "bert-base-uncased";

@@ -10,10 +10,6 @@ use serde::{Deserialize, Serialize};
 use crate::completion::{self, CompletionError};
 use crate::message::{Message as RigMessage, MimeType};
 
-// ================================================================
-// Request Types
-// ================================================================
-
 /// Input item for xAI Responses API
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type", rename = "snake_case")]
@@ -302,10 +298,6 @@ impl From<completion::ToolDefinition> for ToolDefinition {
 		}
 	}
 }
-
-// ================================================================
-// Error Types
-// ================================================================
 
 /// API error response
 #[derive(Debug, Deserialize)]

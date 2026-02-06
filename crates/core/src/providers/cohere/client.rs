@@ -8,10 +8,6 @@ use crate::embeddings::EmbeddingsBuilder;
 use crate::http_client::{self, HttpClientExt};
 use crate::wasm_compat::*;
 
-// ================================================================
-// Main Cohere Client
-// ================================================================
-
 #[derive(Debug, Default, Clone, Copy)]
 pub struct CohereExt;
 

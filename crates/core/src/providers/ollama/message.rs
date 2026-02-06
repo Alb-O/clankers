@@ -7,8 +7,6 @@ use serde_json::Value;
 use crate::message::{DocumentSourceKind, ImageDetail, Text};
 use crate::{OneOrMany, completion, json_utils, message};
 
-// ---------- Tool Definition Conversion ----------
-
 /// Ollama-required tool definition format.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ToolDefinition {
@@ -48,8 +46,6 @@ pub struct Function {
 	pub name: String,
 	pub arguments: Value,
 }
-
-// ---------- Provider Message Definition ----------
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[serde(tag = "role", rename_all = "lowercase")]
@@ -274,8 +270,6 @@ impl Message {
 		}
 	}
 }
-
-// ---------- Additional Message Types ----------
 
 impl From<crate::message::ToolCall> for ToolCall {
 	fn from(tool_call: crate::message::ToolCall) -> Self {

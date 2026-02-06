@@ -41,10 +41,6 @@ use crate::providers::openai::send_compatible_streaming_request;
 use crate::streaming::StreamingCompletionResponse;
 use crate::transcription::TranscriptionError;
 
-// ================================================================
-// OpenAiCompat trait
-// ================================================================
-
 /// Core trait for OpenAI-compatible providers. Implementing this gives you blanket
 /// impls of `Provider`, `ProviderBuilder`, `DebugExt`, and `Capabilities`.
 pub trait OpenAiCompat: Debug + Clone + Default + Send + Sync + Sized + 'static {
@@ -79,10 +75,6 @@ pub trait OpenAiCompat: Debug + Clone + Default + Send + Sync + Sized + 'static 
 	}
 }
 
-// ================================================================
-// PBuilder<P> — generic provider builder
-// ================================================================
-
 #[derive(Debug, Clone)]
 pub struct PBuilder<P: OpenAiCompat> {
 	pub state: P::BuilderState,
@@ -95,10 +87,6 @@ impl<P: OpenAiCompat> Default for PBuilder<P> {
 		}
 	}
 }
-
-// ================================================================
-// Blanket: Provider for P
-// ================================================================
 
 impl<P: OpenAiCompat> Provider for P {
 	type Builder = PBuilder<P>;
@@ -116,10 +104,6 @@ impl<P: OpenAiCompat> Provider for P {
 	}
 }
 
-// ================================================================
-// Blanket: ProviderBuilder for PBuilder<P>
-// ================================================================
-
 impl<P: OpenAiCompat> ProviderBuilder for PBuilder<P> {
 	type Output = P;
 	type ApiKey = BearerAuth;
@@ -127,19 +111,11 @@ impl<P: OpenAiCompat> ProviderBuilder for PBuilder<P> {
 	const BASE_URL: &'static str = P::BASE_URL;
 }
 
-// ================================================================
-// Blanket: DebugExt for P
-// ================================================================
-
 impl<P: OpenAiCompat> DebugExt for P {
 	fn fields(&self) -> impl Iterator<Item = (&'static str, &dyn Debug)> {
 		self.debug_fields().into_iter()
 	}
 }
-
-// ================================================================
-// Blanket: Capabilities<H> for P
-// ================================================================
 
 impl<P, H> Capabilities<H> for P
 where
@@ -162,10 +138,6 @@ where
 	type AudioGeneration = P::AudioGeneration<H>;
 }
 
-// ================================================================
-// Generic CompletionModel<P, T>
-// ================================================================
-
 #[derive(Clone)]
 pub struct CompletionModel<P: OpenAiCompat, T = reqwest::Client> {
 	pub(crate) client: client::Client<P, T>,
@@ -187,10 +159,6 @@ impl<P: OpenAiCompat, T> CompletionModel<P, T> {
 		}
 	}
 }
-
-// ================================================================
-// Shared error types
-// ================================================================
 
 /// A flat API error response: `{ "message": "..." }`
 #[derive(Debug, Deserialize)]
@@ -250,10 +218,6 @@ impl From<FlatApiError> for AudioGenerationError {
 	}
 }
 
-// ================================================================
-// Tracing span helpers
-// ================================================================
-
 pub fn completion_span(provider: &str, model: &str, preamble: &Option<String>) -> tracing::Span {
 	let span = if tracing::Span::current().is_disabled() {
 		info_span!(
@@ -309,10 +273,6 @@ pub fn record_openai_response_span(span: &tracing::Span, response: &openai::Comp
 	}
 }
 
-// ================================================================
-// HTTP send + parse helper
-// ================================================================
-
 /// Send an HTTP request, parse the response as `ApiResponse<Resp, Err>`, and return the
 /// successful variant or a `CompletionError`.
 pub async fn send_and_parse<P, Resp, Err, T>(
@@ -353,10 +313,6 @@ where
 	}
 }
 
-// ================================================================
-// Streaming helpers
-// ================================================================
-
 /// Merge `stream: true` and `stream_options: { include_usage: true }` into
 /// `additional_params`, creating the object if it's `None`.
 pub fn merge_stream_params(additional_params: &mut Option<Value>) {
@@ -387,10 +343,6 @@ where
 		.instrument(span)
 		.await
 }
-
-// ================================================================
-// ProviderClient helper
-// ================================================================
 
 /// Default `from_env()` implementation: reads `P::API_KEY_ENV` and builds a client.
 pub fn default_from_env<P>() -> client::Client<P>

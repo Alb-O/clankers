@@ -17,10 +17,6 @@ use crate::providers::anthropic::streaming::StreamingCompletionResponse;
 use crate::telemetry::{ProviderResponseExt, SpanCombinator};
 use crate::wasm_compat::*;
 
-// ================================================================
-// Anthropic Completion API
-// ================================================================
-
 /// `claude-opus-4-0` completion model
 pub const CLAUDE_4_OPUS: &str = "claude-opus-4-0";
 /// `claude-sonnet-4-0` completion model

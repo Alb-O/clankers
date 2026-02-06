@@ -20,10 +20,6 @@ use crate::providers::openai_compat::{self, FlatApiError, OpenAiCompat, PBuilder
 use crate::streaming::StreamingCompletionResponse;
 use crate::{http_client, message};
 
-// ================================================================
-// Main Moonshot Client
-// ================================================================
-
 #[derive(Debug, Default, Clone, Copy)]
 pub struct Moonshot;
 
@@ -62,10 +58,6 @@ impl ProviderClient for Client {
 		Self::new(&input).unwrap()
 	}
 }
-
-// ================================================================
-// Moonshot Completion API
-// ================================================================
 
 pub const MOONSHOT_CHAT: &str = "moonshot-v1-128k";
 

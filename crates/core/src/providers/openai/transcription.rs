@@ -8,10 +8,6 @@ use crate::providers::openai::client::ApiResponse;
 use crate::transcription;
 use crate::transcription::TranscriptionError;
 
-// ================================================================
-// OpenAI Transcription API
-// ================================================================
-
 pub const WHISPER_1: &str = "whisper-1";
 
 #[derive(Debug, Deserialize)]

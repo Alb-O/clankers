@@ -12,10 +12,6 @@ use crate::client::{
 };
 use crate::http_client::{self, HttpClientExt, bearer_auth_header};
 
-// ================================================================
-// Main Azure OpenAI Client
-// ================================================================
-
 const DEFAULT_API_VERSION: &str = "2024-10-21";
 
 #[derive(Debug, Clone)]

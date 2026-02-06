@@ -42,16 +42,8 @@ pub use completion::{CompletionModel, CompletionResponse, StreamingCompletionRes
 pub use embedding::{EmbeddingModel, EmbeddingResponse};
 pub use message::*;
 
-// ================================================================
-// Ollama Embedding Model Constants
-// ================================================================
-
 pub const ALL_MINILM: &str = "all-minilm";
 pub const NOMIC_EMBED_TEXT: &str = "nomic-embed-text";
-
-// ================================================================
-// Ollama Completion Model Constants
-// ================================================================
 
 pub const LLAMA3_2: &str = "llama3.2";
 pub const LLAVA: &str = "llava";

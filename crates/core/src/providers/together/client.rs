@@ -3,9 +3,6 @@ use crate::client::{
 };
 use crate::http_client;
 
-// ================================================================
-// Together AI Client
-// ================================================================
 const TOGETHER_AI_BASE_URL: &str = "https://api.together.xyz";
 
 #[derive(Debug, Default, Clone, Copy)]

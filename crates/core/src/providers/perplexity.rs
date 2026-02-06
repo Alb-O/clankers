@@ -57,10 +57,6 @@ impl ProviderClient for Client {
 	}
 }
 
-// ================================================================
-// Perplexity Completion API
-// ================================================================
-
 pub const SONAR_PRO: &str = "sonar_pro";
 pub const SONAR: &str = "sonar";
 

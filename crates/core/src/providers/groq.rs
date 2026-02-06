@@ -22,10 +22,6 @@ use crate::message::{self};
 use crate::providers::openai::ToolDefinition;
 use crate::transcription::{self, TranscriptionError};
 
-// ================================================================
-// Main Groq Client
-// ================================================================
-
 #[derive(Debug, Default, Clone, Copy)]
 pub struct Groq;
 
@@ -64,10 +60,6 @@ impl ProviderClient for Client {
 }
 
 use crate::providers::openai_compat::ApiResponse;
-
-// ================================================================
-// Groq Completion API
-// ================================================================
 
 /// The `deepseek-r1-distill-llama-70b` model. Used for chat completion.
 pub const DEEPSEEK_R1_DISTILL_LLAMA_70B: &str = "deepseek-r1-distill-llama-70b";
@@ -320,10 +312,6 @@ where
 		.await
 	}
 }
-
-// ================================================================
-// Groq Transcription API
-// ================================================================
 
 pub const WHISPER_LARGE_V3: &str = "whisper-large-v3";
 pub const WHISPER_LARGE_V3_TURBO: &str = "whisper-large-v3-turbo";

@@ -1,7 +1,6 @@
-// ================================================================
 //! Google Gemini Completion Integration
 //! From [Gemini API Reference](https://ai.google.dev/api/generate-content)
-// ================================================================
+
 /// `gemini-2.5-pro-preview-06-05` completion model
 pub const GEMINI_2_5_PRO_PREVIEW_06_05: &str = "gemini-2.5-pro-preview-06-05";
 /// `gemini-2.5-pro-preview-05-06` completion model
@@ -40,10 +39,6 @@ use crate::providers::gemini::completion::gemini_api_types::{
 };
 use crate::providers::gemini::streaming::StreamingCompletionResponse;
 use crate::telemetry::SpanCombinator;
-
-// =================================================================
-// Clankers Implementation Types
-// =================================================================
 
 #[derive(Clone, Debug)]
 pub struct CompletionModel<T = reqwest::Client> {
@@ -420,9 +415,6 @@ pub mod gemini_api_types {
 	use std::convert::Infallible;
 	use std::str::FromStr;
 
-	// =================================================================
-	// Gemini API Types
-	// =================================================================
 	use serde::{Deserialize, Serialize};
 	use serde_json::{Value, json};
 

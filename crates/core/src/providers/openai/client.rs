@@ -11,23 +11,14 @@ use crate::http_client::{self, HttpClientExt};
 use crate::prelude::CompletionClient;
 use crate::wasm_compat::{WasmCompatSend, WasmCompatSync};
 
-// ================================================================
-// Main OpenAI Client
-// ================================================================
 const OPENAI_API_BASE_URL: &str = "https://api.openai.com/v1";
 
-// ================================================================
-// OpenAI Responses API Extension
-// ================================================================
 #[derive(Debug, Default, Clone, Copy)]
 pub struct OpenAIResponsesExt;
 
 #[derive(Debug, Default, Clone, Copy)]
 pub struct OpenAIResponsesExtBuilder;
 
-// ================================================================
-// OpenAI Completions API Extension
-// ================================================================
 #[derive(Debug, Default, Clone, Copy)]
 pub struct OpenAICompletionsExt;
 

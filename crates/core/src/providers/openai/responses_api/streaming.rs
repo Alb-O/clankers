@@ -17,10 +17,6 @@ use crate::streaming;
 use crate::streaming::RawStreamingChoice;
 use crate::wasm_compat::WasmCompatSend;
 
-// ================================================================
-// OpenAI Responses Streaming API
-// ================================================================
-
 /// A streaming completion chunk.
 /// Streaming chunks can come in one of two forms:
 /// - A response chunk (where the completed response will have the total token usage)

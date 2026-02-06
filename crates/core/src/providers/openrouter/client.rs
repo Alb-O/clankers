@@ -9,9 +9,6 @@ use crate::client::{
 use crate::completion::GetTokenUsage;
 use crate::http_client;
 
-// ================================================================
-// Main openrouter Client
-// ================================================================
 const OPENROUTER_API_BASE_URL: &str = "https://openrouter.ai/api/v1";
 
 #[derive(Debug, Default, Clone, Copy)]

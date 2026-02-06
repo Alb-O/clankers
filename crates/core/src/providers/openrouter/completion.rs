@@ -11,10 +11,6 @@ use crate::providers::openai;
 use crate::telemetry::SpanCombinator;
 use crate::{OneOrMany, json_utils, message};
 
-// ================================================================
-// OpenRouter Completion API
-// ================================================================
-
 /// The `qwen/qwq-32b` model. Find more models at <https://openrouter.ai/models>.
 pub const QWEN_QWQ_32B: &str = "qwen/qwq-32b";
 /// The `anthropic/claude-3.7-sonnet` model. Find more models at <https://openrouter.ai/models>.
