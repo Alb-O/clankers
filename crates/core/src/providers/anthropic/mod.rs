@@ -13,5 +13,6 @@ pub mod client;
 pub mod completion;
 pub mod decoders;
 pub mod streaming;
+pub mod types;
 
 pub use client::{Client, ClientBuilder};

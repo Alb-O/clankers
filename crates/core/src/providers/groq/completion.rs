@@ -1,65 +1,14 @@
-//! Groq API client and Clankers integration
-//!
-//! # Example
-//! ```
-//! use clankers::providers::groq;
-//!
-//! let client = groq::Client::new("YOUR_API_KEY");
-//!
-//! let gpt4o = client.completion_model(groq::GPT_4O);
-//! ```
-use bytes::Bytes;
 use serde::{Deserialize, Serialize};
 use serde_json::Map;
 
-use super::openai::{CompletionResponse, Message as OpenAIMessage, TranscriptionResponse, Usage};
-use super::openai_compat::{self, OpenAiCompat, PBuilder};
-use crate::client::{self, BearerAuth, Capable, Nothing, ProviderClient};
+use super::client::{Client, Groq};
 use crate::completion::{self, CompletionError, CompletionRequest, GetTokenUsage};
-use crate::http_client::multipart::Part;
-use crate::http_client::{self, HttpClientExt, MultipartForm};
+use crate::http_client::{self, HttpClientExt};
 use crate::message::{self};
-use crate::providers::openai::ToolDefinition;
-use crate::transcription::{self, TranscriptionError};
-
-#[derive(Debug, Default, Clone, Copy)]
-pub struct Groq;
-
-impl OpenAiCompat for Groq {
-	const PROVIDER_NAME: &'static str = "groq";
-	const BASE_URL: &'static str = "https://api.groq.com/openai/v1";
-	const API_KEY_ENV: &'static str = "GROQ_API_KEY";
-	const VERIFY_PATH: &'static str = "/models";
-	const COMPLETION_PATH: &'static str = "/chat/completions";
-	type BuilderState = ();
-	type Completion<H> = Capable<CompletionModel<Self, H>>;
-	type Embeddings<H> = Nothing;
-	type Transcription<H> = Capable<TranscriptionModel<H>>;
-	#[cfg(feature = "image")]
-	type ImageGeneration<H> = Nothing;
-	#[cfg(feature = "audio")]
-	type AudioGeneration<H> = Nothing;
-}
-
-pub type Client<H = reqwest::Client> = client::Client<Groq, H>;
-pub type ClientBuilder<H = reqwest::Client> = client::ClientBuilder<PBuilder<Groq>, BearerAuth, H>;
-
-impl ProviderClient for Client {
-	type Input = String;
-
-	/// Create a new Groq client from the `GROQ_API_KEY` environment variable.
-	/// Panics if the environment variable is not set.
-	fn from_env() -> Self {
-		let api_key = std::env::var("GROQ_API_KEY").expect("GROQ_API_KEY not set");
-		Self::new(&api_key).unwrap()
-	}
-
-	fn from_val(input: Self::Input) -> Self {
-		Self::new(&input).unwrap()
-	}
-}
-
-use crate::providers::openai_compat::ApiResponse;
+use crate::providers::openai::{
+	CompletionResponse, Message as OpenAIMessage, ToolDefinition, Usage,
+};
+use crate::providers::openai_compat::{self, OpenAiCompat};
 
 /// The `deepseek-r1-distill-llama-70b` model. Used for chat completion.
 pub const DEEPSEEK_R1_DISTILL_LLAMA_70B: &str = "deepseek-r1-distill-llama-70b";
@@ -303,101 +252,10 @@ where
 			.map_err(|e| http_client::Error::Instance(e.into()))?;
 
 		tracing::Instrument::instrument(
-			super::openai::send_compatible_streaming_request(self.client.clone(), req),
+			crate::providers::openai::send_compatible_streaming_request(self.client.clone(), req),
 			span,
 		)
 		.await
-	}
-}
-
-pub const WHISPER_LARGE_V3: &str = "whisper-large-v3";
-pub const WHISPER_LARGE_V3_TURBO: &str = "whisper-large-v3-turbo";
-pub const DISTIL_WHISPER_LARGE_V3_EN: &str = "distil-whisper-large-v3-en";
-
-#[derive(Clone)]
-pub struct TranscriptionModel<T> {
-	client: Client<T>,
-	/// Name of the model (e.g.: gpt-3.5-turbo-1106)
-	pub model: String,
-}
-
-impl<T> TranscriptionModel<T> {
-	pub fn new(client: Client<T>, model: impl Into<String>) -> Self {
-		Self {
-			client,
-			model: model.into(),
-		}
-	}
-}
-impl<T> transcription::TranscriptionModel for TranscriptionModel<T>
-where
-	T: HttpClientExt + Clone + Send + std::fmt::Debug + Default + 'static,
-{
-	type Response = TranscriptionResponse;
-
-	type Client = Client<T>;
-
-	fn make(client: &Self::Client, model: impl Into<String>) -> Self {
-		Self::new(client.clone(), model)
-	}
-
-	async fn transcription(
-		&self,
-		request: transcription::TranscriptionRequest,
-	) -> Result<
-		transcription::TranscriptionResponse<Self::Response>,
-		transcription::TranscriptionError,
-	> {
-		let data = request.data;
-
-		let mut body = MultipartForm::new()
-			.text("model", self.model.clone())
-			.part(Part::bytes("file", data).filename(request.filename.clone()));
-
-		if let Some(language) = request.language {
-			body = body.text("language", language);
-		}
-
-		if let Some(prompt) = request.prompt {
-			body = body.text("prompt", prompt.clone());
-		}
-
-		if let Some(ref temperature) = request.temperature {
-			body = body.text("temperature", temperature.to_string());
-		}
-
-		if let Some(ref additional_params) = request.additional_params {
-			for (key, value) in additional_params
-				.as_object()
-				.expect("Additional Parameters to OpenAI Transcription should be a map")
-			{
-				body = body.text(key.to_owned(), value.to_string());
-			}
-		}
-
-		let req = self
-			.client
-			.post("/audio/transcriptions")?
-			.body(body)
-			.unwrap();
-
-		let response = self.client.send_multipart::<Bytes>(req).await.unwrap();
-
-		let status = response.status();
-		let response_body = response.into_body().into_future().await?.to_vec();
-
-		if status.is_success() {
-			match serde_json::from_slice::<ApiResponse<TranscriptionResponse>>(&response_body)? {
-				ApiResponse::Ok(response) => response.try_into(),
-				ApiResponse::Err(api_error_response) => Err(TranscriptionError::ProviderError(
-					api_error_response.message,
-				)),
-			}
-		} else {
-			Err(TranscriptionError::ProviderError(
-				String::from_utf8_lossy(&response_body).to_string(),
-			))
-		}
 	}
 }
 
@@ -424,7 +282,7 @@ impl GetTokenUsage for StreamingCompletionResponse {
 	}
 }
 
-impl super::openai::CompatStreamingResponse for StreamingCompletionResponse {
+impl crate::providers::openai::CompatStreamingResponse for StreamingCompletionResponse {
 	type Usage = Usage;
 	fn from_usage(usage: Usage) -> Self {
 		Self { usage }
@@ -440,7 +298,7 @@ impl super::openai::CompatStreamingResponse for StreamingCompletionResponse {
 #[cfg(test)]
 mod tests {
 	use crate::OneOrMany;
-	use crate::providers::groq::{GroqAdditionalParameters, GroqCompletionRequest};
+	use crate::providers::groq::completion::{GroqAdditionalParameters, GroqCompletionRequest};
 	use crate::providers::openai::{Message, UserContent};
 
 	#[test]

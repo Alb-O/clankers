@@ -1,61 +1,14 @@
-//! Perplexity API client and Clankers integration
-//!
-//! # Example
-//! ```
-//! use clankers::providers::perplexity;
-//!
-//! let client = perplexity::Client::new("YOUR_API_KEY");
-//!
-//! let llama_3_1_sonar_small_online = client.completion_model(perplexity::LLAMA_3_1_SONAR_SMALL_ONLINE);
-//! ```
 use serde::{Deserialize, Serialize};
 use tracing::Instrument;
 
+use super::client::{Client, Perplexity};
 use crate::OneOrMany;
-use crate::client::{self, BearerAuth, Capable, Nothing, ProviderClient};
 use crate::completion::{self, CompletionError, CompletionRequest, MessageError, message};
 use crate::http_client::{self, HttpClientExt};
 use crate::providers::openai;
 use crate::providers::openai::send_compatible_streaming_request;
-use crate::providers::openai_compat::{
-	self, CompletionModel, FlatApiError, OpenAiCompat, PBuilder,
-};
+use crate::providers::openai_compat::{self, CompletionModel, FlatApiError, OpenAiCompat};
 use crate::streaming::StreamingCompletionResponse;
-
-#[derive(Debug, Default, Clone, Copy)]
-pub struct Perplexity;
-
-impl OpenAiCompat for Perplexity {
-	const PROVIDER_NAME: &'static str = "perplexity";
-	const BASE_URL: &'static str = "https://api.perplexity.ai";
-	const API_KEY_ENV: &'static str = "PERPLEXITY_API_KEY";
-	const VERIFY_PATH: &'static str = "";
-	const COMPLETION_PATH: &'static str = "/chat/completions";
-	type BuilderState = ();
-	type Completion<H> = Capable<CompletionModel<Self, H>>;
-	type Embeddings<H> = Nothing;
-	type Transcription<H> = Nothing;
-	#[cfg(feature = "image")]
-	type ImageGeneration<H> = Nothing;
-	#[cfg(feature = "audio")]
-	type AudioGeneration<H> = Nothing;
-}
-
-pub type Client<H = reqwest::Client> = client::Client<Perplexity, H>;
-pub type ClientBuilder<H = reqwest::Client> =
-	client::ClientBuilder<PBuilder<Perplexity>, BearerAuth, H>;
-
-impl ProviderClient for Client {
-	type Input = String;
-
-	fn from_env() -> Self {
-		openai_compat::default_from_env::<Perplexity>()
-	}
-
-	fn from_val(input: Self::Input) -> Self {
-		Self::new(&input).unwrap()
-	}
-}
 
 pub const SONAR_PRO: &str = "sonar_pro";
 pub const SONAR: &str = "sonar";

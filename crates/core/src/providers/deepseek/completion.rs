@@ -1,61 +1,12 @@
-//! DeepSeek API client and Clankers integration
-//!
-//! # Example
-//! ```
-//! use clankers::providers::deepseek;
-//!
-//! let client = deepseek::Client::new("DEEPSEEK_API_KEY");
-//!
-//! let deepseek_chat = client.completion_model(deepseek::DEEPSEEK_CHAT);
-//! ```
-
 use serde::{Deserialize, Serialize};
 use tracing::{Level, enabled};
 
-use super::openai_compat::{self, OpenAiCompat, PBuilder};
-use crate::client::{self, BearerAuth, Capable, Nothing, ProviderClient};
+use super::client::{Client, DeepSeek};
 use crate::completion::{self, CompletionError, CompletionRequest, GetTokenUsage};
 use crate::http_client::{self, HttpClientExt};
 use crate::message::{Document, DocumentSourceKind};
+use crate::providers::openai_compat::{self, OpenAiCompat};
 use crate::{OneOrMany, json_utils, message};
-
-const DEEPSEEK_API_BASE_URL: &str = "https://api.deepseek.com";
-
-#[derive(Debug, Default, Clone, Copy)]
-pub struct DeepSeek;
-
-impl OpenAiCompat for DeepSeek {
-	const PROVIDER_NAME: &'static str = "deepseek";
-	const BASE_URL: &'static str = DEEPSEEK_API_BASE_URL;
-	const API_KEY_ENV: &'static str = "DEEPSEEK_API_KEY";
-	const VERIFY_PATH: &'static str = "/user/balance";
-	const COMPLETION_PATH: &'static str = "/chat/completions";
-
-	type BuilderState = ();
-	type Completion<H> = Capable<CompletionModel<H>>;
-	type Embeddings<H> = Nothing;
-	type Transcription<H> = Nothing;
-	#[cfg(feature = "image")]
-	type ImageGeneration<H> = Nothing;
-	#[cfg(feature = "audio")]
-	type AudioGeneration<H> = Nothing;
-}
-
-pub type Client<H = reqwest::Client> = client::Client<DeepSeek, H>;
-pub type ClientBuilder<H = reqwest::Client> =
-	client::ClientBuilder<PBuilder<DeepSeek>, BearerAuth, H>;
-
-impl ProviderClient for Client {
-	type Input = String;
-
-	fn from_env() -> Self {
-		openai_compat::default_from_env::<DeepSeek>()
-	}
-
-	fn from_val(input: Self::Input) -> Self {
-		Self::new(&input).unwrap()
-	}
-}
 
 /// The response shape from the DeepSeek API
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -575,7 +526,7 @@ where
 			.map_err(http_client::Error::from)?;
 
 		tracing::Instrument::instrument(
-			super::openai::send_compatible_streaming_request(self.client.clone(), req),
+			crate::providers::openai::send_compatible_streaming_request(self.client.clone(), req),
 			span,
 		)
 		.await
@@ -605,7 +556,7 @@ impl GetTokenUsage for StreamingCompletionResponse {
 	}
 }
 
-impl super::openai::CompatStreamingResponse for StreamingCompletionResponse {
+impl crate::providers::openai::CompatStreamingResponse for StreamingCompletionResponse {
 	type Usage = Usage;
 	fn from_usage(usage: Usage) -> Self {
 		Self { usage }
@@ -621,7 +572,6 @@ impl super::openai::CompatStreamingResponse for StreamingCompletionResponse {
 pub const DEEPSEEK_CHAT: &str = "deepseek-chat";
 pub const DEEPSEEK_REASONER: &str = "deepseek-reasoner";
 
-// Tests
 #[cfg(test)]
 mod tests {
 

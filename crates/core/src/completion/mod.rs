@@ -1,3 +1,4 @@
+pub mod conversions;
 pub mod message;
 pub mod request;
 
