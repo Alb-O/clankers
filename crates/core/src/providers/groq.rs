@@ -63,17 +63,7 @@ impl ProviderClient for Client {
 	}
 }
 
-#[derive(Debug, Deserialize)]
-struct ApiErrorResponse {
-	message: String,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(untagged)]
-enum ApiResponse<T> {
-	Ok(T),
-	Err(ApiErrorResponse),
-}
+use crate::providers::openai_compat::ApiResponse;
 
 // ================================================================
 // Groq Completion API

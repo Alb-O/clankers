@@ -120,17 +120,7 @@ impl ProviderClient for Client {
 
 // ---------- API Error and Response Structures ----------
 
-#[derive(Debug, Deserialize)]
-struct ApiErrorResponse {
-	message: String,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(untagged)]
-enum ApiResponse<T> {
-	Ok(T),
-	Err(ApiErrorResponse),
-}
+use crate::providers::openai_compat::ApiResponse;
 
 // ---------- Embedding API ----------
 
@@ -147,12 +137,6 @@ pub struct EmbeddingResponse {
 	pub load_duration: Option<u64>,
 	#[serde(default)]
 	pub prompt_eval_count: Option<u64>,
-}
-
-impl From<ApiErrorResponse> for EmbeddingError {
-	fn from(err: ApiErrorResponse) -> Self {
-		EmbeddingError::ProviderError(err.message)
-	}
 }
 
 impl From<ApiResponse<EmbeddingResponse>> for Result<EmbeddingResponse, EmbeddingError> {

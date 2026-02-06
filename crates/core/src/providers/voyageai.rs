@@ -138,23 +138,7 @@ pub struct Usage {
 	pub total_tokens: usize,
 }
 
-#[derive(Debug, Deserialize)]
-pub struct ApiErrorResponse {
-	pub(crate) message: String,
-}
-
-impl From<ApiErrorResponse> for EmbeddingError {
-	fn from(err: ApiErrorResponse) -> Self {
-		EmbeddingError::ProviderError(err.message)
-	}
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(untagged)]
-pub(crate) enum ApiResponse<T> {
-	Ok(T),
-	Err(ApiErrorResponse),
-}
+use crate::providers::openai_compat::ApiResponse;
 
 impl From<ApiResponse<EmbeddingResponse>> for Result<EmbeddingResponse, EmbeddingError> {
 	fn from(value: ApiResponse<EmbeddingResponse>) -> Self {

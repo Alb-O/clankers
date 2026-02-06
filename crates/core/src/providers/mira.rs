@@ -75,17 +75,6 @@ pub enum MiraError {
 	JsonError(#[from] serde_json::Error),
 }
 
-#[derive(Debug, Deserialize)]
-struct ApiErrorResponse {
-	message: String,
-}
-
-impl From<ApiErrorResponse> for CompletionError {
-	fn from(err: ApiErrorResponse) -> Self {
-		CompletionError::ProviderError(err.message)
-	}
-}
-
 #[derive(Debug, Deserialize, Clone, Serialize)]
 pub struct RawMessage {
 	pub role: String,

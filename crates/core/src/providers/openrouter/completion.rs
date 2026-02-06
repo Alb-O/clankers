@@ -2,7 +2,7 @@ use bytes::Bytes;
 use serde::{Deserialize, Serialize};
 use tracing::{Instrument, Level, enabled, info_span};
 
-use super::client::{ApiErrorResponse, ApiResponse, Client, Usage};
+use super::client::{ApiResponse, Client, Usage};
 use super::streaming::StreamingCompletionResponse;
 use crate::completion::{self, CompletionError, CompletionRequest};
 use crate::http_client::HttpClientExt;
@@ -36,12 +36,6 @@ pub struct CompletionResponse {
 	pub choices: Vec<Choice>,
 	pub system_fingerprint: Option<String>,
 	pub usage: Option<Usage>,
-}
-
-impl From<ApiErrorResponse> for CompletionError {
-	fn from(err: ApiErrorResponse) -> Self {
-		CompletionError::ProviderError(err.message)
-	}
 }
 
 impl TryFrom<CompletionResponse> for completion::CompletionResponse<CompletionResponse> {

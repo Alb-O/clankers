@@ -73,17 +73,7 @@ impl ProviderClient for Client {
 	}
 }
 
-#[derive(Debug, Deserialize)]
-pub(crate) struct ApiErrorResponse {
-	pub message: String,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(untagged)]
-pub(crate) enum ApiResponse<T> {
-	Ok(T),
-	Err(ApiErrorResponse),
-}
+pub(crate) use crate::providers::openai_compat::ApiResponse;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Usage {

@@ -1,7 +1,5 @@
 use std::fmt::Debug;
 
-use serde::Deserialize;
-
 #[cfg(feature = "image")]
 use crate::client::Nothing;
 use crate::client::{
@@ -113,14 +111,4 @@ impl ProviderClient for Client {
 	}
 }
 
-#[derive(Debug, Deserialize)]
-pub struct ApiErrorResponse {
-	pub message: String,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(untagged)]
-pub enum ApiResponse<T> {
-	Ok(T),
-	Err(ApiErrorResponse),
-}
+pub use crate::providers::openai_compat::{ApiResponse, FlatApiError as ApiErrorResponse};

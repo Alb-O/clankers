@@ -212,17 +212,8 @@ impl ProviderClient for CompletionsClient {
 	}
 }
 
-#[derive(Debug, Deserialize)]
-pub struct ApiErrorResponse {
-	pub(crate) message: String,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(untagged)]
-pub(crate) enum ApiResponse<T> {
-	Ok(T),
-	Err(ApiErrorResponse),
-}
+pub(crate) use crate::providers::openai_compat::ApiResponse;
+pub use crate::providers::openai_compat::FlatApiError as ApiErrorResponse;
 
 #[cfg(test)]
 mod tests {

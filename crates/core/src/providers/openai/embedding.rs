@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 
 use super::Client;
-use super::client::{ApiErrorResponse, ApiResponse};
+use super::client::ApiResponse;
 use super::completion::Usage;
 use crate::embeddings::EmbeddingError;
 use crate::http_client::HttpClientExt;
@@ -24,12 +24,6 @@ pub struct EmbeddingResponse {
 	pub data: Vec<EmbeddingData>,
 	pub model: String,
 	pub usage: Usage,
-}
-
-impl From<ApiErrorResponse> for EmbeddingError {
-	fn from(err: ApiErrorResponse) -> Self {
-		EmbeddingError::ProviderError(err.message)
-	}
 }
 
 impl From<ApiResponse<EmbeddingResponse>> for Result<EmbeddingResponse, EmbeddingError> {

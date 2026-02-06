@@ -65,18 +65,7 @@ impl ProviderClient for Client {
 }
 
 #[cfg(any(feature = "image", feature = "audio"))]
-#[derive(Debug, Deserialize)]
-struct ApiErrorResponse {
-	message: String,
-}
-
-#[cfg(any(feature = "image", feature = "audio"))]
-#[derive(Debug, Deserialize)]
-#[serde(untagged)]
-enum ApiResponse<T> {
-	Ok(T),
-	Err(ApiErrorResponse),
-}
+use crate::providers::openai_compat::ApiResponse;
 
 #[derive(Debug, Deserialize)]
 pub struct EmbeddingData {

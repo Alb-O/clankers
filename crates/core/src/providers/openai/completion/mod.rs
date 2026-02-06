@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 use tracing::{Instrument, Level, enabled, info_span};
 
 use super::CompletionsClient as Client;
-use super::client::{ApiErrorResponse, ApiResponse};
+use super::client::ApiResponse;
 use super::streaming::StreamingCompletionResponse;
 use crate::completion::{
 	CompletionError, CompletionRequest as CoreCompletionRequest, GetTokenUsage,
@@ -102,12 +102,6 @@ pub const GPT_4_1_NANO: &str = "gpt-4.1-nano";
 pub const GPT_4_1_2025_04_14: &str = "gpt-4.1-2025-04-14";
 /// `gpt-4.1` completion model
 pub const GPT_4_1: &str = "gpt-4.1";
-
-impl From<ApiErrorResponse> for CompletionError {
-	fn from(err: ApiErrorResponse) -> Self {
-		CompletionError::ProviderError(err.message)
-	}
-}
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[serde(tag = "role", rename_all = "lowercase")]

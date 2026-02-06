@@ -27,13 +27,19 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tracing::{Instrument, info_span};
 
+#[cfg(feature = "audio")]
+use crate::audio_generation::AudioGenerationError;
 use crate::client::{self, BearerAuth, Capabilities, DebugExt, Provider, ProviderBuilder};
 use crate::completion::CompletionError;
+use crate::embeddings::EmbeddingError;
 use crate::http_client::{self, HttpClientExt};
+#[cfg(feature = "image")]
+use crate::image_generation::ImageGenerationError;
 use crate::json_utils;
 use crate::providers::openai;
 use crate::providers::openai::send_compatible_streaming_request;
 use crate::streaming::StreamingCompletionResponse;
+use crate::transcription::TranscriptionError;
 
 // ================================================================
 // OpenAiCompat trait
@@ -215,6 +221,32 @@ impl From<FlatApiError> for CompletionError {
 impl From<NestedApiError> for CompletionError {
 	fn from(err: NestedApiError) -> Self {
 		CompletionError::ProviderError(err.error.message)
+	}
+}
+
+impl From<FlatApiError> for EmbeddingError {
+	fn from(err: FlatApiError) -> Self {
+		EmbeddingError::ProviderError(err.message)
+	}
+}
+
+impl From<FlatApiError> for TranscriptionError {
+	fn from(err: FlatApiError) -> Self {
+		TranscriptionError::ProviderError(err.message)
+	}
+}
+
+#[cfg(feature = "image")]
+impl From<FlatApiError> for ImageGenerationError {
+	fn from(err: FlatApiError) -> Self {
+		ImageGenerationError::ProviderError(err.message)
+	}
+}
+
+#[cfg(feature = "audio")]
+impl From<FlatApiError> for AudioGenerationError {
+	fn from(err: FlatApiError) -> Self {
+		AudioGenerationError::ProviderError(err.message)
 	}
 }
 

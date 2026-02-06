@@ -330,17 +330,7 @@ impl ProviderClient for Client {
 	}
 }
 
-#[derive(Debug, Deserialize)]
-struct ApiErrorResponse {
-	message: String,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(untagged)]
-enum ApiResponse<T> {
-	Ok(T),
-	Err(ApiErrorResponse),
-}
+use crate::providers::openai_compat::ApiResponse;
 
 // ================================================================
 // Azure OpenAI Embedding API
@@ -367,12 +357,6 @@ pub struct EmbeddingResponse {
 	pub data: Vec<EmbeddingData>,
 	pub model: String,
 	pub usage: Usage,
-}
-
-impl From<ApiErrorResponse> for EmbeddingError {
-	fn from(err: ApiErrorResponse) -> Self {
-		EmbeddingError::ProviderError(err.message)
-	}
 }
 
 impl From<ApiResponse<EmbeddingResponse>> for Result<EmbeddingResponse, EmbeddingError> {
