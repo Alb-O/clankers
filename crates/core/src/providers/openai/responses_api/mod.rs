@@ -650,7 +650,6 @@ impl TryFrom<(String, crate::completion::CompletionRequest)> for CompletionReque
 				Vec::new()
 			};
 
-			// Convert and extend the rest of the history
 			full_history.extend(
 				partial_history
 					.into_iter()

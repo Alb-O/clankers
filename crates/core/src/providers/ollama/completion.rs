@@ -126,20 +126,17 @@ impl TryFrom<(&str, CompletionRequest)> for OllamaCompletionRequest {
 		if req.tool_choice.is_some() {
 			tracing::warn!("WARNING: `tool_choice` not supported for Ollama");
 		}
-		// Build up the order of messages (context, chat_history, prompt)
 		let mut partial_history = vec![];
 		if let Some(docs) = req.normalized_documents() {
 			partial_history.push(docs);
 		}
 		partial_history.extend(req.chat_history);
 
-		// Add preamble to chat history (if available)
 		let mut full_history: Vec<Message> = match &req.preamble {
 			Some(preamble) => vec![Message::system(preamble)],
 			None => vec![],
 		};
 
-		// Convert and extend the rest of the history
 		full_history.extend(
 			partial_history
 				.into_iter()

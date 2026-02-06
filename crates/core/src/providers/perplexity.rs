@@ -176,7 +176,6 @@ impl TryFrom<(&str, CompletionRequest)> for PerplexityCompletionRequest {
 			}]
 		});
 
-		// Convert and extend the rest of the history
 		full_history.extend(
 			partial_history
 				.into_iter()

@@ -33,7 +33,6 @@ impl LineDecoder {
 
 		let mut lines = Vec::new();
 
-		// Process lines while we can find newlines
 		while let Some(pattern_index) = find_newline_index(&self.buffer, self.carriage_return_index)
 		{
 			if pattern_index.carriage && self.carriage_return_index.is_none() {
