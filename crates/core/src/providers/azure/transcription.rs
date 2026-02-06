@@ -1,0 +1,89 @@
+use bytes::Bytes;
+
+use super::client::Client;
+use crate::http_client::multipart::Part;
+use crate::http_client::{HttpClientExt, MultipartForm};
+use crate::providers::openai::TranscriptionResponse;
+use crate::providers::openai_compat::ApiResponse;
+use crate::transcription::{self, TranscriptionError};
+
+#[derive(Clone)]
+pub struct TranscriptionModel<T = reqwest::Client> {
+	client: Client<T>,
+	/// Name of the model (e.g.: gpt-3.5-turbo-1106)
+	pub model: String,
+}
+
+impl<T> TranscriptionModel<T> {
+	pub fn new(client: Client<T>, model: impl Into<String>) -> Self {
+		Self {
+			client,
+			model: model.into(),
+		}
+	}
+}
+
+impl<T> transcription::TranscriptionModel for TranscriptionModel<T>
+where
+	T: HttpClientExt + Clone + 'static,
+{
+	type Response = TranscriptionResponse;
+	type Client = Client<T>;
+
+	fn make(client: &Self::Client, model: impl Into<String>) -> Self {
+		Self::new(client.clone(), model)
+	}
+
+	async fn transcription(
+		&self,
+		request: transcription::TranscriptionRequest,
+	) -> Result<
+		transcription::TranscriptionResponse<Self::Response>,
+		transcription::TranscriptionError,
+	> {
+		let data = request.data;
+
+		let mut body =
+			MultipartForm::new().part(Part::bytes("file", data).filename(request.filename.clone()));
+
+		if let Some(prompt) = request.prompt {
+			body = body.text("prompt", prompt.clone());
+		}
+
+		if let Some(ref temperature) = request.temperature {
+			body = body.text("temperature", temperature.to_string());
+		}
+
+		if let Some(ref additional_params) = request.additional_params {
+			for (key, value) in additional_params
+				.as_object()
+				.expect("Additional Parameters to OpenAI Transcription should be a map")
+			{
+				body = body.text(key.to_owned(), value.to_string());
+			}
+		}
+
+		let req = self
+			.client
+			.post_transcription(&self.model)?
+			.body(body)
+			.map_err(|e| TranscriptionError::HttpError(e.into()))?;
+
+		let response = self.client.send_multipart::<Bytes>(req).await?;
+		let status = response.status();
+		let response_body = response.into_body().into_future().await?.to_vec();
+
+		if status.is_success() {
+			match serde_json::from_slice::<ApiResponse<TranscriptionResponse>>(&response_body)? {
+				ApiResponse::Ok(response) => response.try_into(),
+				ApiResponse::Err(api_error_response) => Err(TranscriptionError::ProviderError(
+					api_error_response.message,
+				)),
+			}
+		} else {
+			Err(TranscriptionError::ProviderError(
+				String::from_utf8_lossy(&response_body).to_string(),
+			))
+		}
+	}
+}

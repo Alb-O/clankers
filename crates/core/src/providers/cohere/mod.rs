@@ -11,12 +11,12 @@
 
 pub mod client;
 pub mod completion;
-pub mod embeddings;
+pub mod embedding;
 pub mod streaming;
 
 pub use client::{ApiErrorResponse, ApiResponse, Client};
 pub use completion::CompletionModel;
-pub use embeddings::EmbeddingModel;
+pub use embedding::EmbeddingModel;
 
 // ================================================================
 // Cohere Completion Models

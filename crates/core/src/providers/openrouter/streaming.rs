@@ -8,12 +8,10 @@ use serde_json::Value;
 use tracing::info_span;
 use tracing_futures::Instrument;
 
+use super::completion::{OpenRouterRequestParams, OpenrouterCompletionRequest, ReasoningDetails};
 use crate::completion::{CompletionError, CompletionRequest, GetTokenUsage};
 use crate::http_client::HttpClientExt;
 use crate::http_client::sse::{Event, GenericEventSource};
-use crate::providers::openrouter::{
-	OpenRouterRequestParams, OpenrouterCompletionRequest, ReasoningDetails,
-};
 use crate::{json_utils, streaming};
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
