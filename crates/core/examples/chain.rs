@@ -27,7 +27,7 @@ async fn main() -> Result<(), anyhow::Error> {
 
 	// Create vector store index
 	let index = vector_store.index(embedding_model);
-	let agent = openai_client.agent(openai::GPT_4)
+	let agent = openai_client.agent(openai::completion::types::GPT_4)
         .preamble("
             You are a dictionary assistant here to assist the user in understanding the meaning of words.
         ")

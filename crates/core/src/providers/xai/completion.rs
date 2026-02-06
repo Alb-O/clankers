@@ -11,9 +11,9 @@ use super::client::Client;
 use crate::OneOrMany;
 use crate::completion::{self, CompletionError, CompletionRequest};
 use crate::http_client::HttpClientExt;
-use crate::providers::openai::completion::ToolChoice;
+use crate::providers::openai::completion::types::ToolChoice;
 use crate::providers::openai::responses_api::streaming::StreamingCompletionResponse;
-use crate::providers::openai::responses_api::{Output, ResponsesUsage};
+use crate::providers::openai::responses_api::types::{Output, ResponsesUsage};
 use crate::streaming::StreamingCompletionResponse as BaseStreamingCompletionResponse;
 
 /// xAI completion models as of 2025-06-04

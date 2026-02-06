@@ -1,7 +1,8 @@
 //! Anthropic client api implementation
 use http::{HeaderName, HeaderValue};
 
-use super::completion::{ANTHROPIC_VERSION_LATEST, CompletionModel};
+use super::completion::CompletionModel;
+use super::types::ANTHROPIC_VERSION_LATEST;
 use crate::client::{
 	self, ApiKey, Capabilities, Capable, DebugExt, Nothing, Provider, ProviderBuilder,
 	ProviderClient,

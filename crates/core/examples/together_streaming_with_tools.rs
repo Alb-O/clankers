@@ -99,7 +99,7 @@ async fn main() -> Result<(), anyhow::Error> {
 	// Create agent with a single context prompt and two tools
 	let calculator_agent = providers::together::Client::from_env()
 		//"meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo"
-		.agent(together::LLAMA_2_70B_CHAT_TOGETHER)
+		.agent(together::completion::LLAMA_2_70B_CHAT_TOGETHER)
 		.preamble(
 			"You are a calculator here to help the user perform arithmetic
             operations. Use the tools provided to answer the user's question.

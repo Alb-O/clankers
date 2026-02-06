@@ -24,7 +24,7 @@ async fn main() {
 
 	// Create extractor
 	let data_extractor = openai_client
-		.extractor::<DocumentSentiment>(openai::GPT_4)
+		.extractor::<DocumentSentiment>(openai::completion::types::GPT_4)
 		.build();
 
 	let sentiment = data_extractor

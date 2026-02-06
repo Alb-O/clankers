@@ -13,7 +13,7 @@ struct Counter {
 async fn main() -> Result<(), anyhow::Error> {
 	// Create OpenAI client
 	let openai_client = Client::from_env();
-	let agent = openai_client.extractor::<Counter>(openai::GPT_4)
+	let agent = openai_client.extractor::<Counter>(openai::completion::types::GPT_4)
         .preamble("
             Your role is to add a random number between 1 and 64 (using only integers) to the previous number.
         ")

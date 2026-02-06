@@ -6,7 +6,7 @@
 //!
 //! let client = openai::Client::new("YOUR_API_KEY");
 //!
-//! let gpt4o = client.completion_model(openai::GPT_4O);
+//! let gpt4o = client.completion_model(openai::completion::types::GPT_4O);
 //! ```
 pub mod client;
 pub mod completion;
@@ -26,7 +26,6 @@ pub use image_generation::*;
 pub mod transcription;
 
 pub use client::*;
-pub use completion::*;
 pub use embedding::*;
 
 /// Recursively ensures all object schemas in a JSON schema respect OpenAI structured output restrictions.
@@ -101,5 +100,4 @@ pub(crate) fn sanitize_schema(schema: &mut serde_json::Value) {
 
 #[cfg(feature = "audio")]
 pub use audio_generation::{TTS_1, TTS_1_HD};
-pub use streaming::*;
 pub use transcription::*;

@@ -4,9 +4,7 @@ use clankers::completion::ToolDefinition;
 use clankers::prelude::*;
 use clankers::providers;
 use clankers::providers::gemini;
-use clankers::providers::gemini::completion::gemini_api_types::{
-	AdditionalParameters, GenerationConfig,
-};
+use clankers::providers::gemini::api_types::{AdditionalParameters, GenerationConfig};
 use clankers::streaming::StreamingPrompt;
 use clankers::tool::Tool;
 use serde::{Deserialize, Serialize};

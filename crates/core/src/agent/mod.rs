@@ -94,7 +94,7 @@
 //! // Create vector store index
 //! let index = vector_store.index(embedding_model);
 //!
-//! let agent = openai.agent(openai::GPT_4O)
+//! let agent = openai.agent(openai::completion::types::GPT_4O)
 //!     .preamble("
 //!         You are a dictionary assistant here to assist the user in understanding the meaning of words.
 //!         You will find additional non-standard word definitions that could be useful below.

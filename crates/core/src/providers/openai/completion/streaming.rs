@@ -12,7 +12,8 @@ use crate::completion::{CompletionError, CompletionRequest, GetTokenUsage};
 use crate::http_client::HttpClientExt;
 use crate::http_client::sse::{Event, GenericEventSource};
 use crate::json_utils::{self, merge};
-use crate::providers::openai::completion::{self, CompletionModel, OpenAIRequestParams, Usage};
+use crate::providers::openai::completion::types::{OpenAIRequestParams, Usage};
+use crate::providers::openai::completion::{self, CompletionModel};
 use crate::streaming::{self, RawStreamingChoice};
 
 #[derive(Deserialize, Debug)]
@@ -107,7 +108,7 @@ where
 		completion_request: CompletionRequest,
 	) -> Result<streaming::StreamingCompletionResponse<StreamingCompletionResponse>, CompletionError>
 	{
-		let request = super::CompletionRequest::try_from(OpenAIRequestParams {
+		let request = super::types::CompletionRequest::try_from(OpenAIRequestParams {
 			model: self.model.clone(),
 			request: completion_request,
 			strict_tools: self.strict_tools,
@@ -180,7 +181,7 @@ where
         // Accumulate tool calls by index while streaming
         let mut tool_calls: HashMap<usize, streaming::RawStreamingToolCall> = HashMap::new();
         let mut text_content = String::new();
-        let mut final_tool_calls: Vec<completion::ToolCall> = Vec::new();
+        let mut final_tool_calls: Vec<completion::types::ToolCall> = Vec::new();
         let mut final_usage = None;
 
         while let Some(event_result) = event_source.next().await {
@@ -284,10 +285,10 @@ where
                     // Finish reason
                     if let Some(finish_reason) = &choice.finish_reason && *finish_reason == FinishReason::ToolCalls {
                         for (_idx, tool_call) in tool_calls.into_iter() {
-                            final_tool_calls.push(completion::ToolCall {
+                            final_tool_calls.push(completion::types::ToolCall {
                                 id: tool_call.id.clone(),
-                                r#type: completion::ToolType::Function,
-                                function: completion::Function {
+                                r#type: completion::types::ToolType::Function,
+                                function: completion::types::Function {
                                     name: tool_call.name.clone(),
                                     arguments: tool_call.arguments.clone(),
                                 },

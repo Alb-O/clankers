@@ -1,12 +1,12 @@
 pub mod types;
 use tracing::{Level, enabled, info_span};
 use tracing_futures::Instrument;
-pub use types::*;
+use types::*;
 
 use super::client::Client;
 use crate::completion::{self, CompletionError, CompletionRequest};
 use crate::http_client::HttpClientExt;
-use crate::providers::openai::StreamingCompletionResponse;
+use crate::providers::openai::completion::streaming::StreamingCompletionResponse;
 use crate::telemetry::SpanCombinator;
 
 #[derive(Clone)]

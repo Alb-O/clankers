@@ -21,7 +21,7 @@ impl Debater {
 
 		Self {
 			gpt_4: openai_client
-				.agent(openai::GPT_4)
+				.agent(openai::completion::types::GPT_4)
 				.preamble(position_a)
 				.build(),
 			coral: cohere_client

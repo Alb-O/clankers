@@ -4,8 +4,10 @@ use super::completion::CompletionModel;
 use crate::completion::{CompletionError, CompletionRequest};
 use crate::http_client::HttpClientExt;
 use crate::json_utils::{self};
-use crate::providers::huggingface::completion::HuggingfaceCompletionRequest;
-use crate::providers::openai::{StreamingCompletionResponse, send_compatible_streaming_request};
+use crate::providers::huggingface::completion::types::HuggingfaceCompletionRequest;
+use crate::providers::openai::completion::streaming::{
+	StreamingCompletionResponse, send_compatible_streaming_request,
+};
 use crate::streaming;
 
 impl<T> CompletionModel<T>

@@ -20,4 +20,3 @@ pub use completion::CompletionModel;
 pub use embedding::{EMBEDDING_001, EMBEDDING_004, EmbeddingModel};
 
 pub mod api_types;
-pub use api_types as gemini_api_types;

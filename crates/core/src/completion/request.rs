@@ -31,7 +31,7 @@
 //! // Initialize the OpenAI client and a completion model
 //! let openai = Client::new("your-openai-api-key");
 //!
-//! let gpt_4 = openai.completion_model(openai::GPT_4);
+//! let gpt_4 = openai.completion_model(openai::completion::types::GPT_4);
 //!
 //! // Create the completion request
 //! let request = gpt_4.completion_request("Who are you?")
@@ -439,7 +439,7 @@ impl CompletionRequest {
 /// };
 ///
 /// let openai = Client::new("your-openai-api-key");
-/// let model = openai.completion_model(openai::GPT_4O).build();
+/// let model = openai.completion_model(openai::completion::types::GPT_4O).build();
 ///
 /// // Create the completion request and execute it separately
 /// let request = CompletionRequestBuilder::new(model, "Who are you?".to_string())
@@ -460,7 +460,7 @@ impl CompletionRequest {
 /// };
 ///
 /// let openai = Client::new("your-openai-api-key");
-/// let model = openai.completion_model(openai::GPT_4O).build();
+/// let model = openai.completion_model(openai::completion::types::GPT_4O).build();
 ///
 /// // Create the completion request and execute it directly
 /// let response = CompletionRequestBuilder::new(model, "Who are you?".to_string())

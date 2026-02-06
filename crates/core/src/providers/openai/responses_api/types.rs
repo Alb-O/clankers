@@ -5,8 +5,7 @@ use std::str::FromStr;
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 
-use super::super::InputAudio;
-use super::super::completion::ToolChoice;
+use super::super::completion::types::{InputAudio, ToolChoice};
 use crate::completion::CompletionError;
 use crate::message::{
 	AudioMediaType, Document, DocumentMediaType, DocumentSourceKind, ImageDetail, MessageError,

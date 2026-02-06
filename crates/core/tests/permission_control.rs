@@ -150,7 +150,7 @@ async fn permission_control_prompt_example() -> Result<()> {
 	let _cleanup = FileCleanup::new()?;
 
 	let agent = providers::openai::Client::from_env()
-		.agent(providers::openai::GPT_4O_MINI)
+		.agent(providers::openai::completion::types::GPT_4O_MINI)
 		.preamble("You are a helpful assistant that can read files using different methods.")
 		.tool(ReadFileHead)
 		.tool(ReadFileTail)
@@ -184,7 +184,7 @@ async fn permission_control_streaming_example() -> Result<()> {
 	let _cleanup = FileCleanup::new()?;
 
 	let agent = providers::openai::Client::from_env()
-		.agent(providers::openai::GPT_4O_MINI)
+		.agent(providers::openai::completion::types::GPT_4O_MINI)
 		.preamble("You are a helpful assistant that can read files using different methods.")
 		.tool(ReadFileHead)
 		.tool(ReadFileTail)

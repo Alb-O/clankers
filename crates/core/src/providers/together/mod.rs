@@ -15,5 +15,4 @@ pub mod embedding;
 pub mod streaming;
 
 pub use client::Client;
-pub use completion::*;
 pub use embedding::*;

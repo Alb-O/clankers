@@ -6,13 +6,12 @@ use serde::{Deserialize, Serialize};
 use tracing::{Level, debug, enabled, info_span};
 use tracing_futures::Instrument as _;
 
-use super::{CompletionResponse, Output};
+use super::types::{CompletionResponse, Output};
 use crate::completion::{CompletionError, GetTokenUsage};
 use crate::http_client::HttpClientExt;
 use crate::http_client::sse::{Event, GenericEventSource};
-use crate::providers::openai::responses_api::{
-	ReasoningSummary, ResponsesCompletionModel, ResponsesUsage,
-};
+use crate::providers::openai::responses_api::ResponsesCompletionModel;
+use crate::providers::openai::responses_api::types::{ReasoningSummary, ResponsesUsage};
 use crate::streaming;
 use crate::streaming::RawStreamingChoice;
 use crate::wasm_compat::WasmCompatSend;

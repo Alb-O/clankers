@@ -1,8 +1,8 @@
 use clankers::completion::{Prompt, ToolDefinition};
 use clankers::prelude::*;
 use clankers::providers;
-use clankers::providers::anthropic::completion::CLAUDE_3_5_SONNET;
-use clankers::providers::openai::GPT_4O;
+use clankers::providers::anthropic::types::CLAUDE_3_5_SONNET;
+use clankers::providers::openai::completion::types::GPT_4O;
 use clankers::tool::Tool;
 use serde::{Deserialize, Serialize};
 use serde_json::json;

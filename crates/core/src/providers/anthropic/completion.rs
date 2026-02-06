@@ -4,8 +4,7 @@ use bytes::Bytes;
 use tracing::{Instrument, Level, enabled, info_span};
 
 use super::client::Client;
-pub use super::types::*;
-use super::types::{ApiErrorResponse, ApiResponse};
+use super::types::{ApiErrorResponse, ApiResponse, *};
 use crate::completion::{self, CompletionError, CompletionRequest};
 use crate::http_client::HttpClientExt;
 use crate::providers::anthropic::streaming::StreamingCompletionResponse;

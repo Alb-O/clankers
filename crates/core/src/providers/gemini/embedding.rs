@@ -122,7 +122,7 @@ mod gemini_api_types {
 	use serde::{Deserialize, Serialize};
 	use serde_json::Value;
 
-	use crate::providers::gemini::gemini_api_types::{CodeExecutionResult, ExecutableCode};
+	use crate::providers::gemini::api_types::{CodeExecutionResult, ExecutableCode};
 
 	#[derive(Serialize)]
 	#[serde(rename_all = "camelCase")]

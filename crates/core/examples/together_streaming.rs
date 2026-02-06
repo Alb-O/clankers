@@ -7,7 +7,7 @@ use clankers::streaming::StreamingPrompt;
 async fn main() -> Result<(), anyhow::Error> {
 	// Create streaming agent with a single context prompt
 	let agent = together::Client::from_env()
-		.agent(together::LLAMA_3_8B_CHAT_HF)
+		.agent(together::completion::LLAMA_3_8B_CHAT_HF)
 		.preamble("Be precise and concise.")
 		.temperature(0.5)
 		.build();

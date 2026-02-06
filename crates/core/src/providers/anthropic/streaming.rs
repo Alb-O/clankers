@@ -5,9 +5,9 @@ use serde_json::json;
 use tracing::{Level, enabled, info_span};
 use tracing_futures::Instrument;
 
-use super::completion::{
-	CompletionModel, Content, Message, SystemContent, ToolChoice, ToolDefinition, Usage,
-	apply_cache_control,
+use super::completion::CompletionModel;
+use super::types::{
+	Content, Message, SystemContent, ToolChoice, ToolDefinition, Usage, apply_cache_control,
 };
 use crate::completion::{CompletionError, CompletionRequest, GetTokenUsage};
 use crate::http_client::sse::{Event, GenericEventSource};

@@ -18,7 +18,7 @@ use crate::{completion, http_client};
 
 pub mod streaming;
 pub mod types;
-pub use types::*;
+use types::*;
 
 /// The completion model struct for OpenAI's response API.
 #[derive(Clone)]

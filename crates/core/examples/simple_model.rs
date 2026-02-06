@@ -6,7 +6,9 @@ use clankers::providers::openai;
 async fn main() {
 	// Create OpenAI client and model
 	let openai_client = openai::Client::from_env();
-	let gpt4 = openai_client.agent(openai::GPT_4).build();
+	let gpt4 = openai_client
+		.agent(openai::completion::types::GPT_4)
+		.build();
 
 	// Prompt the model and print its response
 	let response = gpt4

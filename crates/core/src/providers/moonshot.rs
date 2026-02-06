@@ -15,7 +15,7 @@ use crate::client::{self, BearerAuth, Capable, Nothing, ProviderClient};
 use crate::completion::{self, CompletionError, CompletionRequest};
 use crate::http_client::HttpClientExt;
 use crate::providers::openai;
-use crate::providers::openai::send_compatible_streaming_request;
+use crate::providers::openai::completion::streaming::send_compatible_streaming_request;
 use crate::providers::openai_compat::{self, FlatApiError, OpenAiCompat, PBuilder};
 use crate::streaming::StreamingCompletionResponse;
 use crate::{http_client, message};
@@ -64,15 +64,15 @@ pub const MOONSHOT_CHAT: &str = "moonshot-v1-128k";
 #[derive(Debug, Serialize, Deserialize)]
 pub(super) struct MoonshotCompletionRequest {
 	model: String,
-	pub messages: Vec<openai::Message>,
+	pub messages: Vec<openai::completion::types::Message>,
 	#[serde(skip_serializing_if = "Option::is_none")]
 	temperature: Option<f64>,
 	#[serde(skip_serializing_if = "Vec::is_empty")]
-	tools: Vec<openai::ToolDefinition>,
+	tools: Vec<openai::completion::types::ToolDefinition>,
 	#[serde(skip_serializing_if = "Option::is_none")]
 	max_tokens: Option<u64>,
 	#[serde(skip_serializing_if = "Option::is_none")]
-	tool_choice: Option<crate::providers::openai::completion::ToolChoice>,
+	tool_choice: Option<crate::providers::openai::completion::types::ToolChoice>,
 	#[serde(flatten, skip_serializing_if = "Option::is_none")]
 	pub additional_params: Option<serde_json::Value>,
 }
@@ -87,8 +87,8 @@ impl TryFrom<(&str, CompletionRequest)> for MoonshotCompletionRequest {
 		}
 		partial_history.extend(req.chat_history);
 
-		let mut full_history: Vec<openai::Message> = match &req.preamble {
-			Some(preamble) => vec![openai::Message::system(preamble)],
+		let mut full_history: Vec<openai::completion::types::Message> = match &req.preamble {
+			Some(preamble) => vec![openai::completion::types::Message::system(preamble)],
 			None => vec![],
 		};
 
@@ -96,7 +96,7 @@ impl TryFrom<(&str, CompletionRequest)> for MoonshotCompletionRequest {
 			partial_history
 				.into_iter()
 				.map(message::Message::try_into)
-				.collect::<Result<Vec<Vec<openai::Message>>, _>>()?
+				.collect::<Result<Vec<Vec<openai::completion::types::Message>>, _>>()?
 				.into_iter()
 				.flatten()
 				.collect::<Vec<_>>(),
@@ -105,7 +105,7 @@ impl TryFrom<(&str, CompletionRequest)> for MoonshotCompletionRequest {
 		let tool_choice = req
 			.tool_choice
 			.clone()
-			.map(crate::providers::openai::ToolChoice::try_from)
+			.map(crate::providers::openai::completion::types::ToolChoice::try_from)
 			.transpose()?;
 
 		Ok(Self {
@@ -117,7 +117,7 @@ impl TryFrom<(&str, CompletionRequest)> for MoonshotCompletionRequest {
 				.tools
 				.clone()
 				.into_iter()
-				.map(openai::ToolDefinition::from)
+				.map(openai::completion::types::ToolDefinition::from)
 				.collect::<Vec<_>>(),
 			tool_choice,
 			additional_params: req.additional_params,
@@ -129,8 +129,8 @@ impl<T> completion::CompletionModel for openai_compat::CompletionModel<Moonshot,
 where
 	T: HttpClientExt + Clone + Default + std::fmt::Debug + Send + 'static,
 {
-	type Response = openai::CompletionResponse;
-	type StreamingResponse = openai::StreamingCompletionResponse;
+	type Response = openai::completion::types::CompletionResponse;
+	type StreamingResponse = openai::completion::streaming::StreamingCompletionResponse;
 
 	type Client = Client<T>;
 
@@ -141,7 +141,10 @@ where
 	async fn completion(
 		&self,
 		completion_request: CompletionRequest,
-	) -> Result<completion::CompletionResponse<openai::CompletionResponse>, CompletionError> {
+	) -> Result<
+		completion::CompletionResponse<openai::completion::types::CompletionResponse>,
+		CompletionError,
+	> {
 		let span = openai_compat::completion_span(
 			Moonshot::PROVIDER_NAME,
 			&self.model,
@@ -168,7 +171,7 @@ where
 		let async_block = async move {
 			let response = openai_compat::send_and_parse::<
 				_,
-				openai::CompletionResponse,
+				openai::completion::types::CompletionResponse,
 				FlatApiError,
 				_,
 			>(&self.client, req, "MoonShot")

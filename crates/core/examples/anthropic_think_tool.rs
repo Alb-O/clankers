@@ -11,7 +11,7 @@ async fn main() -> Result<(), anyhow::Error> {
 
 	// Create agent with the Think tool
 	let agent = providers::anthropic::Client::from_env()
-		.agent(providers::anthropic::completion::CLAUDE_3_7_SONNET)
+		.agent(providers::anthropic::types::CLAUDE_3_7_SONNET)
 		.name("Anthropic Thinker")
 		.preamble(
 			"You are a helpful assistant that can solve complex problems.

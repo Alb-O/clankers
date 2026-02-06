@@ -15,7 +15,7 @@ pub struct Message {
 	pub role: String,
 	pub content: Option<String>,
 	#[serde(default, deserialize_with = "json_utils::null_or_vec")]
-	pub tool_calls: Vec<openai::ToolCall>,
+	pub tool_calls: Vec<openai::completion::types::ToolCall>,
 }
 
 impl Message {
@@ -108,7 +108,7 @@ pub(crate) struct GaladrielCompletionRequest {
 	#[serde(skip_serializing_if = "Vec::is_empty")]
 	tools: Vec<ToolDefinition>,
 	#[serde(skip_serializing_if = "Option::is_none")]
-	tool_choice: Option<crate::providers::openai::completion::ToolChoice>,
+	tool_choice: Option<crate::providers::openai::completion::types::ToolChoice>,
 	#[serde(flatten, skip_serializing_if = "Option::is_none")]
 	pub additional_params: Option<serde_json::Value>,
 }
@@ -138,7 +138,7 @@ impl TryFrom<(&str, CompletionRequest)> for GaladrielCompletionRequest {
 		let tool_choice = req
 			.tool_choice
 			.clone()
-			.map(crate::providers::openai::completion::ToolChoice::try_from)
+			.map(crate::providers::openai::completion::types::ToolChoice::try_from)
 			.transpose()?;
 
 		Ok(Self {
@@ -167,7 +167,10 @@ where
 	async fn completion_impl(
 		&self,
 		completion_request: CompletionRequest,
-	) -> Result<completion::CompletionResponse<openai::CompletionResponse>, CompletionError> {
+	) -> Result<
+		completion::CompletionResponse<openai::completion::types::CompletionResponse>,
+		CompletionError,
+	> {
 		let span = if tracing::Span::current().is_disabled() {
 			info_span!(
 				target: "clankers::completions",
@@ -208,7 +211,7 @@ where
 		async move {
 			let response = openai_compat::send_and_parse::<
 				_,
-				openai::CompletionResponse,
+				openai::completion::types::CompletionResponse,
 				FlatApiError,
 				_,
 			>(&self.client, req, "Galadriel")
@@ -233,8 +236,10 @@ where
 	async fn stream_impl(
 		&self,
 		completion_request: CompletionRequest,
-	) -> Result<StreamingCompletionResponse<openai::StreamingCompletionResponse>, CompletionError>
-	{
+	) -> Result<
+		StreamingCompletionResponse<openai::completion::streaming::StreamingCompletionResponse>,
+		CompletionError,
+	> {
 		let preamble = completion_request.preamble.clone();
 		let mut request =
 			GaladrielCompletionRequest::try_from((self.model.as_ref(), completion_request))?;
@@ -273,7 +278,7 @@ where
 			tracing::Span::current()
 		};
 
-		openai::send_compatible_streaming_request(self.client.clone(), req)
+		openai::completion::streaming::send_compatible_streaming_request(self.client.clone(), req)
 			.instrument(span)
 			.await
 	}
@@ -283,8 +288,8 @@ impl<T> completion::CompletionModel for CompletionModel<T>
 where
 	T: HttpClientExt + Clone + Default + std::fmt::Debug + Send + 'static,
 {
-	type Response = openai::CompletionResponse;
-	type StreamingResponse = openai::StreamingCompletionResponse;
+	type Response = openai::completion::types::CompletionResponse;
+	type StreamingResponse = openai::completion::streaming::StreamingCompletionResponse;
 	type Client = Client<T>;
 
 	fn make(client: &Self::Client, model: impl Into<String>) -> Self {
@@ -297,7 +302,10 @@ where
 	async fn completion(
 		&self,
 		completion_request: CompletionRequest,
-	) -> Result<completion::CompletionResponse<openai::CompletionResponse>, CompletionError> {
+	) -> Result<
+		completion::CompletionResponse<openai::completion::types::CompletionResponse>,
+		CompletionError,
+	> {
 		self.completion_impl(completion_request).await
 	}
 

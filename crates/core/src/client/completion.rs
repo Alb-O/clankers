@@ -37,7 +37,7 @@ pub trait CompletionClient {
 	/// // Initialize the OpenAI client
 	/// let openai = Client::new("your-open-ai-api-key");
 	///
-	/// let agent = openai.agent(openai::GPT_4)
+	/// let agent = openai.agent(openai::completion::types::GPT_4)
 	///    .preamble("You are comedian AI with a mission to make people laugh.")
 	///    .temperature(0.0)
 	///    .build();

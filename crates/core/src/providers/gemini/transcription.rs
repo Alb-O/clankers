@@ -6,9 +6,9 @@ use mime_guess;
 use serde_json::{Map, Value};
 
 use super::Client;
-use super::completion::gemini_api_types::GenerateContentResponse;
+use super::api_types::GenerateContentResponse;
 use crate::http_client::HttpClientExt;
-use crate::providers::gemini::completion::gemini_api_types::{
+use crate::providers::gemini::api_types::{
 	Blob, Content, GenerateContentRequest, GenerationConfig, Part, PartKind, Role,
 };
 use crate::transcription::{self, TranscriptionError};

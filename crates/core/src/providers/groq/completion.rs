@@ -5,7 +5,7 @@ use super::client::{Client, Groq};
 use crate::completion::{self, CompletionError, CompletionRequest, GetTokenUsage};
 use crate::http_client::{self, HttpClientExt};
 use crate::message::{self};
-use crate::providers::openai::{
+use crate::providers::openai::completion::types::{
 	CompletionResponse, Message as OpenAIMessage, ToolDefinition, Usage,
 };
 use crate::providers::openai_compat::{self, OpenAiCompat};
@@ -54,7 +54,7 @@ pub(super) struct GroqCompletionRequest {
 	#[serde(skip_serializing_if = "Vec::is_empty")]
 	tools: Vec<ToolDefinition>,
 	#[serde(skip_serializing_if = "Option::is_none")]
-	tool_choice: Option<crate::providers::openai::completion::ToolChoice>,
+	tool_choice: Option<crate::providers::openai::completion::types::ToolChoice>,
 	#[serde(flatten, skip_serializing_if = "Option::is_none")]
 	pub additional_params: Option<GroqAdditionalParameters>,
 	pub(super) stream: bool,
@@ -95,7 +95,7 @@ impl TryFrom<(&str, CompletionRequest)> for GroqCompletionRequest {
 		let tool_choice = req
 			.tool_choice
 			.clone()
-			.map(crate::providers::openai::ToolChoice::try_from)
+			.map(crate::providers::openai::completion::types::ToolChoice::try_from)
 			.transpose()?;
 
 		let additional_params: Option<GroqAdditionalParameters> =
@@ -252,7 +252,10 @@ where
 			.map_err(|e| http_client::Error::Instance(e.into()))?;
 
 		tracing::Instrument::instrument(
-			crate::providers::openai::send_compatible_streaming_request(self.client.clone(), req),
+			crate::providers::openai::completion::streaming::send_compatible_streaming_request(
+				self.client.clone(),
+				req,
+			),
 			span,
 		)
 		.await
@@ -282,7 +285,9 @@ impl GetTokenUsage for StreamingCompletionResponse {
 	}
 }
 
-impl crate::providers::openai::CompatStreamingResponse for StreamingCompletionResponse {
+impl crate::providers::openai::completion::streaming::CompatStreamingResponse
+	for StreamingCompletionResponse
+{
 	type Usage = Usage;
 	fn from_usage(usage: Usage) -> Self {
 		Self { usage }
@@ -299,7 +304,7 @@ impl crate::providers::openai::CompatStreamingResponse for StreamingCompletionRe
 mod tests {
 	use crate::OneOrMany;
 	use crate::providers::groq::completion::{GroqAdditionalParameters, GroqCompletionRequest};
-	use crate::providers::openai::{Message, UserContent};
+	use crate::providers::openai::completion::types::{Message, UserContent};
 
 	#[test]
 	fn serialize_groq_request() {

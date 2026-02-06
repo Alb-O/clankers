@@ -329,7 +329,7 @@ pub(super) struct MistralCompletionRequest {
 	#[serde(skip_serializing_if = "Vec::is_empty")]
 	tools: Vec<ToolDefinition>,
 	#[serde(skip_serializing_if = "Option::is_none")]
-	tool_choice: Option<crate::providers::openai::completion::ToolChoice>,
+	tool_choice: Option<crate::providers::openai::completion::types::ToolChoice>,
 	#[serde(flatten, skip_serializing_if = "Option::is_none")]
 	pub additional_params: Option<serde_json::Value>,
 }
@@ -362,7 +362,7 @@ impl TryFrom<(&str, CompletionRequest)> for MistralCompletionRequest {
 		let tool_choice = req
 			.tool_choice
 			.clone()
-			.map(crate::providers::openai::completion::ToolChoice::try_from)
+			.map(crate::providers::openai::completion::types::ToolChoice::try_from)
 			.transpose()?;
 
 		Ok(Self {

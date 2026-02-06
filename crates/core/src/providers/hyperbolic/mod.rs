@@ -21,7 +21,6 @@ pub mod image_generation;
 #[cfg(feature = "audio")]
 pub use audio_generation::*;
 pub use client::{Client, ClientBuilder, Hyperbolic};
-pub use completion::*;
 #[cfg(feature = "image")]
 pub use image_generation::*;
 

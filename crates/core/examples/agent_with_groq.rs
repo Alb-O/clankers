@@ -1,7 +1,7 @@
 use clankers::completion::Prompt;
 use clankers::prelude::*;
 use clankers::providers::groq;
-use clankers::providers::groq::DEEPSEEK_R1_DISTILL_LLAMA_70B;
+use clankers::providers::groq::completion::DEEPSEEK_R1_DISTILL_LLAMA_70B;
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {

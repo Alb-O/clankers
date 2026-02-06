@@ -20,23 +20,20 @@ pub const GEMINI_2_0_FLASH: &str = "gemini-2.0-flash";
 
 use std::convert::TryFrom;
 
-use gemini_api_types::{
-	Content, FunctionDeclaration, GenerateContentRequest, GenerateContentResponse, Part, PartKind,
-	Role, Tool,
-};
 use serde_json::{Map, Value};
 use tracing::{Level, enabled, info_span};
 use tracing_futures::Instrument;
 
-use self::gemini_api_types::Schema;
 use super::Client;
+use super::api_types::{
+	Content, FunctionDeclaration, GenerateContentRequest, GenerateContentResponse, Part, PartKind,
+	Role, Schema, Tool,
+};
 use crate::OneOrMany;
 use crate::completion::{self, CompletionError, CompletionRequest};
 use crate::http_client::HttpClientExt;
 use crate::message::{self, MimeType, Reasoning};
-use crate::providers::gemini::completion::gemini_api_types::{
-	AdditionalParameters, FunctionCallingMode, ToolConfig,
-};
+use crate::providers::gemini::api_types::{AdditionalParameters, FunctionCallingMode, ToolConfig};
 use crate::providers::gemini::streaming::StreamingCompletionResponse;
 use crate::telemetry::SpanCombinator;
 
@@ -410,15 +407,13 @@ impl TryFrom<GenerateContentResponse> for completion::CompletionResponse<Generat
 	}
 }
 
-pub use super::api_types as gemini_api_types;
-
 #[cfg(test)]
 mod tests {
 	use serde_json::json;
 
 	use super::*;
 	use crate::message;
-	use crate::providers::gemini::completion::gemini_api_types::flatten_schema;
+	use crate::providers::gemini::api_types::flatten_schema;
 
 	#[test]
 	fn test_deserialize_message_user() {

@@ -9,7 +9,7 @@ use clankers::providers::openai;
 async fn main() -> Result<(), anyhow::Error> {
 	// Create OpenAI client
 	let agent = openai::Client::from_env()
-		.completion_model(openai::GPT_4O)
+		.completion_model(openai::completion::types::GPT_4O)
 		.completions_api()
 		.into_agent_builder()
 		.preamble("You are a helpful assistant")

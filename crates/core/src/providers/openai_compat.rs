@@ -37,7 +37,7 @@ use crate::http_client::{self, HttpClientExt};
 use crate::image_generation::ImageGenerationError;
 use crate::json_utils;
 use crate::providers::openai;
-use crate::providers::openai::send_compatible_streaming_request;
+use crate::providers::openai::completion::streaming::send_compatible_streaming_request;
 use crate::streaming::StreamingCompletionResponse;
 use crate::transcription::TranscriptionError;
 
@@ -261,7 +261,10 @@ pub fn streaming_span(provider: &str, model: &str, preamble: &Option<String>) ->
 }
 
 /// Record common OpenAI-style response fields onto the current span.
-pub fn record_openai_response_span(span: &tracing::Span, response: &openai::CompletionResponse) {
+pub fn record_openai_response_span(
+	span: &tracing::Span,
+	response: &openai::completion::types::CompletionResponse,
+) {
 	span.record("gen_ai.response.id", response.id.clone());
 	span.record("gen_ai.response.model_name", response.model.clone());
 	if let Some(ref usage) = response.usage {
@@ -329,7 +332,10 @@ pub async fn stream_with_openai_compat<P, T>(
 	client: &client::Client<P, T>,
 	body: Vec<u8>,
 	span: tracing::Span,
-) -> Result<StreamingCompletionResponse<openai::StreamingCompletionResponse>, CompletionError>
+) -> Result<
+	StreamingCompletionResponse<openai::completion::streaming::StreamingCompletionResponse>,
+	CompletionError,
+>
 where
 	P: OpenAiCompat,
 	T: HttpClientExt + Clone + Default + Debug + Send + 'static,

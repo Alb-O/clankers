@@ -16,7 +16,7 @@ use crate::providers::openai::responses_api::streaming::{
 	ItemChunkKind, ResponseChunk, ResponseChunkKind, StreamingCompletionChunk,
 	StreamingCompletionResponse, StreamingItemDoneOutput,
 };
-use crate::providers::openai::responses_api::{Output, ReasoningSummary, ResponsesUsage};
+use crate::providers::openai::responses_api::types::{Output, ReasoningSummary, ResponsesUsage};
 use crate::providers::xai::completion::{CompletionModel, XAICompletionRequest};
 use crate::streaming::{self, RawStreamingChoice};
 

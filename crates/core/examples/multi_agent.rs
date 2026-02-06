@@ -64,7 +64,7 @@ impl<M: CompletionModel> Tool for TranslatorTool<M> {
 async fn main() -> Result<(), anyhow::Error> {
 	// Create OpenAI client
 	let openai_client = OpenAIClient::from_env();
-	let model = openai_client.completion_model(openai::GPT_4O);
+	let model = openai_client.completion_model(openai::completion::types::GPT_4O);
 
 	let translator_agent = AgentBuilder::new(model.clone())
                 .preamble(

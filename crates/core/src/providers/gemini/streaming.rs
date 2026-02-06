@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use tracing::{Level, enabled, info_span};
 use tracing_futures::Instrument;
 
-use super::completion::gemini_api_types::{ContentCandidate, Part, PartKind};
+use super::api_types::{ContentCandidate, Part, PartKind};
 use super::completion::{CompletionModel, create_request_body};
 use crate::completion::{CompletionError, CompletionRequest, GetTokenUsage};
 use crate::http_client::HttpClientExt;

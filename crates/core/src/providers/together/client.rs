@@ -29,7 +29,7 @@ impl Provider for TogetherExt {
 }
 
 impl<H> Capabilities<H> for TogetherExt {
-	type Completion = Capable<super::CompletionModel<H>>;
+	type Completion = Capable<super::completion::CompletionModel<H>>;
 	type Embeddings = Capable<super::EmbeddingModel<H>>;
 
 	type Transcription = Nothing;

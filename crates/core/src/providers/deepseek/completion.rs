@@ -526,7 +526,10 @@ where
 			.map_err(http_client::Error::from)?;
 
 		tracing::Instrument::instrument(
-			crate::providers::openai::send_compatible_streaming_request(self.client.clone(), req),
+			crate::providers::openai::completion::streaming::send_compatible_streaming_request(
+				self.client.clone(),
+				req,
+			),
 			span,
 		)
 		.await
@@ -556,7 +559,9 @@ impl GetTokenUsage for StreamingCompletionResponse {
 	}
 }
 
-impl crate::providers::openai::CompatStreamingResponse for StreamingCompletionResponse {
+impl crate::providers::openai::completion::streaming::CompatStreamingResponse
+	for StreamingCompletionResponse
+{
 	type Usage = Usage;
 	fn from_usage(usage: Usage) -> Self {
 		Self { usage }

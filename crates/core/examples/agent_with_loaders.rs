@@ -7,7 +7,7 @@ use clankers::providers::openai;
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
 	let openai_client = openai::Client::from_env();
-	let model = openai_client.completion_model(openai::GPT_4O);
+	let model = openai_client.completion_model(openai::completion::types::GPT_4O);
 
 	// Load in all the rust examples
 	let examples = FileLoader::with_glob("clankers-core/examples/*.rs")?

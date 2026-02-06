@@ -12,7 +12,7 @@ pub mod streaming;
 pub mod types;
 
 use streaming::StreamingCompletionResponse;
-pub use types::*;
+use types::*;
 
 #[derive(Clone)]
 pub struct CompletionModel<T = reqwest::Client> {

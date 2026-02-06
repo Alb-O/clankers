@@ -33,15 +33,15 @@ async fn main() -> anyhow::Result<()> {
 	let openai = openai::Client::from_env();
 
 	let names_extractor = openai
-		.extractor::<Names>(openai::GPT_4)
+		.extractor::<Names>(openai::completion::types::GPT_4)
 		.preamble("Extract names (e.g.: of people, places) from the given text.")
 		.build();
 	let topics_extractor = openai
-		.extractor::<Topics>(openai::GPT_4)
+		.extractor::<Topics>(openai::completion::types::GPT_4)
 		.preamble("Extract topics from the given text.")
 		.build();
 	let sentiment_extractor = openai
-		.extractor::<Sentiment>(openai::GPT_4)
+		.extractor::<Sentiment>(openai::completion::types::GPT_4)
 		.preamble(
 			"Extract sentiment (and how confident you are of the sentiment) from the given text.",
 		)

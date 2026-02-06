@@ -9,7 +9,7 @@ async fn main() -> Result<(), anyhow::Error> {
 
 	// Create agent with a single context prompt
 	let comedian_agent = client
-		.agent(openai::GPT_4O)
+		.agent(openai::completion::types::GPT_4O)
 		.preamble("You are a comedian here to entertain the user using humour and jokes.")
 		.build();
 

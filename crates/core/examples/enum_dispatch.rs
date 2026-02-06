@@ -3,8 +3,8 @@ use std::collections::HashMap;
 use clankers::agent::Agent;
 use clankers::client::{CompletionClient, ProviderClient};
 use clankers::completion::{Prompt, PromptError};
-use clankers::providers::anthropic::completion::CLAUDE_3_7_SONNET;
-use clankers::providers::openai::GPT_4O;
+use clankers::providers::anthropic::types::CLAUDE_3_7_SONNET;
+use clankers::providers::openai::completion::types::GPT_4O;
 use clankers::providers::{anthropic, openai};
 
 enum Agents {

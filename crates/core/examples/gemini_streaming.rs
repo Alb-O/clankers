@@ -1,6 +1,6 @@
 use clankers::agent::stream_to_stdout;
 use clankers::prelude::*;
-use clankers::providers::gemini::completion::gemini_api_types::{
+use clankers::providers::gemini::api_types::{
 	AdditionalParameters, GenerationConfig, ThinkingConfig,
 };
 use clankers::providers::gemini::{self};

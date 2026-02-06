@@ -120,11 +120,11 @@ pub const WIZARDLM_13B_V1_2: &str = "WizardLM/WizardLM-13B-V1.2";
 #[derive(Debug, Serialize, Deserialize)]
 pub(super) struct TogetherAICompletionRequest {
 	model: String,
-	pub messages: Vec<openai::Message>,
+	pub messages: Vec<openai::completion::types::Message>,
 	#[serde(skip_serializing_if = "Option::is_none")]
 	temperature: Option<f64>,
 	#[serde(skip_serializing_if = "Vec::is_empty")]
-	tools: Vec<crate::providers::openai::completion::ToolDefinition>,
+	tools: Vec<crate::providers::openai::completion::types::ToolDefinition>,
 	#[serde(skip_serializing_if = "Option::is_none")]
 	tool_choice: Option<ToolChoice>,
 	#[serde(flatten, skip_serializing_if = "Option::is_none")]
@@ -135,20 +135,20 @@ impl TryFrom<(&str, CompletionRequest)> for TogetherAICompletionRequest {
 	type Error = CompletionError;
 
 	fn try_from((model, req): (&str, CompletionRequest)) -> Result<Self, Self::Error> {
-		let mut full_history: Vec<openai::Message> = match &req.preamble {
-			Some(preamble) => vec![openai::Message::system(preamble)],
+		let mut full_history: Vec<openai::completion::types::Message> = match &req.preamble {
+			Some(preamble) => vec![openai::completion::types::Message::system(preamble)],
 			None => vec![],
 		};
 		if let Some(docs) = req.normalized_documents() {
-			let docs: Vec<openai::Message> = docs.try_into()?;
+			let docs: Vec<openai::completion::types::Message> = docs.try_into()?;
 			full_history.extend(docs);
 		}
 
-		let chat_history: Vec<openai::Message> = req
+		let chat_history: Vec<openai::completion::types::Message> = req
 			.chat_history
 			.into_iter()
 			.map(|message| message.try_into())
-			.collect::<Result<Vec<Vec<openai::Message>>, _>>()?
+			.collect::<Result<Vec<Vec<openai::completion::types::Message>>, _>>()?
 			.into_iter()
 			.flatten()
 			.collect();
@@ -169,7 +169,7 @@ impl TryFrom<(&str, CompletionRequest)> for TogetherAICompletionRequest {
 				.tools
 				.clone()
 				.into_iter()
-				.map(crate::providers::openai::completion::ToolDefinition::from)
+				.map(crate::providers::openai::completion::types::ToolDefinition::from)
 				.collect::<Vec<_>>(),
 			tool_choice,
 			additional_params: req.additional_params,
@@ -196,8 +196,8 @@ impl<T> completion::CompletionModel for CompletionModel<T>
 where
 	T: HttpClientExt + Clone + Default + std::fmt::Debug + Send + 'static,
 {
-	type Response = openai::CompletionResponse;
-	type StreamingResponse = openai::StreamingCompletionResponse;
+	type Response = openai::completion::types::CompletionResponse;
+	type StreamingResponse = openai::completion::streaming::StreamingCompletionResponse;
 
 	type Client = Client<T>;
 
@@ -208,7 +208,10 @@ where
 	async fn completion(
 		&self,
 		completion_request: completion::CompletionRequest,
-	) -> Result<completion::CompletionResponse<openai::CompletionResponse>, CompletionError> {
+	) -> Result<
+		completion::CompletionResponse<openai::completion::types::CompletionResponse>,
+		CompletionError,
+	> {
 		let span = if tracing::Span::current().is_disabled() {
 			info_span!(
 				target: "clankers::completions",
@@ -254,9 +257,10 @@ where
 			let response_body = response.into_body().into_future().await?.to_vec();
 
 			if status.is_success() {
-				match serde_json::from_slice::<ApiResponse<openai::CompletionResponse>>(
-					&response_body,
-				)? {
+				match serde_json::from_slice::<
+					ApiResponse<openai::completion::types::CompletionResponse>,
+				>(&response_body)?
+				{
 					ApiResponse::Ok(response) => {
 						let span = tracing::Span::current();
 						span.record("gen_ai.response.id", &response.id);

@@ -617,7 +617,7 @@ mod tests {
 		// (clankers reuses current span if one exists, so we need to ensure there's no current span)
 		let client = anthropic::Client::from_env();
 		let agent = client
-			.agent(anthropic::completion::CLAUDE_3_5_HAIKU)
+			.agent(anthropic::types::CLAUDE_3_5_HAIKU)
 			.preamble("You are a helpful assistant.")
 			.temperature(0.1)
 			.max_tokens(100)

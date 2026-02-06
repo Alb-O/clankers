@@ -67,7 +67,7 @@ async fn main() -> Result<(), anyhow::Error> {
 	let vector_store = InMemoryVectorStore::from_documents(embeddings);
 	// Create vector store index
 	let index = vector_store.index(embedding_model);
-	let rag_agent = openai_client.agent(openai::GPT_4O)
+	let rag_agent = openai_client.agent(openai::completion::types::GPT_4O)
         .preamble("
             You are a dictionary assistant here to assist the user in understanding the meaning of words.
             You will find additional non-standard word definitions that could be useful below.

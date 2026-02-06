@@ -6,7 +6,8 @@ use crate::OneOrMany;
 use crate::completion::{self, CompletionError, CompletionRequest};
 use crate::http_client::{self, HttpClientExt};
 use crate::providers::openai;
-use crate::providers::openai::{AssistantContent, Message, send_compatible_streaming_request};
+use crate::providers::openai::completion::streaming::send_compatible_streaming_request;
+use crate::providers::openai::completion::types::{AssistantContent, Message};
 use crate::providers::openai_compat::{self, CompletionModel, FlatApiError, OpenAiCompat};
 use crate::streaming::StreamingCompletionResponse;
 
@@ -156,7 +157,7 @@ where
 	T: HttpClientExt + Clone + Default + std::fmt::Debug + Send + 'static,
 {
 	type Response = CompletionResponse;
-	type StreamingResponse = openai::StreamingCompletionResponse;
+	type StreamingResponse = openai::completion::streaming::StreamingCompletionResponse;
 
 	type Client = Client<T>;
 

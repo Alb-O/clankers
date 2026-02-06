@@ -2,9 +2,7 @@ use clankers::OneOrMany;
 use clankers::completion::Prompt;
 use clankers::message::{Message, UserContent, Video};
 use clankers::prelude::*;
-use clankers::providers::gemini::completion::gemini_api_types::{
-	AdditionalParameters, GenerationConfig,
-};
+use clankers::providers::gemini::api_types::{AdditionalParameters, GenerationConfig};
 use clankers::providers::gemini::{self};
 use serde_json::json;
 

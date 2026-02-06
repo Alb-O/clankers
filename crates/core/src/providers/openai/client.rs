@@ -211,7 +211,7 @@ mod tests {
 	use serde_path_to_error::deserialize;
 
 	use crate::message::ImageDetail;
-	use crate::providers::openai::{
+	use crate::providers::openai::completion::types::{
 		AssistantContent, Function, ImageUrl, Message, ToolCall, ToolType, UserContent,
 	};
 	use crate::{OneOrMany, message};

@@ -19,7 +19,7 @@
 //! }
 //!
 //! // Create the extractor
-//! let extractor = openai.extractor::<Person>(openai::GPT_4O)
+//! let extractor = openai.extractor::<Person>(openai::completion::types::GPT_4O)
 //!     .build();
 //!
 //! // Extract structured data from text

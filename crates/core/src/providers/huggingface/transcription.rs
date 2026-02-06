@@ -5,7 +5,7 @@ use serde_json::json;
 
 use crate::http_client::HttpClientExt;
 use crate::providers::huggingface::Client;
-use crate::providers::huggingface::completion::ApiResponse;
+use crate::providers::huggingface::completion::types::ApiResponse;
 use crate::transcription;
 use crate::transcription::TranscriptionError;
 use crate::wasm_compat::WasmCompatSync;

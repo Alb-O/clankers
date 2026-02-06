@@ -3,7 +3,7 @@ use serde_json::json;
 
 use super::Client;
 use super::client::ApiResponse;
-use super::completion::Usage;
+use super::completion::types::Usage;
 use crate::embeddings::EmbeddingError;
 use crate::http_client::HttpClientExt;
 use crate::{embeddings, http_client};

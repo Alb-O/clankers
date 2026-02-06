@@ -52,10 +52,10 @@ impl TryFrom<CompletionResponse> for completion::CompletionResponse<CompletionRe
 				let mut content = content
 					.iter()
 					.map(|c| match c {
-						openai::AssistantContent::Text { text } => {
+						openai::completion::types::AssistantContent::Text { text } => {
 							completion::AssistantContent::text(text)
 						}
-						openai::AssistantContent::Refusal { refusal } => {
+						openai::completion::types::AssistantContent::Refusal { refusal } => {
 							completion::AssistantContent::text(refusal)
 						}
 					})
@@ -128,23 +128,23 @@ pub enum Message {
 	#[serde(alias = "developer")]
 	System {
 		#[serde(deserialize_with = "string_or_one_or_many")]
-		content: OneOrMany<openai::SystemContent>,
+		content: OneOrMany<openai::completion::types::SystemContent>,
 		#[serde(skip_serializing_if = "Option::is_none")]
 		name: Option<String>,
 	},
 	User {
 		#[serde(deserialize_with = "string_or_one_or_many")]
-		content: OneOrMany<openai::UserContent>,
+		content: OneOrMany<openai::completion::types::UserContent>,
 		#[serde(skip_serializing_if = "Option::is_none")]
 		name: Option<String>,
 	},
 	Assistant {
 		#[serde(default, deserialize_with = "json_utils::string_or_vec")]
-		content: Vec<openai::AssistantContent>,
+		content: Vec<openai::completion::types::AssistantContent>,
 		#[serde(skip_serializing_if = "Option::is_none")]
 		refusal: Option<String>,
 		#[serde(skip_serializing_if = "Option::is_none")]
-		audio: Option<openai::AudioAssistant>,
+		audio: Option<openai::completion::types::AudioAssistant>,
 		#[serde(skip_serializing_if = "Option::is_none")]
 		name: Option<String>,
 		#[serde(
@@ -152,7 +152,7 @@ pub enum Message {
 			deserialize_with = "json_utils::null_or_vec",
 			skip_serializing_if = "Vec::is_empty"
 		)]
-		tool_calls: Vec<openai::ToolCall>,
+		tool_calls: Vec<openai::completion::types::ToolCall>,
 		#[serde(skip_serializing_if = "Option::is_none")]
 		reasoning: Option<String>,
 		#[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -211,12 +211,16 @@ enum ToolCallAdditionalParams {
 	},
 }
 
-impl From<openai::Message> for Message {
-	fn from(value: openai::Message) -> Self {
+impl From<openai::completion::types::Message> for Message {
+	fn from(value: openai::completion::types::Message) -> Self {
 		match value {
-			openai::Message::System { content, name } => Self::System { content, name },
-			openai::Message::User { content, name } => Self::User { content, name },
-			openai::Message::Assistant {
+			openai::completion::types::Message::System { content, name } => {
+				Self::System { content, name }
+			}
+			openai::completion::types::Message::User { content, name } => {
+				Self::User { content, name }
+			}
+			openai::completion::types::Message::Assistant {
 				content,
 				refusal,
 				audio,
@@ -231,7 +235,7 @@ impl From<openai::Message> for Message {
 				reasoning: None,
 				reasoning_details: Vec::new(),
 			},
-			openai::Message::ToolResult {
+			openai::completion::types::Message::ToolResult {
 				tool_call_id,
 				content,
 			} => Self::ToolResult {
@@ -329,7 +333,7 @@ impl TryFrom<message::Message> for Vec<Message> {
 	fn try_from(message: message::Message) -> Result<Self, Self::Error> {
 		match message {
 			message::Message::User { content } => {
-				let messages: Vec<openai::Message> = content.try_into()?;
+				let messages: Vec<openai::completion::types::Message> = content.try_into()?;
 				Ok(messages.into_iter().map(Message::from).collect::<Vec<_>>())
 			}
 			message::Message::Assistant { content, .. } => content.try_into(),
@@ -381,9 +385,9 @@ pub(super) struct OpenrouterCompletionRequest {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	temperature: Option<f64>,
 	#[serde(skip_serializing_if = "Vec::is_empty")]
-	tools: Vec<crate::providers::openai::completion::ToolDefinition>,
+	tools: Vec<crate::providers::openai::completion::types::ToolDefinition>,
 	#[serde(skip_serializing_if = "Option::is_none")]
-	tool_choice: Option<crate::providers::openai::completion::ToolChoice>,
+	tool_choice: Option<crate::providers::openai::completion::types::ToolChoice>,
 	#[serde(flatten, skip_serializing_if = "Option::is_none")]
 	pub additional_params: Option<serde_json::Value>,
 }
@@ -429,15 +433,15 @@ impl TryFrom<OpenRouterRequestParams<'_>> for OpenrouterCompletionRequest {
 		let tool_choice = req
 			.tool_choice
 			.clone()
-			.map(crate::providers::openai::completion::ToolChoice::try_from)
+			.map(crate::providers::openai::completion::types::ToolChoice::try_from)
 			.transpose()?;
 
-		let tools: Vec<crate::providers::openai::completion::ToolDefinition> = req
+		let tools: Vec<crate::providers::openai::completion::types::ToolDefinition> = req
 			.tools
 			.clone()
 			.into_iter()
 			.map(|tool| {
-				let def = crate::providers::openai::completion::ToolDefinition::from(tool);
+				let def = crate::providers::openai::completion::types::ToolDefinition::from(tool);
 				if strict_tools { def.with_strict() } else { def }
 			})
 			.collect();
