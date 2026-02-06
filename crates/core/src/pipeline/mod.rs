@@ -304,7 +304,6 @@ pub fn with_error<E>() -> PipelineBuilder<E> {
 #[cfg(test)]
 mod tests {
 	use agent_ops::tests::{Foo, MockIndex, MockModel};
-	use parallel::parallel;
 
 	use super::*;
 

@@ -1,8 +1,6 @@
 use std::future::Future;
 
 use futures::stream;
-#[allow(unused_imports)] // Needed since this is used in a macro rule
-use futures::try_join;
 
 use super::op::{self};
 use crate::wasm_compat::{WasmCompatSend, WasmCompatSync};
